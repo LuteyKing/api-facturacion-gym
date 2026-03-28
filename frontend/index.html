@@ -413,7 +413,7 @@
 // PUNTO DE VENTA — Lógica JavaScript
 // ═══════════════════════════════════════════════════════════
 
-const API_BASE = 'http://localhost:8000/api/v1';
+const API_BASE = 'https://api-facturacion-gym.onrender.com/api/v1';
 
 // ── Estado de la venta ──────────────────────────────────
 let carrito = [];
@@ -623,26 +623,33 @@ function enviarWhatsApp(facturaId) {
     let telefono = document.getElementById('telefono').value.trim();
 
     if (!telefono) {
-        mostrarError('No hay número de teléfono del cliente. Ingrese un teléfono antes de enviar por WhatsApp.');
+        mostrarError('Ingrese un número de teléfono antes de enviar por WhatsApp.');
         return;
     }
 
-    // Limpiar: quitar espacios y guiones
-    let numeroLimpio = telefono.replace(/[\s\-]/g, '');
+    // 1. Limpiar: quitar espacios, guiones y paréntesis
+    let numeroLimpio = telefono.replace(/[\s\-\(\)]/g, '');
 
-    // Si empieza con '0', reemplazar por código de Ecuador '593'
+    // 2. Normalizar código de Ecuador: si empieza con '0', cambiar por '593'
     if (numeroLimpio.startsWith('0')) {
         numeroLimpio = '593' + numeroLimpio.substring(1);
     }
+    
+    // Si el número es corto (ej. 998877665) y no tiene 593, se lo ponemos
+    if (numeroLimpio.length === 9 && !numeroLimpio.startsWith('593')) {
+        numeroLimpio = '593' + numeroLimpio;
+    }
 
-    // Armar URL del PDF
-    const urlPdf = `${API_BASE.replace('/api/v1', '')}/api/v1/facturas/${facturaId}/pdf`;
+    // 3. Armar URL del PDF (usando tu API_BASE de Render)
+    const urlPdf = `${API_BASE}/facturas/${facturaId}/pdf`;
 
-    // Armar mensaje
+    // 4. Armar mensaje con emojis y tildes
     const mensaje = `¡Hola! 💪 Gracias por tu pago. Aquí tienes el link para descargar tu recibo electrónico: ${urlPdf}`;
 
-    // Codificar y abrir WhatsApp
+    // 5. Codificar para que WhatsApp entienda los símbolos especiales
     const mensajeCodificado = encodeURIComponent(mensaje);
+    
+    // 6. Abrir WhatsApp Web / App
     window.open(`https://api.whatsapp.com/send?phone=${numeroLimpio}&text=${mensajeCodificado}`, '_blank');
 }
 </script>

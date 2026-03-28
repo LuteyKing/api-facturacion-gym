@@ -9,3 +9,4 @@ reportlab
 qrcode[pil]
 python-dotenv
 python-multipart
+psycopg2-binary

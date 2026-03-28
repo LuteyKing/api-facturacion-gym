@@ -1,47 +1,36 @@
-"""
-Configuración de la base de datos SQLite con SQLAlchemy.
-
-Crea y gestiona la conexión a `facturacion_sri_core.db`, almacenada
-en la raíz del proyecto.  El archivo se genera automáticamente
-la primera vez que se levanta la API.
-"""
-
+import os
 from pathlib import Path
-
 from sqlalchemy import create_engine
 from sqlalchemy.orm import DeclarativeBase, sessionmaker
 
 # ── Ruta de la base de datos ─────────────────────────────
-# Se ubica junto a main.py / requirements.txt para fácil acceso.
 BASE_DIR = Path(__file__).resolve().parent.parent
-DB_PATH = BASE_DIR / "facturacion_sri_core.db"
 
-SQLALCHEMY_DATABASE_URL = f"sqlite:///{DB_PATH}"
+# Obtenemos la URL de Render (Supabase). Si no existe, usamos SQLite local.
+DATABASE_URL = os.getenv("DATABASE_URL")
 
-# ── Engine y Session ─────────────────────────────────────
-engine = create_engine(
-    SQLALCHEMY_DATABASE_URL,
-    connect_args={"check_same_thread": False},  # requerido por SQLite + FastAPI
-    echo=False,  # cambiar a True para depurar SQL en consola
-)
+if DATABASE_URL:
+    # Configuración para la nube: PostgreSQL (Supabase en Render)
+    SQLALCHEMY_DATABASE_URL = DATABASE_URL
+    engine = create_engine(SQLALCHEMY_DATABASE_URL, echo=False)
+else:
+    # Configuración para local: SQLite (Tu computadora)
+    DB_PATH = BASE_DIR / "facturacion_sri_core.db"
+    SQLALCHEMY_DATABASE_URL = f"sqlite:///{DB_PATH}"
+    engine = create_engine(
+        SQLALCHEMY_DATABASE_URL,
+        connect_args={"check_same_thread": False},  # requerido solo por SQLite
+        echo=False,
+    )
 
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
-
 
 # ── Base declarativa (estilo SQLAlchemy 2.0) ─────────────
 class Base(DeclarativeBase):
     pass
 
-
 # ── Dependency de FastAPI ────────────────────────────────
 def get_db():
-    """Genera una sesión de BD por request y la cierra al finalizar.
-
-    Uso en endpoints:
-        @router.post("/ejemplo")
-        def mi_endpoint(db: Session = Depends(get_db)):
-            ...
-    """
     db = SessionLocal()
     try:
         yield db
