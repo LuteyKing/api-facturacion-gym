@@ -1,0 +1,11 @@
+fastapi
+uvicorn[standard]
+lxml
+zeep
+signxml
+pyOpenSSL
+sqlalchemy
+reportlab
+qrcode[pil]
+python-dotenv
+python-multipart

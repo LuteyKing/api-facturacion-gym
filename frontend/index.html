@@ -1,0 +1,650 @@
+<!DOCTYPE html>
+<html lang="es" data-bs-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Punto de Venta — Gym & CrossFit</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --accent: #e94560;
+            --accent-hover: #d63a54;
+            --surface: #1a1a2e;
+            --surface-light: #16213e;
+            --surface-card: #0f3460;
+            --success-glow: #00c853;
+            --text-muted: #8892b0;
+        }
+
+        * { font-family: 'Inter', sans-serif; }
+
+        body {
+            background: linear-gradient(135deg, #0a0a1a 0%, #1a1a2e 50%, #16213e 100%);
+            min-height: 100vh;
+        }
+
+        /* ── Header ─────────────────────────────── */
+        .header-bar {
+            background: linear-gradient(90deg, var(--surface) 0%, var(--surface-light) 100%);
+            border-bottom: 3px solid var(--accent);
+            padding: 1rem 0;
+        }
+        .header-bar h1 {
+            font-weight: 800;
+            font-size: 1.6rem;
+            letter-spacing: -0.5px;
+        }
+        .header-bar .accent { color: var(--accent); }
+        .header-bar .badge-env {
+            background: var(--accent);
+            font-size: 0.65rem;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-weight: 600;
+            letter-spacing: 1px;
+            vertical-align: middle;
+        }
+
+        /* ── Cards ──────────────────────────────── */
+        .card {
+            background: rgba(15, 52, 96, 0.4);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(233, 69, 96, 0.15);
+            border-radius: 16px;
+            transition: border-color 0.3s;
+        }
+        .card:hover { border-color: rgba(233, 69, 96, 0.4); }
+        .card-header {
+            background: rgba(233, 69, 96, 0.08);
+            border-bottom: 1px solid rgba(233, 69, 96, 0.15);
+            font-weight: 700;
+            font-size: 0.9rem;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+            padding: 0.85rem 1.25rem;
+            border-radius: 16px 16px 0 0 !important;
+        }
+        .card-header i { color: var(--accent); margin-right: 8px; }
+
+        /* ── Form Controls ──────────────────────── */
+        .form-control, .form-select {
+            background: rgba(26, 26, 46, 0.7);
+            border: 1px solid rgba(136, 146, 176, 0.2);
+            color: #e6e6e6;
+            font-size: 0.88rem;
+            padding: 0.6rem 0.85rem;
+            border-radius: 10px;
+            transition: all 0.25s;
+        }
+        .form-control:focus, .form-select:focus {
+            background: rgba(26, 26, 46, 0.9);
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(233, 69, 96, 0.15);
+            color: #fff;
+        }
+        .form-label {
+            font-size: 0.78rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 0.35rem;
+        }
+
+        /* ── Product Items ──────────────────────── */
+        .producto-item {
+            background: rgba(26, 26, 46, 0.5);
+            border: 1px solid rgba(136, 146, 176, 0.1);
+            border-radius: 12px;
+            padding: 0.75rem 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.5rem;
+            transition: all 0.2s;
+            animation: slideIn 0.3s ease-out;
+        }
+        .producto-item:hover { background: rgba(26, 26, 46, 0.8); }
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .producto-nombre { font-weight: 500; font-size: 0.9rem; }
+        .producto-precio { color: var(--accent); font-weight: 700; font-size: 0.95rem; }
+        .btn-remove {
+            background: none;
+            border: none;
+            color: #ff6b6b;
+            font-size: 1.1rem;
+            cursor: pointer;
+            padding: 2px 6px;
+            border-radius: 6px;
+            transition: background 0.2s;
+        }
+        .btn-remove:hover { background: rgba(255, 107, 107, 0.15); }
+
+        /* ── Total Bar ──────────────────────────── */
+        .total-bar {
+            background: linear-gradient(135deg, var(--surface) 0%, var(--surface-light) 100%);
+            border: 2px solid var(--accent);
+            border-radius: 14px;
+            padding: 1.25rem 1.5rem;
+        }
+        .total-label { font-size: 0.85rem; color: var(--text-muted); font-weight: 600; text-transform: uppercase; letter-spacing: 1px; }
+        .total-amount {
+            font-size: 2.4rem;
+            font-weight: 800;
+            color: #fff;
+            line-height: 1;
+        }
+        .total-amount .currency { color: var(--accent); font-size: 1.4rem; }
+
+        /* ── Buttons ────────────────────────────── */
+        .btn-facturar {
+            background: linear-gradient(135deg, var(--accent) 0%, #c0392b 100%);
+            border: none;
+            color: #fff;
+            font-weight: 700;
+            font-size: 1rem;
+            padding: 0.9rem 2rem;
+            border-radius: 12px;
+            letter-spacing: 0.5px;
+            transition: all 0.3s;
+            position: relative;
+            overflow: hidden;
+        }
+        .btn-facturar:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(233, 69, 96, 0.4);
+        }
+        .btn-facturar:disabled { opacity: 0.6; cursor: not-allowed; }
+        .btn-facturar .spinner-border { width: 1.1rem; height: 1.1rem; border-width: 2px; }
+
+        .btn-pdf {
+            background: linear-gradient(135deg, #00c853 0%, #00a844 100%);
+            border: none;
+            color: #fff;
+            font-weight: 700;
+            font-size: 1.05rem;
+            padding: 0.85rem 2rem;
+            border-radius: 12px;
+            transition: all 0.3s;
+            animation: pulseGlow 2s infinite;
+        }
+        .btn-pdf:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 200, 83, 0.4);
+            color: #fff;
+        }
+        @keyframes pulseGlow {
+            0%, 100% { box-shadow: 0 0 5px rgba(0, 200, 83, 0.3); }
+            50% { box-shadow: 0 0 20px rgba(0, 200, 83, 0.5); }
+        }
+
+        .btn-whatsapp {
+            background: linear-gradient(135deg, #25d366 0%, #128c7e 100%);
+            border: none;
+            color: #fff;
+            font-weight: 700;
+            font-size: 1.05rem;
+            padding: 0.85rem 2rem;
+            border-radius: 12px;
+            transition: all 0.3s;
+            animation: pulseGlowWA 2s infinite;
+        }
+        .btn-whatsapp:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(37, 211, 102, 0.4);
+            color: #fff;
+        }
+        @keyframes pulseGlowWA {
+            0%, 100% { box-shadow: 0 0 5px rgba(37, 211, 102, 0.3); }
+            50% { box-shadow: 0 0 20px rgba(37, 211, 102, 0.5); }
+        }
+
+        .btn-group-acciones {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: 0.75rem;
+        }
+        .btn-group-acciones .btn-pdf,
+        .btn-group-acciones .btn-whatsapp {
+            flex: 1;
+        }
+
+        .btn-add-product {
+            background: rgba(233, 69, 96, 0.1);
+            border: 1px dashed var(--accent);
+            color: var(--accent);
+            font-weight: 600;
+            border-radius: 10px;
+            padding: 0.5rem 1rem;
+            font-size: 0.85rem;
+            transition: all 0.2s;
+        }
+        .btn-add-product:hover {
+            background: rgba(233, 69, 96, 0.2);
+            color: var(--accent);
+        }
+
+        /* ── Alerts ─────────────────────────────── */
+        .result-card {
+            border-radius: 14px;
+            border: none;
+            animation: slideIn 0.4s ease-out;
+        }
+
+        /* ── Misc ───────────────────────────────── */
+        .secuencial-badge {
+            font-family: 'Courier New', monospace;
+            background: rgba(233, 69, 96, 0.1);
+            border: 1px solid rgba(233, 69, 96, 0.3);
+            border-radius: 8px;
+            padding: 6px 14px;
+            font-size: 0.95rem;
+            color: var(--accent);
+            font-weight: 700;
+            letter-spacing: 1px;
+        }
+        .divider {
+            border: none;
+            border-top: 1px solid rgba(136, 146, 176, 0.15);
+            margin: 1.5rem 0;
+        }
+        .empty-cart {
+            color: var(--text-muted);
+            text-align: center;
+            padding: 2rem;
+            font-size: 0.9rem;
+        }
+        .empty-cart i { font-size: 2.5rem; display: block; margin-bottom: 0.75rem; opacity: 0.4; }
+    </style>
+</head>
+<body>
+
+<!-- ═══ HEADER ═══ -->
+<div class="header-bar">
+    <div class="container">
+        <div class="d-flex justify-content-between align-items-center">
+            <h1 class="mb-0">
+                <i class="bi bi-lightning-charge-fill accent"></i>
+                Punto de Venta — <span class="accent">Gym & CrossFit</span>
+            </h1>
+            <div>
+                <span class="badge-env">SRI PRUEBAS</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ═══ MAIN CONTENT ═══ -->
+<div class="container py-4">
+    <div class="row g-4">
+
+        <!-- ── COL IZQUIERDA: Cliente + Productos ── -->
+        <div class="col-lg-7">
+
+            <!-- CARD: Cliente -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <i class="bi bi-person-badge-fill"></i> Datos del Cliente
+                </div>
+                <div class="card-body p-3">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label">Cédula / RUC</label>
+                            <input type="text" class="form-control" id="identificacion"
+                                   placeholder="0102030405" maxlength="13" autocomplete="off">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Razón Social / Nombre</label>
+                            <input type="text" class="form-control" id="razonSocial"
+                                   placeholder="Juan Pérez">
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Correo</label>
+                            <input type="email" class="form-control" id="email"
+                                   placeholder="cliente@correo.com">
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Dirección</label>
+                            <input type="text" class="form-control" id="direccion"
+                                   placeholder="El Triunfo - Guayas">
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Teléfono</label>
+                            <input type="tel" class="form-control" id="telefono"
+                                   placeholder="0991234567">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- CARD: Productos -->
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <span><i class="bi bi-cart3"></i> Productos / Servicios</span>
+                </div>
+                <div class="card-body p-3">
+                    <!-- Selector rápido -->
+                    <div class="d-flex gap-2 mb-3">
+                        <select class="form-select" id="selectProducto">
+                            <option value="">— Seleccionar producto —</option>
+                            <option value="CRF-MENSUAL|Mensualidad CrossFit|35.00">Mensualidad CrossFit — $35.00</option>
+                            <option value="GYM-MENSUAL|Mensualidad Gym|25.00">Mensualidad Gym — $25.00</option>
+                            <option value="GYM-DIARIA|Visita Diaria|5.00">Visita Diaria — $5.00</option>
+                            <option value="TIENDA-AGUA|Botella de Agua|1.00">Botella de Agua — $1.00</option>
+                            <option value="TIENDA-PROTE|Batido Proteína|3.50">Batido Proteína — $3.50</option>
+                            <option value="CRF-10PACK|Pack 10 Clases CrossFit|50.00">Pack 10 Clases CrossFit — $50.00</option>
+                            <option value="GYM-TRIM|Trimestral Gym|60.00">Trimestral Gym — $60.00</option>
+                        </select>
+                        <button class="btn btn-add-product" onclick="agregarProducto()" title="Agregar">
+                            <i class="bi bi-plus-lg"></i> Agregar
+                        </button>
+                    </div>
+
+                    <!-- Lista de productos agregados -->
+                    <div id="listaProductos">
+                        <div class="empty-cart" id="emptyCart">
+                            <i class="bi bi-inbox"></i>
+                            Agrega productos para comenzar
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ── COL DERECHA: Resumen + Acción ── -->
+        <div class="col-lg-5">
+
+            <!-- CARD: Resumen -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <i class="bi bi-receipt-cutoff"></i> Resumen de Venta
+                </div>
+                <div class="card-body p-3">
+                    <!-- Secuencial -->
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <span class="form-label mb-0">N° Secuencial</span>
+                        <span class="secuencial-badge" id="secuencialBadge">000000001</span>
+                    </div>
+
+                    <hr class="divider">
+
+                    <!-- Desglose -->
+                    <div class="d-flex justify-content-between mb-2">
+                        <span style="color: var(--text-muted); font-size: 0.85rem;">Subtotal (sin IVA)</span>
+                        <span id="subtotalDisplay" style="font-weight: 600;">$0.00</span>
+                    </div>
+                    <div class="d-flex justify-content-between mb-3">
+                        <span style="color: var(--text-muted); font-size: 0.85rem;">IVA 15%</span>
+                        <span id="ivaDisplay" style="font-weight: 600;">$0.00</span>
+                    </div>
+
+                    <hr class="divider">
+
+                    <!-- TOTAL -->
+                    <div class="total-bar text-center">
+                        <div class="total-label">Total a Pagar</div>
+                        <div class="total-amount">
+                            <span class="currency">$</span><span id="totalDisplay">0.00</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Botón Facturar -->
+            <button class="btn btn-facturar w-100 mb-3" id="btnFacturar" onclick="emitirFactura()">
+                <i class="bi bi-lightning-charge-fill me-2"></i>
+                Emitir Factura Electrónica
+            </button>
+
+            <!-- Resultado -->
+            <div id="resultArea"></div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+// ═══════════════════════════════════════════════════════════
+// PUNTO DE VENTA — Lógica JavaScript
+// ═══════════════════════════════════════════════════════════
+
+const API_BASE = 'http://localhost:8000/api/v1';
+
+// ── Estado de la venta ──────────────────────────────────
+let carrito = [];
+let secuencialActual = 1;
+
+// Intentar cargar el último secuencial del localStorage
+const savedSeq = localStorage.getItem('gympos_secuencial');
+if (savedSeq) secuencialActual = parseInt(savedSeq, 10);
+actualizarSecuencialUI();
+
+// ── Agregar producto ────────────────────────────────────
+function agregarProducto() {
+    const select = document.getElementById('selectProducto');
+    if (!select.value) return;
+
+    const [codigo, descripcion, precio] = select.value.split('|');
+    carrito.push({ codigo, descripcion, precio: parseFloat(precio), cantidad: 1 });
+
+    select.value = '';
+    renderCarrito();
+}
+
+// ── Eliminar producto ───────────────────────────────────
+function eliminarProducto(index) {
+    carrito.splice(index, 1);
+    renderCarrito();
+}
+
+// ── Renderizar carrito ──────────────────────────────────
+function renderCarrito() {
+    const lista = document.getElementById('listaProductos');
+    const empty = document.getElementById('emptyCart');
+
+    if (carrito.length === 0) {
+        lista.innerHTML = '<div class="empty-cart" id="emptyCart"><i class="bi bi-inbox"></i>Agrega productos para comenzar</div>';
+        actualizarTotales(0, 0);
+        return;
+    }
+
+    let html = '';
+    let subtotal = 0;
+
+    carrito.forEach((item, i) => {
+        const itemTotal = item.cantidad * item.precio;
+        subtotal += itemTotal;
+        html += `
+            <div class="producto-item">
+                <div>
+                    <div class="producto-nombre">${item.descripcion}</div>
+                    <small style="color: var(--text-muted)">${item.codigo} × ${item.cantidad}</small>
+                </div>
+                <div class="d-flex align-items-center gap-2">
+                    <span class="producto-precio">$${itemTotal.toFixed(2)}</span>
+                    <button class="btn-remove" onclick="eliminarProducto(${i})" title="Quitar">
+                        <i class="bi bi-x-lg"></i>
+                    </button>
+                </div>
+            </div>
+        `;
+    });
+
+    lista.innerHTML = html;
+
+    const iva = subtotal * 0.15;
+    actualizarTotales(subtotal, iva);
+}
+
+function actualizarTotales(subtotal, iva) {
+    document.getElementById('subtotalDisplay').textContent = `$${subtotal.toFixed(2)}`;
+    document.getElementById('ivaDisplay').textContent = `$${iva.toFixed(2)}`;
+    document.getElementById('totalDisplay').textContent = (subtotal + iva).toFixed(2);
+}
+
+function actualizarSecuencialUI() {
+    document.getElementById('secuencialBadge').textContent = String(secuencialActual).padStart(9, '0');
+}
+
+// ── Emitir Factura ──────────────────────────────────────
+async function emitirFactura() {
+    // Validaciones
+    const identificacion = document.getElementById('identificacion').value.trim();
+    const razonSocial = document.getElementById('razonSocial').value.trim();
+    const email = document.getElementById('email').value.trim();
+    const direccion = document.getElementById('direccion').value.trim();
+    const telefono = document.getElementById('telefono').value.trim();
+
+    if (!identificacion) return mostrarError('Ingrese la cédula o RUC del cliente.');
+    if (!razonSocial) return mostrarError('Ingrese el nombre o razón social del cliente.');
+    if (carrito.length === 0) return mostrarError('Agregue al menos un producto.');
+
+    // Determinar tipo de identificación
+    let tipoId;
+    if (identificacion.length === 13) tipoId = '04'; // RUC
+    else if (identificacion.length === 10) tipoId = '05'; // Cédula
+    else return mostrarError('La identificación debe tener 10 dígitos (cédula) o 13 dígitos (RUC).');
+
+    // Fecha actual dd/mm/yyyy
+    const hoy = new Date();
+    const fechaEmision = `${String(hoy.getDate()).padStart(2, '0')}/${String(hoy.getMonth() + 1).padStart(2, '0')}/${hoy.getFullYear()}`;
+
+    // Armar productos
+    const productos = carrito.map(item => ({
+        codigo: item.codigo,
+        descripcion: item.descripcion,
+        cantidad: item.cantidad,
+        precio_unitario: item.precio.toFixed(2),
+        codigo_porcentaje_iva: '4' // IVA 15%
+    }));
+
+    // Armar payload
+    const payload = {
+        secuencial: String(secuencialActual).padStart(9, '0'),
+        fecha_emision: fechaEmision,
+        cliente: {
+            tipo_identificacion: tipoId,
+            identificacion: identificacion,
+            razon_social: razonSocial,
+            direccion: direccion || null,
+            email: email || null,
+            telefono: telefono || null
+        },
+        productos: productos,
+        forma_pago: '01'
+    };
+
+    // UI: loading
+    const btn = document.getElementById('btnFacturar');
+    const btnOriginal = btn.innerHTML;
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span> Procesando con el SRI...';
+    document.getElementById('resultArea').innerHTML = '';
+
+    try {
+        const resp = await fetch(`${API_BASE}/facturar`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+        });
+
+        const data = await resp.json();
+
+        if (resp.ok) {
+            const estado = data.recepcion?.estado || 'PROCESADA';
+            const facturaId = data.id;
+
+            // Incrementar secuencial
+            secuencialActual++;
+            localStorage.setItem('gympos_secuencial', secuencialActual);
+            actualizarSecuencialUI();
+
+            // Resultado exitoso
+            document.getElementById('resultArea').innerHTML = `
+                <div class="alert alert-success result-card p-3">
+                    <div class="d-flex align-items-center mb-2">
+                        <i class="bi bi-check-circle-fill me-2" style="font-size: 1.3rem;"></i>
+                        <strong>¡Factura emitida!</strong>
+                    </div>
+                    <div style="font-size: 0.82rem; opacity: 0.9;">
+                        <div><strong>Estado SRI:</strong> ${estado}</div>
+                        <div><strong>Clave acceso:</strong></div>
+                        <code style="font-size: 0.72rem; word-break: break-all;">${data.clave_acceso}</code>
+                    </div>
+                </div>
+                ${facturaId ? `
+                <div class="btn-group-acciones">
+                    <a href="${API_BASE.replace('/api/v1', '')}/api/v1/facturas/${facturaId}/pdf"
+                       target="_blank" class="btn btn-pdf">
+                        <i class="bi bi-printer-fill me-2"></i>
+                        Ver / Descargar PDF
+                    </a>
+                    <button class="btn btn-whatsapp" onclick="enviarWhatsApp(${facturaId})">
+                        📲 Enviar por WhatsApp
+                    </button>
+                </div>` : ''}
+            `;
+
+            // Limpiar carrito
+            carrito = [];
+            renderCarrito();
+
+        } else {
+            const detail = data.detail || JSON.stringify(data);
+            mostrarError(`Error ${resp.status}: ${detail}`);
+        }
+
+    } catch (err) {
+        mostrarError(`No se pudo conectar con la API: ${err.message}. ¿Está corriendo uvicorn?`);
+    } finally {
+        btn.disabled = false;
+        btn.innerHTML = btnOriginal;
+    }
+}
+
+function mostrarError(mensaje) {
+    document.getElementById('resultArea').innerHTML = `
+        <div class="alert alert-danger result-card p-3">
+            <div class="d-flex align-items-center">
+                <i class="bi bi-exclamation-triangle-fill me-2" style="font-size: 1.2rem;"></i>
+                <span style="font-size: 0.88rem;">${mensaje}</span>
+            </div>
+        </div>
+    `;
+}
+
+// ── Enviar recibo por WhatsApp ──────────────────────────
+function enviarWhatsApp(facturaId) {
+    let telefono = document.getElementById('telefono').value.trim();
+
+    if (!telefono) {
+        mostrarError('No hay número de teléfono del cliente. Ingrese un teléfono antes de enviar por WhatsApp.');
+        return;
+    }
+
+    // Limpiar: quitar espacios y guiones
+    let numeroLimpio = telefono.replace(/[\s\-]/g, '');
+
+    // Si empieza con '0', reemplazar por código de Ecuador '593'
+    if (numeroLimpio.startsWith('0')) {
+        numeroLimpio = '593' + numeroLimpio.substring(1);
+    }
+
+    // Armar URL del PDF
+    const urlPdf = `${API_BASE.replace('/api/v1', '')}/api/v1/facturas/${facturaId}/pdf`;
+
+    // Armar mensaje
+    const mensaje = `¡Hola! 💪 Gracias por tu pago. Aquí tienes el link para descargar tu recibo electrónico: ${urlPdf}`;
+
+    // Codificar y abrir WhatsApp
+    const mensajeCodificado = encodeURIComponent(mensaje);
+    window.open(`https://api.whatsapp.com/send?phone=${numeroLimpio}&text=${mensajeCodificado}`, '_blank');
+}
+</script>
+</body>
+</html>
