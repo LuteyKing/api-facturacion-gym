@@ -1,0 +1,673 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Historial de Facturas — MI GIMNASIO PRO</title>
+    <meta name="description" content="Historial completo de facturas electrónicas emitidas. Sistema de facturación SRI para Gimnasio y CrossFit.">
+
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Google Fonts: Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'gym-yellow': '#FFD700',
+                        'gym-yellow-hover': '#E6C200',
+                        'gym-yellow-soft': '#FFF8DC',
+                        'gym-black': '#0D0D0D',
+                        'gym-dark': '#111111',
+                        'gym-surface': '#1A1A1A',
+                    },
+                    fontFamily: {
+                        'inter': ['Inter', 'system-ui', 'sans-serif'],
+                    },
+                }
+            }
+        }
+    </script>
+
+    <style>
+        * { font-family: 'Inter', system-ui, sans-serif; }
+
+        /* ── Scrollbar personalizado ──────────────────── */
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 10px; }
+        ::-webkit-scrollbar-thumb { background: #FFD700; border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: #E6C200; }
+
+        /* ── Animaciones ─────────────────────────────── */
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes shimmer {
+            0% { background-position: -200% 0; }
+            100% { background-position: 200% 0; }
+        }
+        @keyframes pulse-dot {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.4; }
+        }
+        @keyframes slideDown {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .animate-fade-in-up {
+            animation: fadeInUp 0.5s ease-out forwards;
+        }
+        .animate-slide-down {
+            animation: slideDown 0.3s ease-out forwards;
+        }
+
+        /* Skeleton loader */
+        .skeleton {
+            background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+            background-size: 200% 100%;
+            animation: shimmer 1.5s infinite;
+            border-radius: 6px;
+        }
+
+        /* ── Tabla hover rows ────────────────────────── */
+        .table-row-hover {
+            transition: all 0.2s ease;
+        }
+        .table-row-hover:hover {
+            background-color: #F9FAFB !important;
+            transform: scale(1.002);
+            box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+        }
+
+        /* ── Badge estilos ───────────────────────────── */
+        .badge-simulado {
+            background: linear-gradient(135deg, #FFF3CD 0%, #FFE69C 100%);
+            color: #856404;
+            border: 1px solid #FFD700;
+        }
+        .badge-autorizado {
+            background: linear-gradient(135deg, #D1FAE5 0%, #A7F3D0 100%);
+            color: #065F46;
+            border: 1px solid #34D399;
+        }
+        .badge-devuelta {
+            background: linear-gradient(135deg, #FEE2E2 0%, #FECACA 100%);
+            color: #991B1B;
+            border: 1px solid #F87171;
+        }
+        .badge-recibida {
+            background: linear-gradient(135deg, #DBEAFE 0%, #BFDBFE 100%);
+            color: #1E40AF;
+            border: 1px solid #60A5FA;
+        }
+        .badge-default {
+            background: linear-gradient(135deg, #F3F4F6 0%, #E5E7EB 100%);
+            color: #374151;
+            border: 1px solid #9CA3AF;
+        }
+
+        /* ── Botón Ver PDF ───────────────────────────── */
+        .btn-ver-pdf {
+            background: linear-gradient(135deg, #111111 0%, #1A1A1A 100%);
+            color: #FFD700;
+            border: 1.5px solid #FFD700;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        .btn-ver-pdf::before {
+            content: '';
+            position: absolute;
+            top: 0; left: -100%;
+            width: 100%; height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,215,0,0.15), transparent);
+            transition: left 0.5s ease;
+        }
+        .btn-ver-pdf:hover::before {
+            left: 100%;
+        }
+        .btn-ver-pdf:hover {
+            background: linear-gradient(135deg, #FFD700 0%, #E6C200 100%);
+            color: #0D0D0D;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 15px rgba(255, 215, 0, 0.35);
+        }
+
+        /* ── Navbar efecto ───────────────────────────── */
+        .navbar-gym {
+            background: linear-gradient(90deg, #0D0D0D 0%, #1A1A1A 50%, #0D0D0D 100%);
+            box-shadow: 0 2px 20px rgba(0,0,0,0.3);
+        }
+        .navbar-gym::after {
+            content: '';
+            position: absolute;
+            bottom: 0; left: 0;
+            width: 100%; height: 3px;
+            background: linear-gradient(90deg, transparent, #FFD700, transparent);
+        }
+
+        /* ── Stats cards ─────────────────────────────── */
+        .stat-card {
+            transition: all 0.3s ease;
+        }
+        .stat-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+        }
+
+        /* ── Barra de búsqueda ───────────────────────── */
+        .search-input:focus {
+            border-color: #FFD700;
+            box-shadow: 0 0 0 3px rgba(255, 215, 0, 0.15);
+        }
+
+        /* ── Responsive table ────────────────────────── */
+        @media (max-width: 768px) {
+            .responsive-table thead { display: none; }
+            .responsive-table tr {
+                display: block;
+                margin-bottom: 1rem;
+                border: 1px solid #E5E7EB;
+                border-radius: 12px;
+                padding: 1rem;
+                background: white;
+            }
+            .responsive-table td {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                padding: 0.5rem 0;
+                border: none !important;
+            }
+            .responsive-table td::before {
+                content: attr(data-label);
+                font-weight: 600;
+                font-size: 0.75rem;
+                color: #6B7280;
+                text-transform: uppercase;
+                letter-spacing: 0.5px;
+            }
+        }
+    </style>
+</head>
+<body class="bg-gray-100 min-h-screen">
+
+    <!-- ═══════════════════════════════════════════════════ -->
+    <!-- NAVBAR -->
+    <!-- ═══════════════════════════════════════════════════ -->
+    <nav class="navbar-gym sticky top-0 z-50 relative">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <!-- Logo / Nombre -->
+                <div class="flex items-center gap-3">
+                    <div class="w-9 h-9 bg-gym-yellow rounded-lg flex items-center justify-center">
+                        <svg class="w-5 h-5 text-gym-black" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M20.57 14.86L22 13.43 20.57 12 17 15.57 8.43 7 12 3.43 10.57 2 9.14 3.43 7.71 2 5.57 4.14 4.14 2.71 2.71 4.14l1.43 1.43L2 7.71l1.43 1.43L2 10.57 3.43 12 7 8.43 15.57 17 12 20.57 13.43 22l1.43-1.43L16.29 22l2.14-2.14 1.43 1.43 1.43-1.43-1.43-1.43L22 16.29z"/>
+                        </svg>
+                    </div>
+                    <div>
+                        <h1 class="text-gym-yellow font-extrabold text-lg tracking-tight leading-none">
+                            MI GIMNASIO PRO
+                        </h1>
+                        <span class="text-gray-500 text-xs font-medium tracking-wider">FACTURACIÓN ELECTRÓNICA</span>
+                    </div>
+                </div>
+
+                <!-- Enlaces de navegación -->
+                <div class="flex items-center gap-4">
+                    <span class="hidden sm:inline-flex items-center gap-1.5 text-gray-400 text-sm">
+                        <span class="w-2 h-2 bg-green-400 rounded-full animate-pulse"></span>
+                        Sistema Activo
+                    </span>
+                    <a href="index.html"
+                       class="inline-flex items-center gap-2 bg-gym-yellow/10 hover:bg-gym-yellow/20 text-gym-yellow px-4 py-2 rounded-lg text-sm font-semibold transition-all duration-300 hover:scale-105 border border-gym-yellow/20 hover:border-gym-yellow/40">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
+                        </svg>
+                        Volver al POS
+                    </a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- ═══════════════════════════════════════════════════ -->
+    <!-- CONTENIDO PRINCIPAL -->
+    <!-- ═══════════════════════════════════════════════════ -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+
+        <!-- ── Título de Página ──────────────────────── -->
+        <div class="mb-8 animate-fade-in-up">
+            <h2 class="text-3xl font-extrabold text-gym-dark tracking-tight">
+                Historial de Facturas
+            </h2>
+            <p class="text-gray-500 mt-1 text-sm">
+                Consulta todas las facturas electrónicas emitidas a través de tu sistema.
+            </p>
+        </div>
+
+        <!-- ── Tarjetas de Estadísticas ──────────────── -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8" id="statsContainer" style="animation: fadeInUp 0.5s ease-out 0.1s both;">
+            <div class="stat-card bg-white rounded-2xl p-5 shadow-md border border-gray-100">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-xs font-semibold text-gray-400 uppercase tracking-wider">Total Facturas</p>
+                        <p class="text-2xl font-extrabold text-gym-dark mt-1" id="statTotal">—</p>
+                    </div>
+                    <div class="w-11 h-11 bg-gym-yellow/10 rounded-xl flex items-center justify-center">
+                        <svg class="w-6 h-6 text-gym-yellow" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+            <div class="stat-card bg-white rounded-2xl p-5 shadow-md border border-gray-100">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-xs font-semibold text-gray-400 uppercase tracking-wider">Ingresos Totales</p>
+                        <p class="text-2xl font-extrabold text-green-600 mt-1" id="statIngresos">—</p>
+                    </div>
+                    <div class="w-11 h-11 bg-green-50 rounded-xl flex items-center justify-center">
+                        <svg class="w-6 h-6 text-green-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+            <div class="stat-card bg-white rounded-2xl p-5 shadow-md border border-gray-100">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-xs font-semibold text-gray-400 uppercase tracking-wider">Última Emisión</p>
+                        <p class="text-lg font-bold text-gym-dark mt-1" id="statUltima">—</p>
+                    </div>
+                    <div class="w-11 h-11 bg-blue-50 rounded-xl flex items-center justify-center">
+                        <svg class="w-6 h-6 text-blue-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+            <div class="stat-card bg-white rounded-2xl p-5 shadow-md border border-gray-100">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-xs font-semibold text-gray-400 uppercase tracking-wider">Promedio por Factura</p>
+                        <p class="text-2xl font-extrabold text-gym-yellow mt-1" id="statPromedio">—</p>
+                    </div>
+                    <div class="w-11 h-11 bg-gym-yellow/10 rounded-xl flex items-center justify-center">
+                        <svg class="w-6 h-6 text-gym-yellow" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ═══════════════════════════════════════════ -->
+        <!-- CONTENEDOR PRINCIPAL DE LA TABLA -->
+        <!-- ═══════════════════════════════════════════ -->
+        <div class="bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden" style="animation: fadeInUp 0.5s ease-out 0.2s both;">
+
+            <!-- ── Header del contenedor ─────────────── -->
+            <div class="bg-gym-black px-6 py-5 border-b-4 border-gym-yellow">
+                <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                    <div class="flex items-center gap-3">
+                        <div class="w-8 h-8 bg-gym-yellow rounded-lg flex items-center justify-center">
+                            <svg class="w-4 h-4 text-gym-black" fill="currentColor" viewBox="0 0 24 24">
+                                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6zM6 20V4h7v5h5v11H6z"/>
+                            </svg>
+                        </div>
+                        <div>
+                            <h3 class="text-white font-bold text-base tracking-tight">
+                                Registro de Comprobantes Electrónicos
+                            </h3>
+                            <p class="text-gray-400 text-xs mt-0.5">
+                                Facturas emitidas vía SRI
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- Barra de búsqueda -->
+                    <div class="relative">
+                        <svg class="w-4 h-4 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+                        </svg>
+                        <input type="text"
+                               id="searchInput"
+                               placeholder="Buscar por cédula, secuencial..."
+                               class="search-input bg-gym-surface border border-gray-700 text-gray-200 text-sm rounded-lg pl-10 pr-4 py-2.5 w-full sm:w-72 focus:outline-none transition-all duration-300 placeholder:text-gray-500">
+                    </div>
+                </div>
+            </div>
+
+            <!-- ── Tabla ─────────────────────────────── -->
+            <div class="overflow-x-auto">
+                <table class="w-full responsive-table" id="tablaFacturas">
+                    <thead class="bg-gray-50 border-b border-gray-200">
+                        <tr>
+                            <th class="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">
+                                Secuencial
+                            </th>
+                            <th class="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">
+                                Fecha
+                            </th>
+                            <th class="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">
+                                Cédula / RUC
+                            </th>
+                            <th class="px-6 py-4 text-right text-xs font-bold text-gray-500 uppercase tracking-wider">
+                                Total
+                            </th>
+                            <th class="px-6 py-4 text-center text-xs font-bold text-gray-500 uppercase tracking-wider">
+                                Estado SRI
+                            </th>
+                            <th class="px-6 py-4 text-center text-xs font-bold text-gray-500 uppercase tracking-wider">
+                                Acción
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody id="cuerpoTabla" class="divide-y divide-gray-100">
+                        <!-- Contenido dinámico -->
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- ── Footer de la tabla ────────────────── -->
+            <div class="px-6 py-4 bg-gray-50 border-t border-gray-100 flex flex-col sm:flex-row items-center justify-between gap-3" id="tableFooter" style="display: none;">
+                <p class="text-xs text-gray-400" id="footerInfo"></p>
+                <button onclick="cargarFacturas()"
+                        class="inline-flex items-center gap-2 text-sm font-semibold text-gym-dark hover:text-gym-yellow transition-colors duration-300">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+                    </svg>
+                    Actualizar
+                </button>
+            </div>
+        </div>
+
+        <!-- ── Footer de la página ───────────────────── -->
+        <div class="mt-8 text-center" style="animation: fadeInUp 0.5s ease-out 0.4s both;">
+            <p class="text-xs text-gray-400">
+                MI GIMNASIO PRO &nbsp;•&nbsp; Sistema de Facturación Electrónica &nbsp;•&nbsp; Powered by FastAPI + SRI
+            </p>
+        </div>
+    </main>
+
+    <!-- ═══════════════════════════════════════════════════ -->
+    <!-- JAVASCRIPT -->
+    <!-- ═══════════════════════════════════════════════════ -->
+    <script>
+    // ─────────────────────────────────────────────────────
+    // CONFIGURACIÓN: Pon aquí la URL de tu servidor
+    // ─────────────────────────────────────────────────────
+    const API_BASE_URL = 'https://api-facturacion-gym.onrender.com';
+
+    // ─────────────────────────────────────────────────────
+    // Variable para guardar todas las facturas (para filtro)
+    // ─────────────────────────────────────────────────────
+    let todasLasFacturas = [];
+
+    // ─────────────────────────────────────────────────────
+    // CARGA INICIAL
+    // ─────────────────────────────────────────────────────
+    window.onload = function() {
+        cargarFacturas();
+
+        // Buscador en tiempo real
+        document.getElementById('searchInput').addEventListener('input', function() {
+            const termino = this.value.trim().toLowerCase();
+            if (!termino) {
+                renderizarTabla(todasLasFacturas);
+                return;
+            }
+            const filtradas = todasLasFacturas.filter(f =>
+                f.secuencial.toLowerCase().includes(termino) ||
+                f.identificacion_cliente.toLowerCase().includes(termino) ||
+                f.fecha_emision.toLowerCase().includes(termino) ||
+                f.estado_sri.toLowerCase().includes(termino)
+            );
+            renderizarTabla(filtradas);
+        });
+    };
+
+    // ─────────────────────────────────────────────────────
+    // FUNCIÓN: Cargar facturas desde la API
+    // ─────────────────────────────────────────────────────
+    async function cargarFacturas() {
+        const cuerpo = document.getElementById('cuerpoTabla');
+        const footer = document.getElementById('tableFooter');
+        footer.style.display = 'none';
+
+        // Mostrar skeleton loader
+        cuerpo.innerHTML = generarSkeleton(5);
+
+        try {
+            const response = await fetch(`${API_BASE_URL}/api/v1/facturas`);
+
+            if (!response.ok) {
+                throw new Error(`Error HTTP ${response.status}: ${response.statusText}`);
+            }
+
+            const facturas = await response.json();
+            todasLasFacturas = facturas;
+
+            // Pequeño delay para que el skeleton se vea (UX)
+            await new Promise(r => setTimeout(r, 400));
+
+            if (facturas.length === 0) {
+                mostrarVacio();
+            } else {
+                renderizarTabla(facturas);
+                actualizarEstadisticas(facturas);
+            }
+
+        } catch (error) {
+            console.error('Error al cargar facturas:', error);
+            mostrarError(error.message);
+        }
+    }
+
+    // ─────────────────────────────────────────────────────
+    // FUNCIÓN: Renderizar tabla con datos
+    // ─────────────────────────────────────────────────────
+    function renderizarTabla(facturas) {
+        const cuerpo = document.getElementById('cuerpoTabla');
+        const footer = document.getElementById('tableFooter');
+
+        if (facturas.length === 0) {
+            cuerpo.innerHTML = `
+                <tr>
+                    <td colspan="6" class="px-6 py-16 text-center">
+                        <div class="flex flex-col items-center gap-3 animate-fade-in-up">
+                            <div class="w-16 h-16 bg-gray-100 rounded-2xl flex items-center justify-center">
+                                <svg class="w-8 h-8 text-gray-300" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z"/>
+                                </svg>
+                            </div>
+                            <p class="text-gray-400 font-medium">No se encontraron resultados</p>
+                            <p class="text-gray-300 text-sm">Intenta con otro término de búsqueda</p>
+                        </div>
+                    </td>
+                </tr>`;
+            footer.style.display = 'none';
+            return;
+        }
+
+        let html = '';
+        facturas.forEach((factura, index) => {
+            const badge = generarBadge(factura.estado_sri);
+            const totalFormateado = parseFloat(factura.total).toFixed(2);
+            const urlPdf = `${API_BASE_URL}/api/v1/facturas/${factura.id}/pdf`;
+
+            html += `
+                <tr class="table-row-hover" style="animation: slideDown 0.3s ease-out ${index * 0.04}s both;">
+                    <td data-label="Secuencial" class="px-6 py-4">
+                        <div class="flex items-center gap-2">
+                            <span class="inline-flex items-center justify-center w-8 h-8 bg-gym-yellow/10 rounded-lg">
+                                <span class="text-gym-yellow font-bold text-xs">#</span>
+                            </span>
+                            <span class="font-mono font-semibold text-sm text-gym-dark">${factura.secuencial}</span>
+                        </div>
+                    </td>
+                    <td data-label="Fecha" class="px-6 py-4">
+                        <span class="text-sm text-gray-600 font-medium">${factura.fecha_emision}</span>
+                    </td>
+                    <td data-label="Cédula/RUC" class="px-6 py-4">
+                        <span class="text-sm text-gray-700 font-medium">${factura.identificacion_cliente}</span>
+                    </td>
+                    <td data-label="Total" class="px-6 py-4 text-right">
+                        <span class="text-sm font-bold text-green-600">$${totalFormateado}</span>
+                    </td>
+                    <td data-label="Estado SRI" class="px-6 py-4 text-center">
+                        ${badge}
+                    </td>
+                    <td data-label="Acción" class="px-6 py-4 text-center">
+                        <a href="${urlPdf}"
+                           target="_blank"
+                           rel="noopener noreferrer"
+                           class="btn-ver-pdf inline-flex items-center gap-1.5 px-4 py-2 rounded-lg text-xs font-bold tracking-wide">
+                            📄 Ver PDF
+                        </a>
+                    </td>
+                </tr>`;
+        });
+
+        cuerpo.innerHTML = html;
+
+        // Footer
+        footer.style.display = 'flex';
+        document.getElementById('footerInfo').textContent =
+            `Mostrando ${facturas.length} factura${facturas.length !== 1 ? 's' : ''} • Última actualización: ${new Date().toLocaleTimeString('es-EC')}`;
+    }
+
+    // ─────────────────────────────────────────────────────
+    // FUNCIÓN: Generar badge según estado
+    // ─────────────────────────────────────────────────────
+    function generarBadge(estado) {
+        const estadoUpper = estado.toUpperCase();
+        let clase = 'badge-default';
+
+        switch (estadoUpper) {
+            case 'SIMULADO':
+                clase = 'badge-simulado'; break;
+            case 'AUTORIZADO':
+            case 'AUTORIZADA':
+                clase = 'badge-autorizado'; break;
+            case 'DEVUELTA':
+            case 'RECHAZADA':
+                clase = 'badge-devuelta'; break;
+            case 'RECIBIDA':
+                clase = 'badge-recibida'; break;
+        }
+
+        return `<span class="${clase} inline-flex items-center px-3 py-1 rounded-full text-xs font-bold tracking-wide">
+                    ${estadoUpper}
+                </span>`;
+    }
+
+    // ─────────────────────────────────────────────────────
+    // FUNCIÓN: Actualizar tarjetas de estadísticas
+    // ─────────────────────────────────────────────────────
+    function actualizarEstadisticas(facturas) {
+        // Total de facturas
+        document.getElementById('statTotal').textContent = facturas.length;
+
+        // Ingresos totales
+        const ingresos = facturas.reduce((sum, f) => sum + parseFloat(f.total), 0);
+        document.getElementById('statIngresos').textContent = `$${ingresos.toFixed(2)}`;
+
+        // Última emisión
+        if (facturas.length > 0) {
+            document.getElementById('statUltima').textContent = facturas[0].fecha_emision;
+        }
+
+        // Promedio por factura
+        const promedio = facturas.length > 0 ? ingresos / facturas.length : 0;
+        document.getElementById('statPromedio').textContent = `$${promedio.toFixed(2)}`;
+    }
+
+    // ─────────────────────────────────────────────────────
+    // FUNCIÓN: Mostrar estado vacío
+    // ─────────────────────────────────────────────────────
+    function mostrarVacio() {
+        const cuerpo = document.getElementById('cuerpoTabla');
+        cuerpo.innerHTML = `
+            <tr>
+                <td colspan="6" class="px-6 py-20 text-center">
+                    <div class="flex flex-col items-center gap-4 animate-fade-in-up">
+                        <div class="w-20 h-20 bg-gym-yellow/10 rounded-2xl flex items-center justify-center">
+                            <svg class="w-10 h-10 text-gym-yellow/60" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z"/>
+                            </svg>
+                        </div>
+                        <div>
+                            <p class="text-gray-500 font-semibold text-base">No hay facturas emitidas todavía</p>
+                            <p class="text-gray-400 text-sm mt-1">Las facturas aparecerán aquí después de emitirlas desde el POS</p>
+                        </div>
+                        <a href="index.html"
+                           class="mt-2 inline-flex items-center gap-2 bg-gym-yellow text-gym-black px-5 py-2.5 rounded-lg text-sm font-bold hover:bg-gym-yellow-hover transition-all duration-300 hover:scale-105 hover:shadow-lg hover:shadow-yellow-200">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/>
+                            </svg>
+                            Ir al Punto de Venta
+                        </a>
+                    </div>
+                </td>
+            </tr>`;
+    }
+
+    // ─────────────────────────────────────────────────────
+    // FUNCIÓN: Mostrar error de conexión
+    // ─────────────────────────────────────────────────────
+    function mostrarError(mensaje) {
+        const cuerpo = document.getElementById('cuerpoTabla');
+        cuerpo.innerHTML = `
+            <tr>
+                <td colspan="6" class="px-6 py-16 text-center">
+                    <div class="flex flex-col items-center gap-4 animate-fade-in-up">
+                        <div class="w-16 h-16 bg-red-50 rounded-2xl flex items-center justify-center">
+                            <svg class="w-8 h-8 text-red-400" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z"/>
+                            </svg>
+                        </div>
+                        <div>
+                            <p class="text-gray-600 font-semibold">Error de conexión</p>
+                            <p class="text-gray-400 text-sm mt-1 max-w-md">${mensaje}</p>
+                        </div>
+                        <button onclick="cargarFacturas()"
+                                class="mt-2 inline-flex items-center gap-2 bg-gym-dark text-gym-yellow px-5 py-2.5 rounded-lg text-sm font-bold hover:bg-gym-black transition-all duration-300 border border-gym-yellow/30">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+                            </svg>
+                            Reintentar
+                        </button>
+                    </div>
+                </td>
+            </tr>`;
+    }
+
+    // ─────────────────────────────────────────────────────
+    // FUNCIÓN: Generar skeleton loading
+    // ─────────────────────────────────────────────────────
+    function generarSkeleton(filas) {
+        let html = '';
+        for (let i = 0; i < filas; i++) {
+            html += `
+                <tr style="animation: fadeInUp 0.3s ease-out ${i * 0.08}s both;">
+                    <td class="px-6 py-4"><div class="skeleton h-5 w-28"></div></td>
+                    <td class="px-6 py-4"><div class="skeleton h-5 w-24"></div></td>
+                    <td class="px-6 py-4"><div class="skeleton h-5 w-28"></div></td>
+                    <td class="px-6 py-4"><div class="skeleton h-5 w-16 ml-auto"></div></td>
+                    <td class="px-6 py-4 text-center"><div class="skeleton h-6 w-24 mx-auto rounded-full"></div></td>
+                    <td class="px-6 py-4 text-center"><div class="skeleton h-8 w-24 mx-auto rounded-lg"></div></td>
+                </tr>`;
+        }
+        return html;
+    }
+    </script>
+
+</body>
+</html>
