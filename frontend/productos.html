@@ -273,6 +273,11 @@
                         </svg>
                         Volver al POS
                     </a>
+                    <button onclick="cerrarSesion()"
+                       class="inline-flex items-center gap-2 bg-red-500/10 hover:bg-red-500/20 text-red-400 px-4 py-2 rounded-lg text-sm font-semibold transition-all duration-300 hover:scale-105 border border-red-500/20 hover:border-red-500/40">
+                        <i class="bi bi-box-arrow-right"></i>
+                        Salir
+                    </button>
                 </div>
             </div>
         </div>
@@ -505,6 +510,16 @@
     <script>
     const API_BASE_URL = 'https://api-facturacion-gym.onrender.com';
 
+    // ── Session Guard ───────────────────────────────────
+    const GYM_TOKEN = localStorage.getItem('gym_token');
+    if (!GYM_TOKEN) { window.location.href = 'login.html'; }
+    function authHeaders(extra = {}) {
+        return { 'Authorization': `Bearer ${GYM_TOKEN}`, ...extra };
+    }
+    fetch(`${API_BASE_URL}/api/v1/auth/me`, { headers: authHeaders() })
+        .then(r => { if (!r.ok) { localStorage.removeItem('gym_token'); localStorage.removeItem('gym_user'); window.location.href = 'login.html'; } })
+        .catch(() => {});
+
     let todosLosProductos = [];
 
     window.onload = function() {
@@ -532,7 +547,7 @@
         cuerpo.innerHTML = generarSkeleton(4);
 
         try {
-            const response = await fetch(`${API_BASE_URL}/api/v1/productos`);
+            const response = await fetch(`${API_BASE_URL}/api/v1/productos`, { headers: authHeaders() });
             if (!response.ok) throw new Error('Error al cargar productos');
 
             const productos = await response.json();
@@ -581,7 +596,7 @@
         try {
             const response = await fetch(`${API_BASE_URL}/api/v1/productos`, {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: authHeaders({ 'Content-Type': 'application/json' }),
                 body: JSON.stringify({
                     codigo,
                     nombre,
@@ -672,6 +687,12 @@
 
     function mostrarErrorTabla(msg) {
         document.getElementById('cuerpoTabla').innerHTML = `<tr><td colspan="5" class="px-6 py-12 text-center text-red-400">Error: ${escapeHtml(msg)}</td></tr>`;
+    }
+
+    function cerrarSesion() {
+        localStorage.removeItem('gym_token');
+        localStorage.removeItem('gym_user');
+        window.location.href = 'login.html';
     }
     </script>
 </body>

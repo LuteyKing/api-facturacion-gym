@@ -249,6 +249,9 @@ class FacturaHistorialItem(BaseModel):
     telefono_cliente: Optional[str] = Field(
         None, description="Teléfono del cliente asociado"
     )
+    vendedor_nombre: Optional[str] = Field(
+        None, description="Nombre del vendedor que emitió la factura"
+    )
     created_at: Optional[str] = Field(
         None, description="Fecha y hora de creación del registro (UTC)"
     )

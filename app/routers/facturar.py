@@ -47,7 +47,8 @@ from ..models.schemas import (
     TotalImpuesto,
 )
 from ..database import get_db
-from ..models.db_models import Factura
+from ..models.db_models import Factura, Usuario
+from .auth import get_current_user
 from ..services.clave_acceso import generar_clave_acceso
 from ..services.sri_client import consultar_autorizacion, enviar_comprobante
 from ..services.xml_generator import generar_xml_factura
@@ -205,6 +206,7 @@ def _construir_factura_request(datos: FacturarRequest) -> FacturaRequest:
 def facturar(
     datos: FacturarRequest,
     db: Session = Depends(get_db),
+    current_user: Usuario = Depends(get_current_user),
     incluir_xml: bool = Query(
         False,
         description="Si es True, incluye el XML firmado en base64 en la respuesta",
@@ -289,6 +291,7 @@ def facturar(
         clave_acceso=clave_acceso,
         estado_sri="SIMULADO",
         xml_generado=xml_firmado.decode("utf-8"),
+        usuario_id=current_user.id,
     )
     db.add(factura_db)
     db.commit()

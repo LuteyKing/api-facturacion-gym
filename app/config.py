@@ -68,5 +68,10 @@ class Settings:
         """Ruta absoluta al archivo .p12 dentro de certificados/."""
         return CERTIFICADOS_DIR / self._FIRMA_ARCHIVO
 
+    # ── JWT / Autenticación ──────────────────────────────
+    JWT_SECRET_KEY: str = os.getenv("JWT_SECRET_KEY", "cambiar-esta-clave-en-produccion")
+    JWT_ALGORITHM: str = "HS256"
+    TOKEN_EXPIRE_MINUTES: int = int(os.getenv("TOKEN_EXPIRE_MINUTES", "480"))
+
 
 settings = Settings()

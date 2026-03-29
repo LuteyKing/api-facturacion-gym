@@ -18,7 +18,8 @@ from sqlalchemy.orm import Session
 
 from ..config import settings
 from ..database import get_db
-from ..models.db_models import Cliente, Factura
+from ..models.db_models import Cliente, Factura, Usuario
+from .auth import get_current_user
 from ..models.enums import TipoDocumento
 from ..models.schemas import (
     AutorizacionResponse,
@@ -51,6 +52,8 @@ router = APIRouter(prefix="/facturas", tags=["Facturas"])
 )
 def emitir_factura(
     factura: FacturaRequest,
+    db: Session = Depends(get_db),
+    current_user: Usuario = Depends(get_current_user),
     incluir_xml: bool = Query(
         False,
         description="Si es True, incluye el XML firmado en base64 en la respuesta",
@@ -142,6 +145,7 @@ def emitir_factura(
 )
 def listar_facturas(
     db: Session = Depends(get_db),
+    current_user: Usuario = Depends(get_current_user),
     limite: int = Query(
         100,
         ge=1,
@@ -153,16 +157,19 @@ def listar_facturas(
         description="Filtrar por estado SRI (ej: SIMULADO, DEVUELTA, AUTORIZADO)",
     ),
 ):
-    """Lista el historial completo de facturas almacenadas en SQLite.
-
-    Opcionalmente filtra por estado SRI y limita la cantidad de resultados.
-    """
-    query = db.query(Factura, Cliente.telefono).outerjoin(
+    """Lista el historial de facturas. Admin ve todas, vendedor solo las suyas."""
+    query = db.query(Factura, Cliente.telefono, Usuario.nombre_completo).outerjoin(
         Cliente, Factura.identificacion_cliente == Cliente.cedula_ruc
+    ).outerjoin(
+        Usuario, Factura.usuario_id == Usuario.id
     )
 
     if estado:
         query = query.filter(Factura.estado_sri == estado.upper())
+
+    # Filtrar por rol: vendedor solo ve sus facturas
+    if current_user.rol != "admin":
+        query = query.filter(Factura.usuario_id == current_user.id)
 
     filas = (
         query.order_by(Factura.created_at.desc())
@@ -170,9 +177,8 @@ def listar_facturas(
         .all()
     )
 
-    # Convertir created_at a string para la respuesta
     resultado = []
-    for f, tel_cliente in filas:
+    for f, tel_cliente, vendedor_nombre in filas:
         item = FacturaHistorialItem(
             id=f.id,
             secuencial=f.secuencial,
@@ -182,6 +188,7 @@ def listar_facturas(
             clave_acceso=f.clave_acceso,
             estado_sri=f.estado_sri,
             telefono_cliente=tel_cliente,
+            vendedor_nombre=vendedor_nombre,
             created_at=(f.created_at - timedelta(hours=5)).strftime("%d/%m/%Y %H:%M:%S") if f.created_at else None,
         )
         resultado.append(item)
@@ -211,6 +218,7 @@ def listar_facturas(
 def descargar_ride_pdf(
     id_factura: int,
     db: Session = Depends(get_db),
+    current_user: Usuario = Depends(get_current_user),
 ):
     """Busca la factura en SQLite, genera el PDF del RIDE y lo retorna como descarga."""
     factura = db.query(Factura).filter(Factura.id == id_factura).first()
@@ -262,7 +270,7 @@ def descargar_ride_pdf(
     summary="Consultar autorización de comprobante",
     description="Consulta el estado de autorización de un comprobante ya enviado al SRI.",
 )
-def obtener_autorizacion(clave_acceso: str):
+def obtener_autorizacion(clave_acceso: str, current_user: Usuario = Depends(get_current_user)):
     if len(clave_acceso) != 49 or not clave_acceso.isdigit():
         raise HTTPException(
             status_code=400,

@@ -4,7 +4,8 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from typing import List
 from ..database import get_db
-from ..models.db_models import Producto
+from ..models.db_models import Producto, Usuario
+from .auth import get_current_user
 from pydantic import BaseModel
 
 router = APIRouter(prefix="/productos", tags=["Productos"])
@@ -35,7 +36,7 @@ def _formato_fecha_ec(dt):
 
 
 @router.post("", response_model=ProductoResponse)
-def crear_producto(producto: ProductoCreate, db: Session = Depends(get_db)):
+def crear_producto(producto: ProductoCreate, db: Session = Depends(get_db), current_user: Usuario = Depends(get_current_user)):
     db_prod = Producto(**producto.dict())
     try:
         db.add(db_prod)
@@ -54,7 +55,7 @@ def crear_producto(producto: ProductoCreate, db: Session = Depends(get_db)):
         raise HTTPException(status_code=400, detail="El código de producto ya existe")
 
 @router.get("", response_model=list[ProductoResponse])
-def listar_productos(db: Session = Depends(get_db)):
+def listar_productos(db: Session = Depends(get_db), current_user: Usuario = Depends(get_current_user)):
     productos = db.query(Producto).all()
     return [
         ProductoResponse(

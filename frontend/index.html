@@ -367,6 +367,11 @@
                     <i class="bi bi-box-seam-fill me-1"></i> Productos
                 </a>
                 <span class="badge-env">SRI PRUEBAS</span>
+                <button onclick="cerrarSesion()" class="btn btn-sm" style="background: rgba(255,70,70,0.1); color: #ff4646; border: 1px solid rgba(255,70,70,0.25); font-weight: 600; font-size: 0.78rem; border-radius: 8px; padding: 5px 14px; transition: all 0.3s;"
+                   onmouseover="this.style.background='#ff4646'; this.style.color='#fff';"
+                   onmouseout="this.style.background='rgba(255,70,70,0.1)'; this.style.color='#ff4646';">
+                    <i class="bi bi-box-arrow-right me-1"></i> Salir
+                </button>
             </div>
         </div>
     </div>
@@ -532,6 +537,17 @@
 
 const API_BASE = 'https://api-facturacion-gym.onrender.com/api/v1';
 
+// ── Session Guard ───────────────────────────────────────
+const GYM_TOKEN = localStorage.getItem('gym_token');
+if (!GYM_TOKEN) { window.location.href = 'login.html'; }
+function authHeaders(extra = {}) {
+    return { 'Authorization': `Bearer ${GYM_TOKEN}`, ...extra };
+}
+// Verificar token al cargar
+fetch(`${API_BASE}/auth/me`, { headers: authHeaders() })
+    .then(r => { if (!r.ok) { localStorage.removeItem('gym_token'); localStorage.removeItem('gym_user'); window.location.href = 'login.html'; } })
+    .catch(() => {});
+
 // ── Estado de la venta ──────────────────────────────────
 let carrito = [];
 let secuencialActual = 1;
@@ -549,7 +565,7 @@ actualizarSecuencialUI();
 
 // ── Cargar catálogo de productos al inicio ──────────────
 (function() {
-    fetch(`${API_BASE}/productos`)
+    fetch(`${API_BASE}/productos`, { headers: authHeaders() })
         .then(r => r.ok ? r.json() : [])
         .then(data => { catalogoProductos = data; })
         .catch(() => { catalogoProductos = []; });
@@ -557,7 +573,7 @@ actualizarSecuencialUI();
 
 // ── Cargar catálogo de clientes al inicio ───────────────
 (function() {
-    fetch(`${API_BASE}/clientes`)
+    fetch(`${API_BASE}/clientes`, { headers: authHeaders() })
         .then(r => r.ok ? r.json() : [])
         .then(data => { catalogoClientes = data; })
         .catch(() => { catalogoClientes = []; });
@@ -894,7 +910,7 @@ async function buscarClientePorCedula(cedula) {
     inputCedula.style.borderColor = 'rgba(136, 146, 176, 0.2)';
 
     try {
-        const resp = await fetch(`${API_BASE}/clientes/${cedula}`);
+        const resp = await fetch(`${API_BASE}/clientes/${cedula}`, { headers: authHeaders() });
         spinner.style.display = 'none';
 
         if (resp.ok) {
@@ -1094,7 +1110,7 @@ async function emitirFactura() {
     try {
         const resp = await fetch(`${API_BASE}/facturar`, {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            headers: authHeaders({ 'Content-Type': 'application/json' }),
             body: JSON.stringify(payload)
         });
 
@@ -1196,6 +1212,13 @@ function enviarWhatsApp(facturaId) {
     
     // 6. Abrir WhatsApp Web / App
     window.open(`https://api.whatsapp.com/send?phone=${numeroLimpio}&text=${mensajeCodificado}`, '_blank');
+}
+
+// ── Cerrar sesión ───────────────────────────────────────
+function cerrarSesion() {
+    localStorage.removeItem('gym_token');
+    localStorage.removeItem('gym_user');
+    window.location.href = 'login.html';
 }
 </script>
 </body>

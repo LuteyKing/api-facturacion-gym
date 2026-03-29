@@ -7,9 +7,11 @@ import logging
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from .database import Base, engine
+from .database import Base, SessionLocal, engine
 from .models import db_models  # noqa: F401  — registra los modelos en Base.metadata
-from .routers import clientes, facturas, facturar, productos
+from .models.db_models import Usuario
+from .routers import auth, clientes, facturas, facturar, productos
+from .routers.auth import hash_password
 
 logging.basicConfig(
     level=logging.INFO,
@@ -18,6 +20,25 @@ logging.basicConfig(
 
 # ── Crear tablas en la BD al iniciar ─────────────────────
 Base.metadata.create_all(bind=engine)
+
+# ── Seed: crear usuario admin por defecto ────────────────
+def _seed_admin():
+    db = SessionLocal()
+    try:
+        if not db.query(Usuario).filter(Usuario.username == "admin").first():
+            admin = Usuario(
+                username="admin",
+                password_hash=hash_password("admin123"),
+                nombre_completo="Administrador",
+                rol="admin",
+            )
+            db.add(admin)
+            db.commit()
+            logging.getLogger(__name__).info("Usuario admin creado por defecto")
+    finally:
+        db.close()
+
+_seed_admin()
 
 app = FastAPI(
     title="Microservicio de Facturación Electrónica SRI — Ecuador",
@@ -41,6 +62,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+app.include_router(auth.router, prefix="/api/v1")
 app.include_router(facturar.router, prefix="/api/v1")
 app.include_router(facturas.router, prefix="/api/v1")
 app.include_router(clientes.router, prefix="/api/v1")

@@ -15,7 +15,8 @@ from pydantic import BaseModel
 from sqlalchemy.orm import Session
 
 from ..database import get_db
-from ..models.db_models import Cliente
+from ..models.db_models import Cliente, Usuario
+from .auth import get_current_user
 
 logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/clientes", tags=["Clientes"])
@@ -45,7 +46,7 @@ class ClienteResponse(BaseModel):
 
 # ── POST /clientes — Registrar cliente ───────────────────
 @router.post("", response_model=ClienteResponse, summary="Registrar nuevo cliente")
-def crear_cliente(cliente: ClienteCreate, db: Session = Depends(get_db)):
+def crear_cliente(cliente: ClienteCreate, db: Session = Depends(get_db), current_user: Usuario = Depends(get_current_user)):
     """Registra un nuevo cliente/alumno en la base de datos."""
     # Verificar si ya existe
     existente = db.query(Cliente).filter(Cliente.cedula_ruc == cliente.cedula_ruc).first()
@@ -81,7 +82,7 @@ def crear_cliente(cliente: ClienteCreate, db: Session = Depends(get_db)):
 
 # ── GET /clientes — Listar clientes ─────────────────────
 @router.get("", response_model=list[ClienteResponse], summary="Listar todos los clientes")
-def listar_clientes(db: Session = Depends(get_db)):
+def listar_clientes(db: Session = Depends(get_db), current_user: Usuario = Depends(get_current_user)):
     """Retorna todos los clientes registrados, ordenados del más reciente al más antiguo."""
     clientes = db.query(Cliente).order_by(Cliente.created_at.desc()).all()
 
@@ -103,7 +104,7 @@ def listar_clientes(db: Session = Depends(get_db)):
 
 # ── GET /clientes/{cedula} — Buscar por cédula ──────────
 @router.get("/{cedula}", response_model=ClienteResponse, summary="Buscar cliente por cédula/RUC")
-def obtener_cliente(cedula: str, db: Session = Depends(get_db)):
+def obtener_cliente(cedula: str, db: Session = Depends(get_db), current_user: Usuario = Depends(get_current_user)):
     """Busca un cliente específico por su número de cédula o RUC."""
     cliente = db.query(Cliente).filter(Cliente.cedula_ruc == cedula).first()
     if not cliente:

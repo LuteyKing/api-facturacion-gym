@@ -1,7 +1,20 @@
 from datetime import datetime, timezone
-from sqlalchemy import DateTime, Numeric, String, Text, Boolean
+from typing import Optional
+from sqlalchemy import DateTime, ForeignKey, Integer, Numeric, String, Text, Boolean
 from sqlalchemy.orm import Mapped, mapped_column
 from ..database import Base
+
+
+# --- TABLA: USUARIOS ---
+class Usuario(Base):
+    __tablename__ = "usuarios"
+    id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
+    username: Mapped[str] = mapped_column(String(50), unique=True, nullable=False, index=True)
+    password_hash: Mapped[str] = mapped_column(String(255), nullable=False)
+    nombre_completo: Mapped[str] = mapped_column(String(255), nullable=False)
+    rol: Mapped[str] = mapped_column(String(20), nullable=False, default="vendedor")
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc))
+
 
 class Factura(Base):
     __tablename__ = "facturas"
@@ -14,6 +27,7 @@ class Factura(Base):
     estado_sri: Mapped[str] = mapped_column(String(30), nullable=False, default="SIMULADO")
     xml_generado: Mapped[str] = mapped_column(Text, nullable=False)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False, default=lambda: datetime.now(timezone.utc))
+    usuario_id: Mapped[Optional[int]] = mapped_column(Integer, ForeignKey("usuarios.id"), nullable=True)
 
 # --- NUEVA TABLA: CLIENTES (ALUMNOS) ---
 class Cliente(Base):

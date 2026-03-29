@@ -247,6 +247,11 @@
                         </svg>
                         Volver al POS
                     </a>
+                    <button onclick="cerrarSesion()"
+                       class="inline-flex items-center gap-2 bg-red-500/10 hover:bg-red-500/20 text-red-400 px-4 py-2 rounded-lg text-sm font-semibold transition-all duration-300 hover:scale-105 border border-red-500/20 hover:border-red-500/40">
+                        <i class="bi bi-box-arrow-right"></i>
+                        Salir
+                    </button>
                 </div>
             </div>
         </div>
@@ -464,6 +469,16 @@
     // ─────────────────────────────────────────────────────
     const API_BASE_URL = 'https://api-facturacion-gym.onrender.com';
 
+    // ── Session Guard ───────────────────────────────────
+    const GYM_TOKEN = localStorage.getItem('gym_token');
+    if (!GYM_TOKEN) { window.location.href = 'login.html'; }
+    function authHeaders(extra = {}) {
+        return { 'Authorization': `Bearer ${GYM_TOKEN}`, ...extra };
+    }
+    fetch(`${API_BASE_URL}/api/v1/auth/me`, { headers: authHeaders() })
+        .then(r => { if (!r.ok) { localStorage.removeItem('gym_token'); localStorage.removeItem('gym_user'); window.location.href = 'login.html'; } })
+        .catch(() => {});
+
     // ─────────────────────────────────────────────────────
     // Variable para guardar todas las facturas (para filtro)
     // ─────────────────────────────────────────────────────
@@ -495,6 +510,21 @@
     // ─────────────────────────────────────────────────────
     // FUNCIÓN: Cargar facturas desde la API
     // ─────────────────────────────────────────────────────
+    // ─────────────────────────────────────────────────────
+    // FUNCIÓN: Descargar PDF con autenticación
+    // ─────────────────────────────────────────────────────
+    async function descargarPdf(facturaId) {
+        try {
+            const resp = await fetch(`${API_BASE_URL}/api/v1/facturas/${facturaId}/pdf`, { headers: authHeaders() });
+            if (!resp.ok) throw new Error('Error al descargar PDF');
+            const blob = await resp.blob();
+            const url = URL.createObjectURL(blob);
+            window.open(url, '_blank');
+        } catch (e) {
+            alert('No se pudo descargar el PDF: ' + e.message);
+        }
+    }
+
     async function cargarFacturas() {
         const cuerpo = document.getElementById('cuerpoTabla');
         const footer = document.getElementById('tableFooter');
@@ -504,7 +534,7 @@
         cuerpo.innerHTML = generarSkeleton(5);
 
         try {
-            const response = await fetch(`${API_BASE_URL}/api/v1/facturas`);
+            const response = await fetch(`${API_BASE_URL}/api/v1/facturas`, { headers: authHeaders() });
 
             if (!response.ok) {
                 throw new Error(`Error HTTP ${response.status}: ${response.statusText}`);
@@ -585,9 +615,8 @@
                     </td>
                     <td data-label="Acciones" class="px-6 py-4 text-center">
                         <div class="inline-flex items-center gap-2">
-                            <a href="${urlPdf}"
-                               target="_blank"
-                               rel="noopener noreferrer"
+                            <a href="javascript:void(0)"
+                               onclick="descargarPdf(${factura.id})"
                                class="btn-ver-pdf inline-flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-bold tracking-wide"
                                title="Ver / Descargar PDF">
                                 <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 16 16">
@@ -831,6 +860,13 @@
         const num = normalizarTelefonoEC(raw);
         abrirWhatsApp(_waModalFacturaId, num);
         cerrarModalWA();
+    }
+
+    // ── Cerrar sesión ───────────────────────────────────
+    function cerrarSesion() {
+        localStorage.removeItem('gym_token');
+        localStorage.removeItem('gym_user');
+        window.location.href = 'login.html';
     }
     </script>
 

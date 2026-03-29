@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Iniciar Sesión — MI GIMNASIO PRO</title>
+    <meta name="description" content="Sistema de facturación electrónica SRI para Gimnasio y CrossFit.">
+
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Google Fonts: Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'gym-yellow': '#FFD700',
+                        'gym-yellow-hover': '#E6C200',
+                        'gym-black': '#0D0D0D',
+                        'gym-dark': '#111111',
+                        'gym-surface': '#1A1A1A',
+                    },
+                    fontFamily: {
+                        'inter': ['Inter', 'system-ui', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body {
+            font-family: 'Inter', system-ui, sans-serif;
+        }
+        /* Animación de entrada */
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+        .animate-card { animation: fadeInUp 0.6s ease-out; }
+
+        /* Glow en el borde del card al focus */
+        .login-card:focus-within {
+            box-shadow: 0 0 30px rgba(255, 215, 0, 0.15);
+        }
+
+        /* Input custom */
+        .input-field {
+            background: #1A1A1A;
+            border: 1px solid #333;
+            color: #fff;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+        .input-field:focus {
+            border-color: #FFD700;
+            box-shadow: 0 0 0 3px rgba(255, 215, 0, 0.15);
+            outline: none;
+        }
+        .input-field::placeholder { color: #666; }
+
+        /* Botón con efecto */
+        .btn-login {
+            background: linear-gradient(135deg, #FFD700, #E6C200);
+            color: #0D0D0D;
+            font-weight: 700;
+            transition: transform 0.15s, box-shadow 0.15s;
+        }
+        .btn-login:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 6px 20px rgba(255, 215, 0, 0.3);
+        }
+        .btn-login:active { transform: translateY(0); }
+        .btn-login:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        /* Spinner */
+        .spinner {
+            border: 2px solid transparent;
+            border-top-color: #0D0D0D;
+            border-radius: 50%;
+            width: 18px; height: 18px;
+            animation: spin 0.6s linear infinite;
+            display: inline-block;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+    </style>
+</head>
+<body class="bg-gym-black min-h-screen flex items-center justify-center px-4">
+
+    <!-- ── Fondo decorativo ── -->
+    <div class="fixed inset-0 overflow-hidden pointer-events-none">
+        <div class="absolute -top-40 -right-40 w-96 h-96 bg-gym-yellow/5 rounded-full blur-3xl"></div>
+        <div class="absolute -bottom-40 -left-40 w-96 h-96 bg-gym-yellow/5 rounded-full blur-3xl"></div>
+    </div>
+
+    <!-- ── Login Card ── -->
+    <div class="login-card animate-card relative w-full max-w-md bg-gym-dark border border-gray-800 rounded-2xl p-8 md:p-10 shadow-2xl">
+
+        <!-- Logo / Branding -->
+        <div class="text-center mb-8">
+            <div class="inline-flex items-center justify-center w-16 h-16 bg-gym-yellow/10 rounded-2xl mb-4">
+                <i class="bi bi-lightning-charge-fill text-gym-yellow text-3xl"></i>
+            </div>
+            <h1 class="text-2xl font-extrabold text-white tracking-tight">MI GIMNASIO PRO</h1>
+            <p class="text-gray-500 text-sm mt-1">Sistema de Facturación Electrónica</p>
+        </div>
+
+        <!-- Alerta de error -->
+        <div id="alertError" class="hidden bg-red-500/10 border border-red-500/30 text-red-400 text-sm rounded-xl px-4 py-3 mb-6 flex items-center gap-2">
+            <i class="bi bi-exclamation-triangle-fill"></i>
+            <span id="alertMsg">Usuario o contraseña incorrectos</span>
+        </div>
+
+        <!-- Formulario -->
+        <form id="loginForm" onsubmit="handleLogin(event)" autocomplete="on">
+            <!-- Usuario -->
+            <div class="mb-5">
+                <label for="username" class="block text-gray-400 text-xs font-semibold uppercase tracking-wider mb-2">
+                    <i class="bi bi-person-fill mr-1"></i>Usuario
+                </label>
+                <input
+                    type="text"
+                    id="username"
+                    name="username"
+                    autocomplete="username"
+                    required
+                    class="input-field w-full rounded-xl px-4 py-3 text-sm"
+                    placeholder="Ingrese su usuario"
+                />
+            </div>
+
+            <!-- Contraseña -->
+            <div class="mb-6">
+                <label for="password" class="block text-gray-400 text-xs font-semibold uppercase tracking-wider mb-2">
+                    <i class="bi bi-lock-fill mr-1"></i>Contraseña
+                </label>
+                <div class="relative">
+                    <input
+                        type="password"
+                        id="password"
+                        name="password"
+                        autocomplete="current-password"
+                        required
+                        class="input-field w-full rounded-xl px-4 py-3 text-sm pr-12"
+                        placeholder="Ingrese su contraseña"
+                    />
+                    <button
+                        type="button"
+                        onclick="togglePassword()"
+                        class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gym-yellow transition-colors"
+                        tabindex="-1"
+                    >
+                        <i id="eyeIcon" class="bi bi-eye-fill text-lg"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Botón Login -->
+            <button type="submit" id="btnLogin" class="btn-login w-full rounded-xl py-3 text-sm uppercase tracking-wider">
+                <span id="btnText">Iniciar Sesión</span>
+                <span id="btnSpinner" class="hidden"><span class="spinner"></span></span>
+            </button>
+        </form>
+
+        <!-- Footer -->
+        <p class="text-center text-gray-600 text-xs mt-8">
+            &copy; 2025 MI GIMNASIO PRO &mdash; Facturación SRI Ecuador
+        </p>
+    </div>
+
+<script>
+// ══════════════════════════════════════════════════════════
+// CONFIGURACIÓN
+// ══════════════════════════════════════════════════════════
+const API_BASE = 'https://api-facturacion-gym.onrender.com/api/v1';
+
+// Si ya tiene token válido, redirigir directo
+(function checkExistingSession() {
+    const token = localStorage.getItem('gym_token');
+    if (token) {
+        // Verificar si el token sigue vigente
+        fetch(`${API_BASE}/auth/me`, {
+            headers: { 'Authorization': `Bearer ${token}` }
+        })
+        .then(r => {
+            if (r.ok) window.location.href = 'index.html';
+        })
+        .catch(() => {});
+    }
+})();
+
+// ══════════════════════════════════════════════════════════
+// LOGIN
+// ══════════════════════════════════════════════════════════
+async function handleLogin(e) {
+    e.preventDefault();
+    const btn = document.getElementById('btnLogin');
+    const btnText = document.getElementById('btnText');
+    const btnSpinner = document.getElementById('btnSpinner');
+    const alertError = document.getElementById('alertError');
+    const alertMsg = document.getElementById('alertMsg');
+
+    // UI: loading
+    btn.disabled = true;
+    btnText.classList.add('hidden');
+    btnSpinner.classList.remove('hidden');
+    alertError.classList.add('hidden');
+
+    const username = document.getElementById('username').value.trim();
+    const password = document.getElementById('password').value;
+
+    try {
+        const body = new URLSearchParams();
+        body.append('username', username);
+        body.append('password', password);
+
+        const resp = await fetch(`${API_BASE}/auth/token`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: body.toString(),
+        });
+
+        if (!resp.ok) {
+            const err = await resp.json().catch(() => ({}));
+            throw new Error(err.detail || 'Usuario o contraseña incorrectos');
+        }
+
+        const data = await resp.json();
+
+        // Guardar token y datos del usuario
+        localStorage.setItem('gym_token', data.access_token);
+
+        // Obtener perfil del usuario
+        const meResp = await fetch(`${API_BASE}/auth/me`, {
+            headers: { 'Authorization': `Bearer ${data.access_token}` }
+        });
+        if (meResp.ok) {
+            const user = await meResp.json();
+            localStorage.setItem('gym_user', JSON.stringify(user));
+        }
+
+        // Redirigir
+        window.location.href = 'index.html';
+
+    } catch (error) {
+        alertMsg.textContent = error.message;
+        alertError.classList.remove('hidden');
+    } finally {
+        btn.disabled = false;
+        btnText.classList.remove('hidden');
+        btnSpinner.classList.add('hidden');
+    }
+}
+
+// ══════════════════════════════════════════════════════════
+// TOGGLE PASSWORD
+// ══════════════════════════════════════════════════════════
+function togglePassword() {
+    const input = document.getElementById('password');
+    const icon = document.getElementById('eyeIcon');
+    if (input.type === 'password') {
+        input.type = 'text';
+        icon.classList.replace('bi-eye-fill', 'bi-eye-slash-fill');
+    } else {
+        input.type = 'password';
+        icon.classList.replace('bi-eye-slash-fill', 'bi-eye-fill');
+    }
+}
+</script>
+</body>
+</html>
