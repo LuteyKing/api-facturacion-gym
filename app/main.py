@@ -43,7 +43,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-app.include_router(auth.router, prefix="/api/v1/auth")
+app.include_router(auth.router, prefix="/api/v1/auth", tags=["auth"])
 app.include_router(facturar.router, prefix="/api/v1")
 app.include_router(facturas.router, prefix="/api/v1")
 app.include_router(clientes.router, prefix="/api/v1")
