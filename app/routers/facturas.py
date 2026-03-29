@@ -197,6 +197,46 @@ def listar_facturas(
     return resultado
 
 
+# ── GET /facturas/cliente/{cedula} — Historial por cliente ─
+
+
+@router.get(
+    "/cliente/{cedula}",
+    response_model=list[FacturaHistorialItem],
+    summary="Historial de compras de un cliente",
+    description="Devuelve todas las facturas asociadas a una cédula/RUC, ordenadas de la más reciente a la más antigua.",
+)
+def historial_cliente(
+    cedula: str,
+    db: Session = Depends(get_db),
+    current_user: Usuario = Depends(get_current_user),
+):
+    filas = (
+        db.query(Factura, Cliente.telefono, Usuario.nombre_completo)
+        .outerjoin(Cliente, Factura.identificacion_cliente == Cliente.cedula_ruc)
+        .outerjoin(Usuario, Factura.usuario_id == Usuario.id)
+        .filter(Factura.identificacion_cliente == cedula)
+        .order_by(Factura.created_at.desc())
+        .all()
+    )
+
+    return [
+        FacturaHistorialItem(
+            id=f.id,
+            secuencial=f.secuencial,
+            fecha_emision=f.fecha_emision,
+            identificacion_cliente=f.identificacion_cliente,
+            total=float(f.total),
+            clave_acceso=f.clave_acceso,
+            estado_sri=f.estado_sri,
+            telefono_cliente=tel,
+            vendedor_nombre=vendedor,
+            created_at=(f.created_at - timedelta(hours=5)).strftime("%d/%m/%Y %H:%M:%S") if f.created_at else None,
+        )
+        for f, tel, vendedor in filas
+    ]
+
+
 # ── GET /facturas/{id}/pdf — Descargar RIDE en PDF ───────
 
 
