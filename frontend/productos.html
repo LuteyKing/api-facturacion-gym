@@ -273,6 +273,9 @@
                         </svg>
                         Volver al POS
                     </a>
+                    <span id="userIndicator" class="hidden sm:inline-flex items-center gap-1.5 bg-gym-yellow/10 text-gym-yellow border border-gym-yellow/20 px-3 py-1.5 rounded-lg text-xs font-semibold tracking-wide">
+                        👤 Cargando...
+                    </span>
                     <button onclick="cerrarSesion()"
                        class="inline-flex items-center gap-2 bg-red-500/10 hover:bg-red-500/20 text-red-400 px-4 py-2 rounded-lg text-sm font-semibold transition-all duration-300 hover:scale-105 border border-red-500/20 hover:border-red-500/40">
                         <i class="bi bi-box-arrow-right"></i>
@@ -517,7 +520,13 @@
         return { 'Authorization': `Bearer ${GYM_TOKEN}`, ...extra };
     }
     fetch(`${API_BASE_URL}/api/v1/auth/me`, { headers: authHeaders() })
-        .then(r => { if (!r.ok) { localStorage.removeItem('gym_token'); localStorage.removeItem('gym_user'); window.location.href = 'login.html'; } })
+        .then(r => { if (!r.ok) { localStorage.removeItem('gym_token'); localStorage.removeItem('gym_user'); window.location.href = 'login.html'; } return r.json(); })
+        .then(user => {
+            if (user && user.nombre_completo) {
+                const rol = user.rol ? user.rol.charAt(0).toUpperCase() + user.rol.slice(1) : '';
+                document.getElementById('userIndicator').textContent = `👤 ${user.nombre_completo} (${rol})`;
+            }
+        })
         .catch(() => {});
 
     let todosLosProductos = [];
@@ -639,7 +648,7 @@
                     </span>
                 </td>
                 <td class="px-5 py-4 text-center">
-                    <span class="text-xs text-gray-400 font-medium">${p.created_at ? p.created_at.split('T')[0] : '—'}</span>
+                    <span class="text-xs text-gray-400 font-medium">${p.created_at ? p.created_at : '—'}</span>
                 </td>
             `;
             cuerpo.appendChild(tr);

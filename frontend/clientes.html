@@ -240,6 +240,9 @@
                         </svg>
                         Volver al POS
                     </a>
+                    <span id="userIndicator" class="hidden sm:inline-flex items-center gap-1.5 bg-gym-yellow/10 text-gym-yellow border border-gym-yellow/20 px-3 py-1.5 rounded-lg text-xs font-semibold tracking-wide">
+                        👤 Cargando...
+                    </span>
                     <button onclick="cerrarSesion()"
                        class="inline-flex items-center gap-2 bg-red-500/10 hover:bg-red-500/20 text-red-400 px-4 py-2 rounded-lg text-sm font-semibold transition-all duration-300 hover:scale-105 border border-red-500/20 hover:border-red-500/40">
                         <i class="bi bi-box-arrow-right"></i>
@@ -258,7 +261,7 @@
     <!-- ═══════════════════════════════════════════════════ -->
     <!-- CONTENIDO PRINCIPAL -->
     <!-- ═══════════════════════════════════════════════════ -->
-    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <main class="max-w-full mx-auto px-4 sm:px-6 lg:px-10 py-8">
 
         <!-- ── Título ────────────────────────────────── -->
         <div class="mb-8 animate-fade-in-up">
@@ -525,7 +528,13 @@
         return { 'Authorization': `Bearer ${GYM_TOKEN}`, ...extra };
     }
     fetch(`${API_BASE_URL}/api/v1/auth/me`, { headers: authHeaders() })
-        .then(r => { if (!r.ok) { localStorage.removeItem('gym_token'); localStorage.removeItem('gym_user'); window.location.href = 'login.html'; } })
+        .then(r => { if (!r.ok) { localStorage.removeItem('gym_token'); localStorage.removeItem('gym_user'); window.location.href = 'login.html'; } return r.json(); })
+        .then(user => {
+            if (user && user.nombre_completo) {
+                const rol = user.rol ? user.rol.charAt(0).toUpperCase() + user.rol.slice(1) : '';
+                document.getElementById('userIndicator').textContent = `👤 ${user.nombre_completo} (${rol})`;
+            }
+        })
         .catch(() => {});
 
     let todosLosClientes = [];
@@ -748,7 +757,7 @@
                         }
                     </td>
                     <td class="px-5 py-4 hidden xl:table-cell">
-                        <span class="text-xs text-gray-400">${cliente.created_at || '—'}</span>
+                        <span class="text-xs text-gray-400">${cliente.created_at ? cliente.created_at : '—'}</span>
                     </td>
                     <td class="px-5 py-4 text-center">
                         <button onclick="verHistorial('${cliente.cedula_ruc}', '${cliente.nombre_completo.replace(/'/g, "\\'")}')" 
@@ -955,7 +964,7 @@
             facturas.forEach(f => {
                 html += `
                         <tr class="hover:bg-gray-800/40 transition-colors">
-                            <td class="px-4 py-3 text-gray-300">${f.fecha_emision}</td>
+                            <td class="px-4 py-3 text-gray-300">${f.created_at || f.fecha_emision}</td>
                             <td class="px-4 py-3 text-right font-bold text-green-400">$${parseFloat(f.total).toFixed(2)}</td>
                             <td class="px-4 py-3 text-gray-400">${f.vendedor_nombre || '—'}</td>
                         </tr>`;

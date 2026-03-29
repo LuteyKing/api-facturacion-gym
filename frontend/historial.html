@@ -247,6 +247,9 @@
                         </svg>
                         Volver al POS
                     </a>
+                    <span id="userIndicator" class="hidden sm:inline-flex items-center gap-1.5 bg-gym-yellow/10 text-gym-yellow border border-gym-yellow/20 px-3 py-1.5 rounded-lg text-xs font-semibold tracking-wide">
+                        👤 Cargando...
+                    </span>
                     <button onclick="cerrarSesion()"
                        class="inline-flex items-center gap-2 bg-red-500/10 hover:bg-red-500/20 text-red-400 px-4 py-2 rounded-lg text-sm font-semibold transition-all duration-300 hover:scale-105 border border-red-500/20 hover:border-red-500/40">
                         <i class="bi bi-box-arrow-right"></i>
@@ -476,7 +479,13 @@
         return { 'Authorization': `Bearer ${GYM_TOKEN}`, ...extra };
     }
     fetch(`${API_BASE_URL}/api/v1/auth/me`, { headers: authHeaders() })
-        .then(r => { if (!r.ok) { localStorage.removeItem('gym_token'); localStorage.removeItem('gym_user'); window.location.href = 'login.html'; } })
+        .then(r => { if (!r.ok) { localStorage.removeItem('gym_token'); localStorage.removeItem('gym_user'); window.location.href = 'login.html'; } return r.json(); })
+        .then(user => {
+            if (user && user.nombre_completo) {
+                const rol = user.rol ? user.rol.charAt(0).toUpperCase() + user.rol.slice(1) : '';
+                document.getElementById('userIndicator').textContent = `👤 ${user.nombre_completo} (${rol})`;
+            }
+        })
         .catch(() => {});
 
     // ─────────────────────────────────────────────────────
@@ -602,7 +611,7 @@
                         </div>
                     </td>
                     <td data-label="Fecha" class="px-6 py-4">
-                        <span class="text-sm text-gray-600 font-medium">${factura.fecha_emision}</span>
+                        <span class="text-sm text-gray-600 font-medium">${factura.created_at || factura.fecha_emision}</span>
                     </td>
                     <td data-label="Cédula/RUC" class="px-6 py-4">
                         <span class="text-sm text-gray-700 font-medium">${factura.identificacion_cliente}</span>

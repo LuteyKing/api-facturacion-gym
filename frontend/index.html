@@ -367,6 +367,7 @@
                     <i class="bi bi-box-seam-fill me-1"></i> Productos
                 </a>
                 <span class="badge-env">SRI PRUEBAS</span>
+                <span id="userIndicator" style="background: rgba(255,215,0,0.1); color: #FFD700; border: 1px solid rgba(255,215,0,0.25); font-weight: 600; font-size: 0.73rem; border-radius: 8px; padding: 5px 12px;">👤 Cargando...</span>
                 <button onclick="cerrarSesion()" class="btn btn-sm" style="background: rgba(255,70,70,0.1); color: #ff4646; border: 1px solid rgba(255,70,70,0.25); font-weight: 600; font-size: 0.78rem; border-radius: 8px; padding: 5px 14px; transition: all 0.3s;"
                    onmouseover="this.style.background='#ff4646'; this.style.color='#fff';"
                    onmouseout="this.style.background='rgba(255,70,70,0.1)'; this.style.color='#ff4646';">
@@ -545,7 +546,13 @@ function authHeaders(extra = {}) {
 }
 // Verificar token al cargar
 fetch(`${API_BASE}/auth/me`, { headers: authHeaders() })
-    .then(r => { if (!r.ok) { localStorage.removeItem('gym_token'); localStorage.removeItem('gym_user'); window.location.href = 'login.html'; } })
+    .then(r => { if (!r.ok) { localStorage.removeItem('gym_token'); localStorage.removeItem('gym_user'); window.location.href = 'login.html'; } return r.json(); })
+    .then(user => {
+        if (user && user.nombre_completo) {
+            const rol = user.rol ? user.rol.charAt(0).toUpperCase() + user.rol.slice(1) : '';
+            document.getElementById('userIndicator').textContent = `👤 ${user.nombre_completo} (${rol})`;
+        }
+    })
     .catch(() => {});
 
 // ── Estado de la venta ──────────────────────────────────
