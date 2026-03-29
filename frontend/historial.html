@@ -11,6 +11,8 @@
 
     <!-- Google Fonts: Inter -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
 
     <script>
         tailwind.config = {
@@ -321,6 +323,49 @@
             </div>
         </div>
 
+        <!-- ── Panel Cierre de Caja (HOY) ────────── -->
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8" id="cierreCajaPanel" style="animation: fadeInUp 0.5s ease-out 0.15s both;">
+            <!-- Ingresos de Hoy -->
+            <div class="stat-card rounded-2xl p-5 shadow-lg border" style="background: #1A1A1A; border-color: rgba(255,215,0,0.1);">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-xs font-bold uppercase tracking-wider" style="color: #8892b0;">Ingresos de Hoy</p>
+                        <p class="text-3xl font-extrabold mt-2" style="color: #FFD700;" id="statIngresosHoy">$0.00</p>
+                        <p class="text-xs mt-1" style="color: #8892b0;" id="statIngresosHoyLabel">0 ventas registradas</p>
+                    </div>
+                    <div class="w-12 h-12 rounded-xl flex items-center justify-center" style="background: rgba(255,215,0,0.1);">
+                        <i class="bi bi-cash-stack text-2xl" style="color: #FFD700;"></i>
+                    </div>
+                </div>
+            </div>
+            <!-- Ventas Realizadas -->
+            <div class="stat-card rounded-2xl p-5 shadow-lg border" style="background: #1A1A1A; border-color: rgba(255,215,0,0.1);">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-xs font-bold uppercase tracking-wider" style="color: #8892b0;">Ventas Realizadas</p>
+                        <p class="text-3xl font-extrabold mt-2" style="color: #FFD700;" id="statVentasHoy">0</p>
+                        <p class="text-xs mt-1" style="color: #8892b0;">Facturas emitidas hoy</p>
+                    </div>
+                    <div class="w-12 h-12 rounded-xl flex items-center justify-center" style="background: rgba(255,215,0,0.1);">
+                        <i class="bi bi-receipt text-2xl" style="color: #FFD700;"></i>
+                    </div>
+                </div>
+            </div>
+            <!-- Ticket Promedio -->
+            <div class="stat-card rounded-2xl p-5 shadow-lg border" style="background: #1A1A1A; border-color: rgba(255,215,0,0.1);">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-xs font-bold uppercase tracking-wider" style="color: #8892b0;">Ticket Promedio</p>
+                        <p class="text-3xl font-extrabold mt-2" style="color: #FFD700;" id="statTicketPromedio">$0.00</p>
+                        <p class="text-xs mt-1" style="color: #8892b0;">Valor promedio por venta</p>
+                    </div>
+                    <div class="w-12 h-12 rounded-xl flex items-center justify-center" style="background: rgba(255,215,0,0.1);">
+                        <i class="bi bi-graph-up text-2xl" style="color: #FFD700;"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <!-- ═══════════════════════════════════════════ -->
         <!-- CONTENEDOR PRINCIPAL DE LA TABLA -->
         <!-- ═══════════════════════════════════════════ -->
@@ -551,7 +596,7 @@
                                 </svg>
                                 PDF
                             </a>
-                            <button onclick="enviarWhatsAppHistorial('${factura.identificacion_cliente}', ${factura.id})"
+                            <button onclick="enviarWhatsAppHistorial(${factura.id}, '${factura.telefono_cliente || ''}')"
                                     class="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-bold tracking-wide transition-all duration-300 hover:scale-105"
                                     style="background: linear-gradient(135deg, #25d366, #128c7e); color: #fff; border: none;"
                                     title="Enviar por WhatsApp">
@@ -617,6 +662,25 @@
         // Promedio por factura
         const promedio = facturas.length > 0 ? ingresos / facturas.length : 0;
         document.getElementById('statPromedio').textContent = `$${promedio.toFixed(2)}`;
+
+        // ── Cierre de Caja: estadísticas de HOY ──
+        const ahora = new Date(new Date().toLocaleString('en-US', { timeZone: 'America/Guayaquil' }));
+        const hoyStr = `${String(ahora.getDate()).padStart(2, '0')}/${String(ahora.getMonth() + 1).padStart(2, '0')}/${ahora.getFullYear()}`;
+
+        const facturasHoy = facturas.filter(f => {
+            // created_at viene en formato DD/MM/YYYY HH:MM:SS
+            const partesFecha = (f.created_at || '').split(' ')[0];
+            return partesFecha === hoyStr;
+        });
+
+        const ingresosHoy = facturasHoy.reduce((sum, f) => sum + parseFloat(f.total), 0);
+        const ventasHoy = facturasHoy.length;
+        const ticketPromedio = ventasHoy > 0 ? ingresosHoy / ventasHoy : 0;
+
+        document.getElementById('statIngresosHoy').textContent = `$${ingresosHoy.toFixed(2)}`;
+        document.getElementById('statIngresosHoyLabel').textContent = `${ventasHoy} venta${ventasHoy !== 1 ? 's' : ''} registrada${ventasHoy !== 1 ? 's' : ''}`;
+        document.getElementById('statVentasHoy').textContent = ventasHoy;
+        document.getElementById('statTicketPromedio').textContent = `$${ticketPromedio.toFixed(2)}`;
     }
 
     // ─────────────────────────────────────────────────────
@@ -699,21 +763,135 @@
     }
 
     // ─────────────────────────────────────────────────────
-    // FUNCIÓN: Enviar link del PDF por WhatsApp
+    // FUNCIÓN: Normalizar número de teléfono Ecuador
     // ─────────────────────────────────────────────────────
-    function enviarWhatsAppHistorial(cedula, facturaId) {
-        const telefono = prompt('Ingresa el número de teléfono del cliente (ej: 0991234567):');
-        if (!telefono) return;
-
-        let num = telefono.replace(/[\s\-\(\)]/g, '');
+    function normalizarTelefonoEC(telefono) {
+        let num = telefono.replace(/[\s\-\(\)\+]/g, '');
         if (num.startsWith('0')) num = '593' + num.substring(1);
-        if (num.length === 9 && !num.startsWith('593')) num = '593' + num;
+        if (/^\d{9}$/.test(num) && !num.startsWith('593')) num = '593' + num;
+        return num;
+    }
 
+    // ─────────────────────────────────────────────────────
+    // FUNCIÓN: Abrir WhatsApp con link del PDF
+    // ─────────────────────────────────────────────────────
+    function abrirWhatsApp(facturaId, numeroNormalizado) {
         const urlPdf = `${API_BASE_URL}/api/v1/facturas/${facturaId}/pdf`;
         const mensaje = encodeURIComponent(`¡Hola! 💪 Aquí tienes tu comprobante electrónico: ${urlPdf}`);
-        window.open(`https://api.whatsapp.com/send?phone=${num}&text=${mensaje}`, '_blank');
+        window.open(`https://api.whatsapp.com/send?phone=${numeroNormalizado}&text=${mensaje}`, '_blank');
+    }
+
+    // ─────────────────────────────────────────────────────
+    // FUNCIÓN: Enviar link del PDF por WhatsApp
+    // ─────────────────────────────────────────────────────
+    let _waModalFacturaId = null;
+
+    function enviarWhatsAppHistorial(facturaId, tel) {
+        const telefonoLimpio = (tel || '').replace(/[\s\-\(\)\+]/g, '');
+
+        // Si ya tiene un número válido (al menos 9 dígitos), enviar directo
+        if (/^\d{9,13}$/.test(telefonoLimpio)) {
+            abrirWhatsApp(facturaId, normalizarTelefonoEC(telefonoLimpio));
+            return;
+        }
+
+        // Sin teléfono válido → mostrar modal premium
+        _waModalFacturaId = facturaId;
+        const modal = document.getElementById('modalWhatsApp');
+        const input = document.getElementById('waPhoneInput');
+        input.value = '';
+        document.getElementById('waModalError').classList.add('hidden');
+        modal.classList.remove('hidden');
+        setTimeout(() => {
+            modal.querySelector('.modal-panel').classList.add('modal-open');
+            input.focus();
+        }, 10);
+    }
+
+    function cerrarModalWA() {
+        const modal = document.getElementById('modalWhatsApp');
+        modal.querySelector('.modal-panel').classList.remove('modal-open');
+        setTimeout(() => modal.classList.add('hidden'), 200);
+        _waModalFacturaId = null;
+    }
+
+    function confirmarEnvioModalWA() {
+        const input = document.getElementById('waPhoneInput');
+        const errorDiv = document.getElementById('waModalError');
+        const raw = input.value.replace(/[\s\-\(\)]/g, '');
+
+        if (!/^\d{7,10}$/.test(raw)) {
+            errorDiv.textContent = 'Ingresa un número válido (ej: 0991234567)';
+            errorDiv.classList.remove('hidden');
+            input.focus();
+            return;
+        }
+
+        errorDiv.classList.add('hidden');
+        const num = normalizarTelefonoEC(raw);
+        abrirWhatsApp(_waModalFacturaId, num);
+        cerrarModalWA();
     }
     </script>
+
+<!-- ═══ MODAL PREMIUM: Ingresar teléfono para WhatsApp ═══ -->
+<div id="modalWhatsApp" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4">
+    <!-- Backdrop -->
+    <div class="absolute inset-0 bg-black/70 backdrop-blur-sm" onclick="cerrarModalWA()"></div>
+
+    <!-- Panel -->
+    <div class="modal-panel relative w-full max-w-md rounded-2xl overflow-hidden shadow-2xl"
+         style="background: #111111; border: 1px solid rgba(255,215,0,0.2); transform: scale(0.95); opacity: 0; transition: all 0.2s ease-out;">
+
+        <!-- Header -->
+        <div class="px-6 py-5 text-center" style="background: linear-gradient(135deg, #1A1A1A 0%, #0D0D0D 100%); border-bottom: 1px solid rgba(255,215,0,0.15);">
+            <div class="inline-flex items-center justify-center w-14 h-14 rounded-2xl mb-3" style="background: linear-gradient(135deg, #25d366, #128c7e); box-shadow: 0 4px 20px rgba(37,211,102,0.3);">
+                <svg class="w-7 h-7 text-white" fill="currentColor" viewBox="0 0 16 16">
+                    <path d="M13.601 2.326A7.854 7.854 0 0 0 7.994 0C3.627 0 .068 3.558.064 7.926c0 1.399.366 2.76 1.057 3.965L0 16l4.204-1.102a7.933 7.933 0 0 0 3.79.965h.004c4.368 0 7.926-3.558 7.93-7.93A7.898 7.898 0 0 0 13.6 2.326zM7.994 14.521a6.573 6.573 0 0 1-3.356-.92l-.24-.144-2.494.654.666-2.433-.156-.251a6.56 6.56 0 0 1-1.007-3.505c0-3.626 2.957-6.584 6.591-6.584a6.56 6.56 0 0 1 4.66 1.931 6.557 6.557 0 0 1 1.928 4.66c-.004 3.639-2.961 6.592-6.592 6.592zm3.615-4.934c-.197-.099-1.17-.578-1.353-.646-.182-.065-.315-.099-.445.099-.133.197-.513.646-.627.775-.114.133-.232.148-.43.05-.197-.1-.836-.308-1.592-.985-.589-.525-.985-1.175-1.103-1.372-.114-.198-.011-.304.088-.403.087-.088.197-.232.296-.346.1-.114.133-.198.198-.33.065-.134.034-.248-.015-.347-.05-.099-.445-1.076-.612-1.47-.16-.389-.323-.335-.445-.34-.114-.007-.247-.007-.38-.007a.729.729 0 0 0-.529.247c-.182.198-.691.677-.691 1.654 0 .977.71 1.916.81 2.049.098.133 1.394 2.132 3.383 2.992.47.205.84.326 1.129.418.475.152.904.129 1.246.08.38-.058 1.171-.48 1.338-.943.164-.464.164-.86.114-.943-.049-.084-.182-.133-.38-.232z"/>
+                </svg>
+            </div>
+            <h3 class="text-lg font-extrabold text-white tracking-tight">Enviar por WhatsApp</h3>
+            <p class="text-sm mt-1" style="color: #8892b0;">Ingresa el número del cliente para enviar el comprobante</p>
+        </div>
+
+        <!-- Body -->
+        <div class="px-6 py-5">
+            <label class="block text-xs font-bold uppercase tracking-wider mb-2" style="color: #FFD700;">Número de Teléfono</label>
+            <div class="flex rounded-xl overflow-hidden" style="border: 1px solid rgba(255,215,0,0.25); background: #0D0D0D;">
+                <span class="inline-flex items-center px-4 text-sm font-bold select-none" style="background: rgba(255,215,0,0.08); color: #FFD700; border-right: 1px solid rgba(255,215,0,0.15);">+593</span>
+                <input type="tel" id="waPhoneInput" maxlength="10"
+                       class="flex-1 bg-transparent text-white text-sm px-4 py-3 outline-none placeholder-gray-500"
+                       placeholder="0991234567"
+                       onkeydown="if(event.key==='Enter') confirmarEnvioModalWA(); if(event.key==='Escape') cerrarModalWA();">
+            </div>
+            <p id="waModalError" class="hidden text-xs font-semibold mt-2 px-1" style="color: #ff6b6b;"></p>
+        </div>
+
+        <!-- Footer -->
+        <div class="flex gap-3 px-6 pb-6">
+            <button onclick="cerrarModalWA()"
+                    class="flex-1 py-3 rounded-xl text-sm font-bold uppercase tracking-wider transition-all duration-200 hover:scale-[1.02]"
+                    style="background: rgba(136,146,176,0.1); color: #8892b0; border: 1px solid rgba(136,146,176,0.2);">
+                Cancelar
+            </button>
+            <button onclick="confirmarEnvioModalWA()"
+                    class="flex-1 py-3 rounded-xl text-sm font-bold uppercase tracking-wider transition-all duration-200 hover:scale-[1.02] hover:shadow-lg"
+                    style="background: linear-gradient(135deg, #FFD700, #E6C200); color: #0D0D0D; border: none; box-shadow: 0 4px 15px rgba(255,215,0,0.25);">
+                <span class="inline-flex items-center gap-2">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 12L3.269 3.126A59.768 59.768 0 0121.485 12 59.77 59.77 0 013.27 20.876L5.999 12zm0 0h7.5"/></svg>
+                    Enviar
+                </span>
+            </button>
+        </div>
+    </div>
+</div>
+
+<style>
+    .modal-panel.modal-open {
+        transform: scale(1) !important;
+        opacity: 1 !important;
+    }
+</style>
 
 </body>
 </html>
