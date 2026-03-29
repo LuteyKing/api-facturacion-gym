@@ -432,7 +432,7 @@
                                     title="Cambiar contraseña">
                                 <i class="bi bi-key-fill"></i> Contraseña
                             </button>
-                            <button onclick="eliminarUsuario(${u.id}, '${escapeHtml(u.username).replace(/'/g, "\\'")}')"
+                            <button onclick="eliminarUsuario(${u.id}, '${escapeHtml(u.nombre_completo).replace(/'/g, "\\'")}')"
                                     class="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-bold tracking-wide transition-all duration-300 hover:scale-105 bg-red-500/10 text-red-500 border border-red-500/20 hover:bg-red-500/20 hover:border-red-500/40"
                                     title="Eliminar usuario">
                                 <i class="bi bi-trash3-fill"></i> Eliminar
@@ -600,5 +600,31 @@
         }, 5000);
     }
     </script>
+
+    <!-- \u2550\u2550\u2550 MODAL: Confirmar Eliminaci\u00f3n \u2550\u2550\u2550 -->
+    <div id="modalEliminar" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4">
+        <div class="absolute inset-0 bg-black/70 backdrop-blur-sm" onclick="cerrarModalEliminar()"></div>
+        <div class="relative w-full max-w-sm bg-[#1A1A1A] border border-red-500/30 rounded-2xl shadow-2xl overflow-hidden" style="animation: fadeInUp 0.3s ease-out;">
+            <div class="flex flex-col items-center text-center px-6 pt-7 pb-2">
+                <div class="w-16 h-16 bg-red-500/10 rounded-2xl flex items-center justify-center mb-4 border border-red-500/20">
+                    <i class="bi bi-exclamation-triangle-fill text-red-400 text-3xl"></i>
+                </div>
+                <h3 class="text-white font-bold text-lg mb-2">\u26a0\ufe0f Eliminar Usuario</h3>
+                <p class="text-gray-400 text-sm leading-relaxed">
+                    \u00bfEst\u00e1s seguro de eliminar al usuario<br>
+                    <span id="eliminarNombreUsuario" class="text-red-400 font-bold"></span>?
+                </p>
+                <p class="text-gray-500 text-xs mt-2">Esta acci\u00f3n no se puede deshacer.</p>
+            </div>
+            <div class="flex gap-3 px-6 py-5">
+                <button onclick="cerrarModalEliminar()" class="flex-1 py-3 rounded-xl font-bold text-sm text-gray-300 bg-gray-700/50 hover:bg-gray-700 border border-gray-600/50 transition-all duration-300">
+                    Cancelar
+                </button>
+                <button id="btnConfirmarEliminar" onclick="confirmarEliminacion()" class="flex-1 py-3 rounded-xl font-bold text-sm text-white bg-red-600 hover:bg-red-700 border border-red-500/50 transition-all duration-300 hover:shadow-lg hover:shadow-red-600/30 flex items-center justify-center gap-2">
+                    <i class="bi bi-trash3-fill"></i> S\u00ed, Eliminar
+                </button>
+            </div>
+        </div>
+    </div>
 </body>
 </html>

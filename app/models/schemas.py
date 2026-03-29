@@ -236,6 +236,14 @@ class FacturaResponse(BaseModel):
     )
 
 
+class DetalleHistorialItem(BaseModel):
+    """Detalle de producto/servicio dentro de una factura."""
+    descripcion: str
+    cantidad: float
+    precio_unitario: float
+    subtotal: float
+
+
 class FacturaHistorialItem(BaseModel):
     """Registro de factura almacenado en la base de datos local."""
 
@@ -253,7 +261,10 @@ class FacturaHistorialItem(BaseModel):
         None, description="Nombre del vendedor que emitió la factura"
     )
     created_at: Optional[str] = Field(
-        None, description="Fecha y hora de creación del registro (UTC)"
+        None, description="Fecha y hora de creación del registro"
+    )
+    detalles: list[DetalleHistorialItem] = Field(
+        default_factory=list, description="Productos/servicios de la factura"
     )
 
     class Config:

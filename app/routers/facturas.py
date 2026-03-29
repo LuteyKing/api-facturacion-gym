@@ -10,6 +10,7 @@ Incluye:
 
 import base64
 import logging
+from xml.etree import ElementTree as ET
 
 from fastapi import APIRouter, Depends, HTTPException, Query
 from fastapi.responses import Response
@@ -22,6 +23,7 @@ from .auth import get_current_user
 from ..models.enums import TipoDocumento
 from ..models.schemas import (
     AutorizacionResponse,
+    DetalleHistorialItem,
     FacturaHistorialItem,
     FacturaRequest,
     FacturaResponse,
@@ -35,6 +37,25 @@ from ..services.xml_signer import firmar_xml
 
 logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/facturas", tags=["Facturas"])
+
+
+def _extraer_detalles_xml(xml_str: str) -> list[DetalleHistorialItem]:
+    """Extrae los productos/servicios del XML almacenado de la factura."""
+    detalles = []
+    try:
+        root = ET.fromstring(xml_str)
+        for det in root.iter("detalle"):
+            desc = det.findtext("descripcion", "")
+            cant = float(det.findtext("cantidad", "1"))
+            precio = float(det.findtext("precioUnitario", "0"))
+            subtotal = float(det.findtext("precioTotalSinImpuesto", "0"))
+            detalles.append(DetalleHistorialItem(
+                descripcion=desc, cantidad=cant,
+                precio_unitario=precio, subtotal=subtotal,
+            ))
+    except Exception:
+        pass
+    return detalles
 
 
 # ── POST /facturas — Emitir factura (estructura SRI completa) ─
@@ -189,6 +210,7 @@ def listar_facturas(
             telefono_cliente=tel_cliente,
             vendedor_nombre=vendedor_nombre,
             created_at=f.created_at.strftime("%d/%m/%Y %H:%M:%S") if f.created_at else None,
+            detalles=_extraer_detalles_xml(f.xml_generado) if f.xml_generado else [],
         )
         resultado.append(item)
 
@@ -231,6 +253,7 @@ def historial_cliente(
             telefono_cliente=tel,
             vendedor_nombre=vendedor,
             created_at=f.created_at.strftime("%d/%m/%Y %H:%M:%S") if f.created_at else None,
+            detalles=_extraer_detalles_xml(f.xml_generado) if f.xml_generado else [],
         )
         for f, tel, vendedor in filas
     ]
