@@ -524,24 +524,44 @@
     }
 
     // ── Eliminar Usuario ───────────────────────────────
-    async function eliminarUsuario(id, username) {
-        if (!confirm(`¿Estás seguro de eliminar al usuario "${username}"?\n\nEsta acción no se puede deshacer.`)) return;
+    let eliminarIdPendiente = null;
+
+    function eliminarUsuario(id, nombre) {
+        eliminarIdPendiente = id;
+        document.getElementById('eliminarNombreUsuario').textContent = nombre;
+        document.getElementById('modalEliminar').classList.remove('hidden');
+    }
+
+    function cerrarModalEliminar() {
+        document.getElementById('modalEliminar').classList.add('hidden');
+        eliminarIdPendiente = null;
+    }
+
+    async function confirmarEliminacion() {
+        if (!eliminarIdPendiente) return;
+        const btn = document.getElementById('btnConfirmarEliminar');
+        btn.disabled = true;
+        btn.innerHTML = '<div class="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div> Eliminando...';
 
         try {
-            const resp = await fetch(`${API_BASE_URL}/api/v1/usuarios/${id}`, {
+            const resp = await fetch(`${API_BASE_URL}/api/v1/usuarios/${eliminarIdPendiente}`, {
                 method: 'DELETE',
                 headers: authHeaders(),
             });
             const data = await resp.json();
 
             if (resp.ok) {
-                mostrarToast(`✅ Usuario "${username}" eliminado.`, 'success');
+                mostrarToast(`✅ Usuario eliminado correctamente.`, 'success');
                 cargarUsuarios();
             } else {
                 mostrarToast(`⚠️ ${data.detail || 'Error al eliminar'}`, 'error');
             }
         } catch (e) {
             mostrarToast(`❌ Error: ${e.message}`, 'error');
+        } finally {
+            btn.disabled = false;
+            btn.innerHTML = '<i class="bi bi-trash3-fill"></i> Sí, Eliminar';
+            cerrarModalEliminar();
         }
     }
 
