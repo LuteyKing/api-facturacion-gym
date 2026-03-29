@@ -55,9 +55,12 @@ def seed_admin():
     db = SessionLocal()
     try:
         if not db.query(Usuario).filter(Usuario.username == "admin").first():
+            password_plano = "admin123"
+            print(f"DEBUG: Hasheando password de longitud: {len(password_plano)}")
+            hash_generado = hash_password(password_plano)
             admin = Usuario(
                 username="admin",
-                password_hash=hash_password("admin123"),
+                password_hash=hash_generado,
                 nombre_completo="Administrador",
                 rol="admin",
             )
