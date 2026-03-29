@@ -3,7 +3,9 @@ Endpoint de estadísticas del Dashboard para administradores.
 """
 
 import logging
+from collections import defaultdict
 from datetime import datetime, timedelta
+from xml.etree import ElementTree as ET
 from zoneinfo import ZoneInfo
 
 from fastapi import APIRouter, Depends
@@ -33,6 +35,11 @@ class ProductoStock(BaseModel):
     precio: float
 
 
+class CategoriaVenta(BaseModel):
+    nombre: str
+    total: float
+
+
 class DashboardStats(BaseModel):
     ventas_hoy: float
     facturas_hoy: int
@@ -41,6 +48,7 @@ class DashboardStats(BaseModel):
     productos_total: int
     productos_recientes: list[ProductoStock]
     resumen_semanal: list[VentaDia]
+    ventas_por_producto: list[CategoriaVenta]
 
 
 # ── GET /dashboard/stats ─────────────────────────────────
@@ -94,6 +102,25 @@ def obtener_stats(
             total=float(total_dia),
         ))
 
+    # ── Ventas por producto (últimos 30 días) ────────────
+    ventas_por_producto: dict[str, float] = defaultdict(float)
+    facturas_30d = (
+        db.query(Factura.xml_generado)
+        .filter(Factura.created_at >= hace_30d, Factura.xml_generado.isnot(None))
+        .all()
+    )
+    for (xml_str,) in facturas_30d:
+        try:
+            root = ET.fromstring(xml_str)
+            for det in root.iter("detalle"):
+                desc = det.findtext("descripcion", "Otro")
+                subtotal = float(det.findtext("precioTotalSinImpuesto", "0"))
+                ventas_por_producto[desc] += subtotal
+        except Exception:
+            pass
+
+    top_productos = sorted(ventas_por_producto.items(), key=lambda x: x[1], reverse=True)[:8]
+
     return DashboardStats(
         ventas_hoy=ventas_hoy,
         facturas_hoy=facturas_hoy,
@@ -105,4 +132,8 @@ def obtener_stats(
             for p in productos_recientes
         ],
         resumen_semanal=resumen_semanal,
+        ventas_por_producto=[
+            CategoriaVenta(nombre=nombre, total=total)
+            for nombre, total in top_productos
+        ],
     )
