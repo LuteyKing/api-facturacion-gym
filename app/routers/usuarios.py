@@ -9,6 +9,8 @@ Incluye:
 """
 
 import logging
+from datetime import datetime
+from zoneinfo import ZoneInfo
 
 from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel
@@ -77,6 +79,7 @@ def crear_usuario(
         password_hash=hash_password(datos.password),
         nombre_completo=datos.nombre_completo,
         rol=datos.rol,
+        created_at=datetime.now(ZoneInfo("America/Guayaquil")),
     )
     db.add(nuevo)
     db.commit()

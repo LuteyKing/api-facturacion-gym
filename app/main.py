@@ -3,6 +3,8 @@ API REST — Microservicio de Facturación Electrónica SRI Ecuador (offline)
 """
 
 import logging
+from datetime import datetime
+from zoneinfo import ZoneInfo
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
@@ -64,6 +66,7 @@ def seed_admin():
                 password_hash=hash_generado,
                 nombre_completo="Administrador",
                 rol="admin",
+                created_at=datetime.now(ZoneInfo("America/Guayaquil")),
             )
             db.add(admin)
             db.commit()

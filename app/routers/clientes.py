@@ -8,6 +8,8 @@ Incluye:
 """
 
 import logging
+from datetime import datetime
+from zoneinfo import ZoneInfo
 
 from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel
@@ -61,6 +63,7 @@ def crear_cliente(cliente: ClienteCreate, db: Session = Depends(get_db), current
         correo=cliente.correo,
         telefono=cliente.telefono,
         direccion=cliente.direccion,
+        created_at=datetime.now(ZoneInfo("America/Guayaquil")),
     )
     db.add(db_cliente)
     db.commit()

@@ -54,6 +54,9 @@ from ..services.sri_client import consultar_autorizacion, enviar_comprobante
 from ..services.xml_generator import generar_xml_factura
 from ..services.xml_signer import firmar_xml
 
+from datetime import datetime
+from zoneinfo import ZoneInfo
+
 logger = logging.getLogger(__name__)
 router = APIRouter(tags=["Facturación"])
 
@@ -283,6 +286,9 @@ def facturar(
     logger.info("XML firmado (%d bytes)", len(xml_firmado))
 
     # ── Paso 4.5: Guardar factura en SQLite ───────────────
+    ec_tz = ZoneInfo("America/Guayaquil")
+    hora_ecuador = datetime.now(ec_tz)
+
     factura_db = Factura(
         secuencial=factura.secuencial,
         fecha_emision=factura.info_factura.fecha_emision,
@@ -292,6 +298,7 @@ def facturar(
         estado_sri="SIMULADO",
         xml_generado=xml_firmado.decode("utf-8"),
         usuario_id=current_user.id,
+        created_at=hora_ecuador,
     )
     db.add(factura_db)
     db.commit()
