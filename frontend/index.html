@@ -533,44 +533,48 @@ actualizarSecuencialUI();
     const precioInput = document.getElementById('inputPrecio');
     let debounceAC = null;
 
-    input.addEventListener('input', function() {
-        productoSeleccionado = null;
-        autocompleteIndex = -1;
-        const val = this.value.trim().toLowerCase();
+    function renderProductosList(filtro) {
+        const filtrados = filtro
+            ? catalogoProductos.filter(p =>
+                p.nombre.toLowerCase().includes(filtro) ||
+                p.codigo.toLowerCase().includes(filtro)
+              ).slice(0, 10)
+            : catalogoProductos.slice(-10);
 
-        if (debounceAC) clearTimeout(debounceAC);
-
-        if (!val) {
+        if (filtrados.length === 0) {
             list.classList.remove('show');
             list.innerHTML = '';
             return;
         }
 
+        list.innerHTML = filtrados.map((p, i) => {
+            const ivaLabel = p.iva_aplica ? 'IVA' : 'Sin IVA';
+            return `<div class="autocomplete-item" data-index="${i}"
+                         onclick="seleccionarProductoCatalogo(${i})">
+                <span class="item-price">$${parseFloat(p.precio_unitario).toFixed(2)}</span>
+                <span class="item-code">${escapeHtmlIndex(p.codigo)}</span>
+                ${escapeHtmlIndex(p.nombre)}
+                <span class="item-iva">(${ivaLabel})</span>
+            </div>`;
+        }).join('');
+
+        list._filtrados = filtrados;
+        list.classList.add('show');
+    }
+
+    input.addEventListener('focus', function() {
+        if (catalogoProductos.length > 0) {
+            renderProductosList(this.value.trim().toLowerCase() || null);
+        }
+    });
+
+    input.addEventListener('input', function() {
+        productoSeleccionado = null;
+        autocompleteIndex = -1;
+        if (debounceAC) clearTimeout(debounceAC);
+
         debounceAC = setTimeout(() => {
-            const filtrados = catalogoProductos.filter(p =>
-                p.nombre.toLowerCase().includes(val) ||
-                p.codigo.toLowerCase().includes(val)
-            ).slice(0, 8);
-
-            if (filtrados.length === 0) {
-                list.classList.remove('show');
-                list.innerHTML = '';
-                return;
-            }
-
-            list.innerHTML = filtrados.map((p, i) => {
-                const ivaLabel = p.iva_aplica ? 'IVA' : 'Sin IVA';
-                return `<div class="autocomplete-item" data-index="${i}"
-                             onclick="seleccionarProductoCatalogo(${i})">
-                    <span class="item-price">$${parseFloat(p.precio_unitario).toFixed(2)}</span>
-                    <span class="item-code">${escapeHtmlIndex(p.codigo)}</span>
-                    ${escapeHtmlIndex(p.nombre)}
-                    <span class="item-iva">(${ivaLabel})</span>
-                </div>`;
-            }).join('');
-
-            list._filtrados = filtrados;
-            list.classList.add('show');
+            renderProductosList(this.value.trim().toLowerCase() || null);
         }, 150);
     });
 
@@ -644,6 +648,37 @@ function escapeHtmlIndex(text) {
     const clientList  = document.getElementById('clienteAutocompleteList');
     let debounceClientAC = null;
 
+    function renderClientesList(filtro) {
+        const filtrados = filtro
+            ? catalogoClientes.filter(c =>
+                (c.cedula_ruc && c.cedula_ruc.includes(filtro)) ||
+                (c.nombre_completo && c.nombre_completo.toLowerCase().includes(filtro.toLowerCase()))
+              ).slice(0, 10)
+            : catalogoClientes.slice(-10);
+
+        if (filtrados.length === 0) {
+            clientList.classList.remove('show');
+            clientList.innerHTML = '';
+            return;
+        }
+
+        clientList.innerHTML = filtrados.map((c, i) =>
+            `<div class="autocomplete-item" data-index="${i}"
+                  onclick="seleccionarClienteCatalogo(${i})">
+                <span class="item-code">${escapeHtmlIndex(c.cedula_ruc)}</span>
+                ${escapeHtmlIndex(c.nombre_completo)}
+            </div>`
+        ).join('');
+        clientList._filtrados = filtrados;
+        clientList.classList.add('show');
+    }
+
+    inputCedula.addEventListener('focus', function() {
+        if (catalogoClientes.length > 0) {
+            renderClientesList(this.value.trim() || null);
+        }
+    });
+
     inputCedula.addEventListener('input', function() {
         // Ocultar estado previo mientras escribe
         statusIcon.style.display = 'none';
@@ -657,33 +692,9 @@ function escapeHtmlIndex(text) {
         const val = this.value.trim();
 
         // ── Autocompletado local de clientes ──
-        if (val.length >= 2) {
-            debounceClientAC = setTimeout(() => {
-                const lower = val.toLowerCase();
-                const filtrados = catalogoClientes.filter(c =>
-                    (c.cedula_ruc && c.cedula_ruc.includes(val)) ||
-                    (c.nombre_completo && c.nombre_completo.toLowerCase().includes(lower))
-                ).slice(0, 8);
-
-                if (filtrados.length > 0) {
-                    clientList.innerHTML = filtrados.map((c, i) =>
-                        `<div class="autocomplete-item" data-index="${i}"
-                              onclick="seleccionarClienteCatalogo(${i})">
-                            <span class="item-code">${escapeHtmlIndex(c.cedula_ruc)}</span>
-                            ${escapeHtmlIndex(c.nombre_completo)}
-                        </div>`
-                    ).join('');
-                    clientList._filtrados = filtrados;
-                    clientList.classList.add('show');
-                } else {
-                    clientList.classList.remove('show');
-                    clientList.innerHTML = '';
-                }
-            }, 150);
-        } else {
-            clientList.classList.remove('show');
-            clientList.innerHTML = '';
-        }
+        debounceClientAC = setTimeout(() => {
+            renderClientesList(val || null);
+        }, 150);
 
         // ── Búsqueda por API cuando la cédula/RUC está completa ──
         const soloDigitos = val.replace(/\D/g, '');
