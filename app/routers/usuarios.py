@@ -79,7 +79,7 @@ def crear_usuario(
         password_hash=hash_password(datos.password),
         nombre_completo=datos.nombre_completo,
         rol=datos.rol,
-        created_at=datetime.now(ZoneInfo("America/Guayaquil")),
+        created_at=datetime.now(ZoneInfo("America/Guayaquil")).replace(tzinfo=None),
     )
     db.add(nuevo)
     db.commit()

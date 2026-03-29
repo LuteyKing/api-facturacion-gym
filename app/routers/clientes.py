@@ -63,7 +63,7 @@ def crear_cliente(cliente: ClienteCreate, db: Session = Depends(get_db), current
         correo=cliente.correo,
         telefono=cliente.telefono,
         direccion=cliente.direccion,
-        created_at=datetime.now(ZoneInfo("America/Guayaquil")),
+        created_at=datetime.now(ZoneInfo("America/Guayaquil")).replace(tzinfo=None),
     )
     db.add(db_cliente)
     db.commit()

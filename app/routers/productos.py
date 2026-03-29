@@ -38,7 +38,7 @@ def _formato_fecha_ec(dt):
 
 @router.post("", response_model=ProductoResponse)
 def crear_producto(producto: ProductoCreate, db: Session = Depends(get_db), current_user: Usuario = Depends(get_current_user)):
-    db_prod = Producto(**producto.dict(), created_at=datetime.now(ZoneInfo("America/Guayaquil")))
+    db_prod = Producto(**producto.dict(), created_at=datetime.now(ZoneInfo("America/Guayaquil")).replace(tzinfo=None))
     try:
         db.add(db_prod)
         db.commit()

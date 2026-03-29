@@ -287,7 +287,7 @@ def facturar(
 
     # ── Paso 4.5: Guardar factura en SQLite ───────────────
     ec_tz = ZoneInfo("America/Guayaquil")
-    hora_ecuador = datetime.now(ec_tz)
+    hora_ecuador = datetime.now(ec_tz).replace(tzinfo=None)
 
     factura_db = Factura(
         secuencial=factura.secuencial,

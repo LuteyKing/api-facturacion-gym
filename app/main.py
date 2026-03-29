@@ -66,7 +66,7 @@ def seed_admin():
                 password_hash=hash_generado,
                 nombre_completo="Administrador",
                 rol="admin",
-                created_at=datetime.now(ZoneInfo("America/Guayaquil")),
+                created_at=datetime.now(ZoneInfo("America/Guayaquil")).replace(tzinfo=None),
             )
             db.add(admin)
             db.commit()
