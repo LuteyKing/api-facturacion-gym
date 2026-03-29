@@ -3,7 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gestión de Usuarios — MI GIMNASIO PRO</title>
+    <title>Usuarios | Tecnomundo</title>
+    <link rel="icon" type="image/png" href="https://cdn-icons-png.flaticon.com/512/3003/3003984.png">
     <meta name="description" content="Gestión de usuarios y trabajadores. Sistema de facturación electrónica para Gimnasio y CrossFit.">
 
     <!-- Tailwind CSS CDN -->
@@ -70,16 +71,68 @@
             border-radius: 6px;
         }
 
-        .navbar-gym {
-            background: linear-gradient(90deg, #0D0D0D 0%, #1A1A1A 50%, #0D0D0D 100%);
-            box-shadow: 0 2px 20px rgba(0,0,0,0.3);
+        /* ── Navbar Premium ── */
+        .navbar-premium {
+            position: sticky; top: 0; z-index: 100;
+            background: rgba(13,13,13,0.85);
+            backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
+            border-bottom: 1px solid rgba(255,215,0,0.12);
         }
-        .navbar-gym::after {
-            content: '';
-            position: absolute;
-            bottom: 0; left: 0;
-            width: 100%; height: 3px;
-            background: linear-gradient(90deg, transparent, #FFD700, transparent);
+        .nav-inner {
+            max-width: 1280px; margin: auto;
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 0 1.5rem; height: 60px;
+        }
+        .nav-brand { display: flex; align-items: center; gap: .6rem; text-decoration: none; }
+        .nav-brand img { width: 34px; height: 34px; border-radius: 8px; }
+        .nav-brand span { font-weight: 800; font-size: 1.05rem; color: #FFD700; letter-spacing: .5px; }
+        .nav-links-premium { display: flex; gap: .35rem; }
+        .nav-link-p {
+            color: #aaa; text-decoration: none; font-size: .82rem; font-weight: 500;
+            padding: .45rem .9rem; border-radius: 8px; transition: .25s;
+        }
+        .nav-link-p:hover { color: #FFD700; background: rgba(255,215,0,0.06); }
+        .nav-link-p.active { color: #FFD700; background: rgba(255,215,0,0.10); }
+        .nav-right { display: flex; align-items: center; gap: .6rem; }
+        .user-badge-glass {
+            display: inline-flex; align-items: center; gap: .45rem;
+            background: rgba(255,215,0,0.08); border: 1px solid rgba(255,215,0,0.18);
+            padding: .35rem .85rem; border-radius: 999px; font-size: .75rem;
+            color: #FFD700; font-weight: 600; backdrop-filter: blur(6px);
+        }
+        .btn-logout-nav {
+            background: rgba(239,68,68,0.10); border: 1px solid rgba(239,68,68,0.25);
+            color: #f87171; font-size: .78rem; font-weight: 600;
+            padding: .4rem .85rem; border-radius: 8px; cursor: pointer; transition: .25s;
+        }
+        .btn-logout-nav:hover { background: rgba(239,68,68,0.20); }
+        .hamburger-btn {
+            display: none; background: none; border: none; color: #FFD700;
+            font-size: 1.5rem; cursor: pointer;
+        }
+        .nav-mobile {
+            display: none; flex-direction: column; gap: .25rem;
+            padding: .75rem 1.5rem 1rem; background: rgba(13,13,13,0.95);
+            border-bottom: 1px solid rgba(255,215,0,0.08);
+        }
+        .nav-mobile .nav-link-p { display: block; }
+        @media(max-width:768px) {
+            .nav-links-premium, .user-badge-glass { display: none; }
+            .hamburger-btn { display: inline-flex; }
+        }
+
+        /* ── Page Hero ── */
+        .page-hero {
+            text-align: center; padding: 2.5rem 1rem 1.8rem;
+        }
+        .page-hero h2 { font-size: 1.75rem; font-weight: 800; color: #111; }
+        .page-hero p  { color: #6B7280; font-size: .92rem; margin-top: .3rem; }
+
+        /* ── Footer ── */
+        .footer-premium {
+            text-align: center; padding: 2rem 1rem;
+            font-size: .78rem; color: #9CA3AF;
+            border-top: 1px solid rgba(0,0,0,0.06); margin-top: 3rem;
         }
 
         .table-row-hover { transition: all 0.2s ease; }
@@ -141,56 +194,48 @@
 </head>
 <body class="bg-gray-100 min-h-screen">
 
-    <!-- ═══ NAVBAR ═══ -->
-    <nav class="navbar-gym sticky top-0 z-50 relative">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex items-center justify-between h-16">
-                <div class="flex items-center gap-3">
-                    <div class="w-9 h-9 bg-gym-yellow rounded-lg flex items-center justify-center">
-                        <svg class="w-5 h-5 text-gym-black" fill="currentColor" viewBox="0 0 24 24">
-                            <path d="M20.57 14.86L22 13.43 20.57 12 17 15.57 8.43 7 12 3.43 10.57 2 9.14 3.43 7.71 2 5.57 4.14 4.14 2.71 2.71 4.14l1.43 1.43L2 7.71l1.43 1.43L2 10.57 3.43 12 7 8.43 15.57 17 12 20.57 13.43 22l1.43-1.43L16.29 22l2.14-2.14 1.43 1.43 1.43-1.43-1.43-1.43L22 16.29z"/>
-                        </svg>
-                    </div>
-                    <div>
-                        <h1 class="text-gym-yellow font-extrabold text-lg tracking-tight leading-none">MI GIMNASIO PRO</h1>
-                        <span class="text-gray-500 text-xs font-medium tracking-wider">GESTIÓN DE USUARIOS</span>
-                    </div>
-                </div>
-                <div class="flex items-center gap-3">
-                    <a href="clientes.html" class="hidden sm:inline-flex items-center gap-1.5 text-gray-400 hover:text-gym-yellow px-3 py-2 rounded-lg text-sm font-medium transition-all duration-300">
-                        <i class="bi bi-people"></i> Clientes
-                    </a>
-                    <a href="productos.html" class="hidden sm:inline-flex items-center gap-1.5 text-gray-400 hover:text-gym-yellow px-3 py-2 rounded-lg text-sm font-medium transition-all duration-300">
-                        <i class="bi bi-box-seam"></i> Productos
-                    </a>
-                    <a href="historial.html" class="hidden sm:inline-flex items-center gap-1.5 text-gray-400 hover:text-gym-yellow px-3 py-2 rounded-lg text-sm font-medium transition-all duration-300">
-                        <i class="bi bi-clock-history"></i> Historial
-                    </a>
-                    <a href="index.html" class="inline-flex items-center gap-2 bg-gym-yellow/10 hover:bg-gym-yellow/20 text-gym-yellow px-4 py-2 rounded-lg text-sm font-semibold transition-all duration-300 hover:scale-105 border border-gym-yellow/20 hover:border-gym-yellow/40">
-                        <i class="bi bi-arrow-left"></i> Volver al POS
-                    </a>
-                    <span id="userIndicator" class="hidden sm:inline-flex items-center gap-1.5 bg-gym-yellow/10 text-gym-yellow border border-gym-yellow/20 px-3 py-1.5 rounded-lg text-xs font-semibold tracking-wide">
-                        👤 Cargando...
-                    </span>
-                    <button onclick="cerrarSesion()" class="inline-flex items-center gap-2 bg-red-500/10 hover:bg-red-500/20 text-red-400 px-4 py-2 rounded-lg text-sm font-semibold transition-all duration-300 hover:scale-105 border border-red-500/20 hover:border-red-500/40">
-                        <i class="bi bi-box-arrow-right"></i> Salir
-                    </button>
-                </div>
+    <!-- ═══ NAVBAR PREMIUM ═══ -->
+    <nav class="navbar-premium">
+        <div class="nav-inner">
+            <a href="index.html" class="nav-brand">
+                <img src="https://cdn-icons-png.flaticon.com/512/3003/3003984.png" alt="Logo">
+                <span>TECNOMUNDO POS</span>
+            </a>
+            <div class="nav-links-premium">
+                <a href="index.html" class="nav-link-p"><i class="bi bi-lightning-charge-fill"></i> Ventas</a>
+                <a href="clientes.html" class="nav-link-p"><i class="bi bi-people-fill"></i> Clientes</a>
+                <a href="productos.html" class="nav-link-p"><i class="bi bi-box-seam-fill"></i> Productos</a>
+                <a href="historial.html" class="nav-link-p"><i class="bi bi-clock-history"></i> Historial</a>
+                <a href="usuarios.html" class="nav-link-p active" id="navUsuarios"><i class="bi bi-shield-lock-fill"></i> Usuarios</a>
             </div>
+            <div class="nav-right">
+                <span class="user-badge-glass" id="userIndicator">👤 Cargando...</span>
+                <button class="btn-logout-nav" onclick="cerrarSesion()"><i class="bi bi-box-arrow-right"></i> Salir</button>
+                <button class="hamburger-btn" onclick="toggleMobileMenu()"><i class="bi bi-list"></i></button>
+            </div>
+        </div>
+        <div class="nav-mobile" id="mobileMenu">
+            <a href="index.html" class="nav-link-p"><i class="bi bi-lightning-charge-fill"></i> Ventas</a>
+            <a href="clientes.html" class="nav-link-p"><i class="bi bi-people-fill"></i> Clientes</a>
+            <a href="productos.html" class="nav-link-p"><i class="bi bi-box-seam-fill"></i> Productos</a>
+            <a href="historial.html" class="nav-link-p"><i class="bi bi-clock-history"></i> Historial</a>
+            <a href="usuarios.html" class="nav-link-p active" id="navUsuariosMobile"><i class="bi bi-shield-lock-fill"></i> Usuarios</a>
         </div>
     </nav>
 
     <div id="toastContainer"></div>
 
+    <!-- ═══ HERO ═══ -->
+    <section class="page-hero">
+        <h2><i class="bi bi-shield-lock-fill"></i> Gestión de Usuarios</h2>
+        <p>Administra los trabajadores y sus accesos al sistema.</p>
+    </section>
+
     <!-- ═══ CONTENIDO PRINCIPAL ═══ -->
     <main class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
 
-        <!-- Título + Botón Nuevo -->
-        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-8 gap-4 animate-fade-in-up">
-            <div>
-                <h2 class="text-3xl font-extrabold text-gym-dark tracking-tight">Gestión de Usuarios</h2>
-                <p class="text-gray-500 mt-1 text-sm">Administra los trabajadores y sus accesos al sistema.</p>
-            </div>
+        <!-- Botón Nuevo -->
+        <div class="flex justify-end mb-8 animate-fade-in-up">
             <button onclick="abrirModalNuevo()" class="btn-guardar inline-flex items-center gap-2 px-5 py-3 rounded-xl font-bold text-sm tracking-wide">
                 <i class="bi bi-person-plus-fill text-base"></i>
                 Nuevo Usuario
@@ -591,6 +636,11 @@
         return div.innerHTML;
     }
 
+    function toggleMobileMenu() {
+        const m = document.getElementById('mobileMenu');
+        m.style.display = m.style.display === 'flex' ? 'none' : 'flex';
+    }
+
     function cerrarSesion() {
         localStorage.removeItem('gym_token');
         localStorage.removeItem('gym_user');
@@ -646,5 +696,10 @@
             </div>
         </div>
     </div>
+
+    <!-- ═══ FOOTER ═══ -->
+    <footer class="footer-premium">
+        &copy; 2026 Tecnomundo POS &nbsp;|&nbsp; El Triunfo, Ecuador &nbsp;|&nbsp; Potenciado por IA
+    </footer>
 </body>
 </html>

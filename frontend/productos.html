@@ -3,8 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gestión de Productos — MI GIMNASIO PRO</title>
-    <meta name="description" content="Registro y gestión de productos y servicios. Sistema de facturación electrónica para Gimnasio y CrossFit.">
+    <title>Productos | Tecnomundo</title>
+    <link rel="icon" type="image/png" href="https://cdn-icons-png.flaticon.com/512/3003/3003984.png">
+    <meta name="description" content="Registro y gestión de productos y servicios. Sistema POS Tecnomundo.">
 
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -82,17 +83,78 @@
             border-radius: 6px;
         }
 
-        /* ── Navbar ──────────────────────────────────── */
-        .navbar-gym {
-            background: linear-gradient(90deg, #0D0D0D 0%, #1A1A1A 50%, #0D0D0D 100%);
-            box-shadow: 0 2px 20px rgba(0,0,0,0.3);
+        /* ── Navbar Premium ──────────────────────── */
+        .navbar-premium {
+            position: sticky; top: 0; z-index: 1050;
+            background: rgba(13,13,13,0.88);
+            backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(255,215,0,0.15);
         }
-        .navbar-gym::after {
-            content: '';
-            position: absolute;
-            bottom: 0; left: 0;
-            width: 100%; height: 3px;
-            background: linear-gradient(90deg, transparent, #FFD700, transparent);
+        .navbar-premium .nav-inner {
+            max-width: 1320px; margin: 0 auto;
+            padding: 0 1.5rem;
+            display: flex; align-items: center; justify-content: space-between;
+            height: 60px;
+        }
+        .navbar-premium .nav-brand {
+            display: flex; align-items: center; gap: 10px; text-decoration: none;
+        }
+        .navbar-premium .nav-brand img { width: 32px; height: 32px; }
+        .navbar-premium .nav-brand span {
+            font-weight: 900; font-size: 1.1rem; color: #FFD700; letter-spacing: -0.5px;
+        }
+        .nav-links-premium { display: flex; align-items: center; gap: 4px; }
+        .nav-link-p {
+            display: inline-flex; align-items: center; gap: 5px;
+            padding: 7px 14px; border-radius: 8px;
+            font-size: 0.82rem; font-weight: 600; color: #8892b0;
+            text-decoration: none; transition: all 0.25s; border: none; background: none;
+        }
+        .nav-link-p:hover, .nav-link-p.active { color: #FFD700; background: rgba(255,215,0,0.08); }
+        .nav-right { display: flex; align-items: center; gap: 10px; }
+        .user-badge-glass {
+            display: inline-flex; align-items: center; gap: 8px;
+            background: rgba(255,215,0,0.08); border: 1px solid rgba(255,215,0,0.15);
+            padding: 6px 14px; border-radius: 50px;
+            font-size: 0.78rem; font-weight: 600; color: #FFD700;
+        }
+        .btn-logout-nav {
+            display: inline-flex; align-items: center; gap: 6px;
+            background: rgba(239,68,68,0.1); border: 1px solid rgba(239,68,68,0.2);
+            color: #f87171; padding: 6px 14px; border-radius: 50px;
+            font-size: 0.78rem; font-weight: 600; cursor: pointer; transition: all 0.2s;
+        }
+        .btn-logout-nav:hover { background: rgba(239,68,68,0.2); }
+        .hamburger-btn {
+            display: none; background: none; border: 1px solid rgba(255,215,0,0.2);
+            color: #FFD700; padding: 6px 10px; border-radius: 8px; cursor: pointer; font-size: 1.2rem;
+        }
+        .nav-mobile {
+            display: none; padding: 8px 0 16px;
+            border-top: 1px solid rgba(255,215,0,0.1);
+        }
+        .nav-mobile a {
+            display: block; padding: 10px 16px; color: #8892b0;
+            text-decoration: none; font-size: 0.88rem; font-weight: 600;
+            border-radius: 8px; transition: all 0.2s;
+        }
+        .nav-mobile a:hover { color: #FFD700; background: rgba(255,215,0,0.08); }
+        @media (max-width: 768px) {
+            .nav-links-premium { display: none !important; }
+            .hamburger-btn { display: inline-flex !important; }
+            .user-badge-glass { display: none !important; }
+        }
+        .page-hero {
+            padding: 0.5rem 0;
+        }
+        .page-hero h2 { font-size: 1.5rem; font-weight: 800; color: #111; margin: 0; }
+        .page-hero p { font-size: 0.85rem; color: #6B7280; margin: 0.25rem 0 0; }
+        .footer-premium {
+            text-align: center; padding: 2rem 1rem; margin-top: 2rem;
+            border-top: 1px solid rgba(0,0,0,0.06);
+        }
+        .footer-premium p {
+            font-size: 0.75rem; color: #9CA3AF; margin: 0;
         }
 
         /* ── Form inputs ─────────────────────────────── */
@@ -536,7 +598,9 @@
                 document.getElementById('userIndicator').textContent = `👤 ${user.nombre_completo} (${rol})`;
                 if (user.rol === 'admin') {
                     const nu = document.getElementById('navUsuarios');
-                    if (nu) nu.style.cssText = '';
+                    if (nu) nu.style.display = 'inline-flex';
+                    const nuM = document.getElementById('navUsuariosMobile');
+                    if (nuM) nuM.style.display = 'block';
                 }
             }
         })
@@ -825,6 +889,11 @@
         }
     }
 
+    function toggleMobileMenu() {
+        const m = document.getElementById('mobileMenu');
+        m.style.display = m.style.display === 'block' ? 'none' : 'block';
+    }
+
     function cerrarSesion() {
         localStorage.removeItem('gym_token');
         localStorage.removeItem('gym_user');
@@ -915,6 +984,11 @@
         </div>
     </div>
 </div>
+
+<!-- ═══ FOOTER ═══ -->
+<footer class="footer-premium">
+    <p>&copy; 2026 Tecnomundo POS &nbsp;|&nbsp; El Triunfo, Ecuador &nbsp;|&nbsp; Potenciado por IA</p>
+</footer>
 
 </body>
 </html>

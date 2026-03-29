@@ -3,8 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gestión de Clientes — MI GIMNASIO PRO</title>
-    <meta name="description" content="Registro y gestión de clientes/alumnos. Sistema de facturación electrónica para Gimnasio y CrossFit.">
+    <title>Clientes | Tecnomundo</title>
+    <link rel="icon" type="image/png" href="https://cdn-icons-png.flaticon.com/512/3003/3003984.png">
+    <meta name="description" content="Registro y gestión de clientes. Sistema POS Tecnomundo.">
 
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -541,7 +542,9 @@
                 document.getElementById('userIndicator').textContent = `👤 ${user.nombre_completo} (${rol})`;
                 if (user.rol === 'admin') {
                     const nu = document.getElementById('navUsuarios');
-                    if (nu) nu.style.cssText = '';
+                    if (nu) nu.style.display = 'inline-flex';
+                    const nuM = document.getElementById('navUsuariosMobile');
+                    if (nuM) nuM.style.display = 'block';
                 }
             }
         })
@@ -1149,6 +1152,11 @@
         }
     }
 
+    function toggleMobileMenu() {
+        const m = document.getElementById('mobileMenu');
+        m.style.display = m.style.display === 'block' ? 'none' : 'block';
+    }
+
     function cerrarSesion() {
         localStorage.removeItem('gym_token');
         localStorage.removeItem('gym_user');
@@ -1262,6 +1270,11 @@
         <div id="historialCuerpo" class="px-6 py-5 max-h-[60vh] overflow-y-auto"></div>
     </div>
 </div>
+
+<!-- ═══ FOOTER ═══ -->
+<footer class="footer-premium">
+    <p>&copy; 2026 Tecnomundo POS &nbsp;|&nbsp; El Triunfo, Ecuador &nbsp;|&nbsp; Potenciado por IA</p>
+</footer>
 
 </body>
 </html>
