@@ -305,8 +305,18 @@
                     <div class="row g-3">
                         <div class="col-md-6">
                             <label class="form-label">Cédula / RUC</label>
-                            <input type="text" class="form-control" id="identificacion"
-                                   placeholder="0102030405" maxlength="13" autocomplete="off">
+                            <div class="position-relative">
+                                <input type="text" class="form-control" id="identificacion"
+                                       placeholder="0102030405" maxlength="13" autocomplete="off">
+                                <!-- Spinner de búsqueda -->
+                                <div id="cedulaSpinner" class="position-absolute" style="right: 12px; top: 50%; transform: translateY(-50%); display: none;">
+                                    <div class="spinner-border spinner-border-sm" style="width: 1rem; height: 1rem; border-width: 2px; color: var(--accent);" role="status"></div>
+                                </div>
+                                <!-- Badge de estado -->
+                                <div id="cedulaStatus" class="position-absolute" style="right: 12px; top: 50%; transform: translateY(-50%); display: none;"></div>
+                            </div>
+                            <!-- Mensaje de cliente encontrado/nuevo -->
+                            <div id="clienteMsg" style="display: none; margin-top: 4px; font-size: 0.75rem; font-weight: 600; padding: 3px 8px; border-radius: 6px;"></div>
                         </div>
                         <div class="col-md-6">
                             <label class="form-label">Razón Social / Nombre</label>
@@ -428,11 +438,118 @@ const API_BASE = 'https://api-facturacion-gym.onrender.com/api/v1';
 // ── Estado de la venta ──────────────────────────────────
 let carrito = [];
 let secuencialActual = 1;
+let busquedaTimeout = null; // Para debounce de búsqueda
 
 // Intentar cargar el último secuencial del localStorage
 const savedSeq = localStorage.getItem('gympos_secuencial');
 if (savedSeq) secuencialActual = parseInt(savedSeq, 10);
 actualizarSecuencialUI();
+
+// ── Auto-búsqueda de cliente por cédula ─────────────────
+(function() {
+    const inputCedula = document.getElementById('identificacion');
+    const spinner     = document.getElementById('cedulaSpinner');
+    const statusIcon  = document.getElementById('cedulaStatus');
+    const msgDiv      = document.getElementById('clienteMsg');
+
+    // Se dispara mientras escribe (con debounce de 400ms)
+    inputCedula.addEventListener('input', function() {
+        const val = this.value.replace(/\D/g, ''); // solo dígitos
+        this.value = val; // limpiar caracteres no numéricos
+
+        // Ocultar estado previo mientras escribe
+        statusIcon.style.display = 'none';
+        msgDiv.style.display = 'none';
+
+        // Cancelar búsqueda previa
+        if (busquedaTimeout) clearTimeout(busquedaTimeout);
+
+        // Buscar automáticamente cuando tenga 10 (cédula) o 13 (RUC) dígitos
+        if (val.length === 10 || val.length === 13) {
+            busquedaTimeout = setTimeout(() => buscarClientePorCedula(val), 400);
+        }
+    });
+
+    // También buscar al salir del campo (blur)
+    inputCedula.addEventListener('blur', function() {
+        const val = this.value.trim();
+        if (val.length >= 10) {
+            buscarClientePorCedula(val);
+        }
+    });
+})();
+
+async function buscarClientePorCedula(cedula) {
+    const spinner    = document.getElementById('cedulaSpinner');
+    const statusIcon = document.getElementById('cedulaStatus');
+    const msgDiv     = document.getElementById('clienteMsg');
+    const inputCedula = document.getElementById('identificacion');
+
+    // Mostrar spinner, ocultar estado previo
+    spinner.style.display = 'block';
+    statusIcon.style.display = 'none';
+    msgDiv.style.display = 'none';
+    inputCedula.style.borderColor = 'rgba(136, 146, 176, 0.2)';
+
+    try {
+        const resp = await fetch(`${API_BASE}/clientes/${cedula}`);
+
+        spinner.style.display = 'none';
+
+        if (resp.ok) {
+            // ✅ Cliente ENCONTRADO — auto-rellenar
+            const cliente = await resp.json();
+
+            document.getElementById('razonSocial').value = cliente.nombre_completo || '';
+            document.getElementById('email').value       = cliente.correo || '';
+            document.getElementById('telefono').value    = cliente.telefono || '';
+            document.getElementById('direccion').value   = cliente.direccion || '';
+
+            // UI: borde verde + ícono check
+            inputCedula.style.borderColor = 'var(--success-glow)';
+            statusIcon.innerHTML = '<i class="bi bi-check-circle-fill" style="color: #00c853; font-size: 1rem;"></i>';
+            statusIcon.style.display = 'block';
+
+            // Mensaje
+            msgDiv.textContent = `✅ Cliente encontrado: ${cliente.nombre_completo}`;
+            msgDiv.style.display = 'block';
+            msgDiv.style.background = 'rgba(0, 200, 83, 0.1)';
+            msgDiv.style.color = '#00c853';
+            msgDiv.style.border = '1px solid rgba(0, 200, 83, 0.2)';
+
+            // Hacer focus al siguiente campo lógico (producto)
+            setTimeout(() => document.getElementById('selectProducto')?.focus(), 300);
+
+        } else if (resp.status === 404) {
+            // 🆕 Cliente NO encontrado — es nuevo
+            statusIcon.innerHTML = '<i class="bi bi-person-plus-fill" style="color: var(--accent); font-size: 1rem;"></i>';
+            statusIcon.style.display = 'block';
+
+            msgDiv.textContent = '🆕 Cliente nuevo — ingresa sus datos manualmente';
+            msgDiv.style.display = 'block';
+            msgDiv.style.background = 'rgba(233, 69, 96, 0.08)';
+            msgDiv.style.color = 'var(--accent)';
+            msgDiv.style.border = '1px solid rgba(233, 69, 96, 0.15)';
+
+            // Focus al campo nombre para que escriba rápido
+            setTimeout(() => document.getElementById('razonSocial')?.focus(), 300);
+
+        } else {
+            // Otro error (500, etc) — silencioso
+            console.warn('Error buscando cliente:', resp.status);
+        }
+
+    } catch (err) {
+        // Error de red — no bloquear, solo log
+        spinner.style.display = 'none';
+        console.warn('No se pudo buscar cliente:', err.message);
+    }
+
+    // Limpiar borde después de 5 segundos
+    setTimeout(() => {
+        inputCedula.style.borderColor = '';
+    }, 5000);
+}
 
 // ── Agregar producto ────────────────────────────────────
 function agregarProducto() {

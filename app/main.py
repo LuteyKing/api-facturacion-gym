@@ -9,7 +9,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from .database import Base, engine
 from .models import db_models  # noqa: F401  — registra los modelos en Base.metadata
-from .routers import clientes, facturas, facturar
+from .routers import clientes, facturas, facturar, productos
 
 logging.basicConfig(
     level=logging.INFO,
@@ -44,7 +44,7 @@ app.add_middleware(
 app.include_router(facturar.router, prefix="/api/v1")
 app.include_router(facturas.router, prefix="/api/v1")
 app.include_router(clientes.router, prefix="/api/v1")
-
+app.include_router(productos.router, prefix="/api/v1")
 
 @app.get("/", tags=["Health"])
 def health_check():
