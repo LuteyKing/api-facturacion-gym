@@ -21,25 +21,6 @@ logging.basicConfig(
 # ── Crear tablas en la BD al iniciar ─────────────────────
 Base.metadata.create_all(bind=engine)
 
-# ── Seed: crear usuario admin por defecto ────────────────
-def _seed_admin():
-    db = SessionLocal()
-    try:
-        if not db.query(Usuario).filter(Usuario.username == "admin").first():
-            admin = Usuario(
-                username="admin",
-                password_hash=hash_password("admin123"),
-                nombre_completo="Administrador",
-                rol="admin",
-            )
-            db.add(admin)
-            db.commit()
-            logging.getLogger(__name__).info("Usuario admin creado por defecto")
-    finally:
-        db.close()
-
-_seed_admin()
-
 app = FastAPI(
     title="Microservicio de Facturación Electrónica SRI — Ecuador",
     description=(
@@ -62,11 +43,30 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-app.include_router(auth.router, prefix="/api/v1")
+app.include_router(auth.router, prefix="/api/v1/auth")
 app.include_router(facturar.router, prefix="/api/v1")
 app.include_router(facturas.router, prefix="/api/v1")
 app.include_router(clientes.router, prefix="/api/v1")
 app.include_router(productos.router, prefix="/api/v1")
+
+# ── Seed: crear usuario admin por defecto al arrancar ────
+@app.on_event("startup")
+def seed_admin():
+    db = SessionLocal()
+    try:
+        if not db.query(Usuario).filter(Usuario.username == "admin").first():
+            admin = Usuario(
+                username="admin",
+                password_hash=hash_password("admin123"),
+                nombre_completo="Administrador",
+                rol="admin",
+            )
+            db.add(admin)
+            db.commit()
+            logging.getLogger(__name__).info("Usuario admin creado por defecto")
+    finally:
+        db.close()
+
 
 @app.get("/", tags=["Health"])
 def health_check():

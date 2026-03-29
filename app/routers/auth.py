@@ -22,7 +22,7 @@ from ..database import get_db
 from ..models.db_models import Usuario
 
 logger = logging.getLogger(__name__)
-router = APIRouter(prefix="/auth", tags=["Autenticación"])
+router = APIRouter(tags=["Autenticación"])
 
 # ── Hashing de contraseñas ───────────────────────────────
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
