@@ -315,6 +315,29 @@
             color: var(--text-muted);
             margin-left: 4px;
         }
+
+        /* ── Botón X para limpiar campos ──────── */
+        .btn-clear-field {
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            font-size: 1rem;
+            cursor: pointer;
+            padding: 2px 4px;
+            border-radius: 50%;
+            transition: all 0.2s;
+            z-index: 5;
+            display: none;
+            line-height: 1;
+        }
+        .btn-clear-field:hover {
+            color: #ff6b6b;
+            background: rgba(255, 107, 107, 0.12);
+        }
     </style>
 </head>
 <body>
@@ -368,9 +391,15 @@
                             <div class="autocomplete-wrapper">
                                 <div class="position-relative">
                                     <input type="text" class="form-control" id="identificacion"
-                                           placeholder="0102030405" maxlength="13" autocomplete="off">
+                                           placeholder="0102030405" maxlength="13" autocomplete="off"
+                                           style="padding-right: 70px;">
+                                    <!-- Botón X para limpiar -->
+                                    <button type="button" class="btn-clear-field" id="btnClearCedula"
+                                            title="Limpiar" onclick="limpiarCampoCliente()">
+                                        <i class="bi bi-x-circle"></i>
+                                    </button>
                                     <!-- Spinner de búsqueda -->
-                                    <div id="cedulaSpinner" class="position-absolute" style="right: 12px; top: 50%; transform: translateY(-50%); display: none;">
+                                    <div id="cedulaSpinner" class="position-absolute" style="right: 36px; top: 50%; transform: translateY(-50%); display: none;">
                                         <div class="spinner-border spinner-border-sm" style="width: 1rem; height: 1rem; border-width: 2px; color: var(--accent);" role="status"></div>
                                     </div>
                                     <!-- Badge de estado -->
@@ -414,8 +443,15 @@
                     <!-- Selector con autocompletado -->
                     <div class="d-flex gap-2 mb-3">
                         <div class="autocomplete-wrapper">
-                            <input type="text" class="form-control" id="inputProducto"
-                                   placeholder="Escribe código o descripción..." autocomplete="off">
+                            <div class="position-relative">
+                                <input type="text" class="form-control" id="inputProducto"
+                                       placeholder="Escribe código o descripción..." autocomplete="off"
+                                       style="padding-right: 36px;">
+                                <button type="button" class="btn-clear-field" id="btnClearProducto"
+                                        title="Limpiar" onclick="limpiarCampoProducto()">
+                                    <i class="bi bi-x-circle"></i>
+                                </button>
+                            </div>
                             <div class="autocomplete-list" id="autocompleteList"></div>
                         </div>
                         <input type="number" class="form-control" id="inputPrecio" step="0.01" min="0"
@@ -526,6 +562,33 @@ actualizarSecuencialUI();
         .catch(() => { catalogoClientes = []; });
 })();
 
+// ── Funciones de limpieza de campos ─────────────────────
+function limpiarCampoCliente() {
+    document.getElementById('identificacion').value = '';
+    document.getElementById('razonSocial').value = '';
+    document.getElementById('email').value = '';
+    document.getElementById('telefono').value = '';
+    document.getElementById('direccion').value = '';
+    document.getElementById('cedulaStatus').style.display = 'none';
+    document.getElementById('clienteMsg').style.display = 'none';
+    document.getElementById('clienteAutocompleteList').classList.remove('show');
+    document.getElementById('btnClearCedula').style.display = 'none';
+    document.getElementById('identificacion').focus();
+}
+
+function limpiarCampoProducto() {
+    document.getElementById('inputProducto').value = '';
+    document.getElementById('inputPrecio').value = '';
+    productoSeleccionado = null;
+    document.getElementById('autocompleteList').classList.remove('show');
+    document.getElementById('btnClearProducto').style.display = 'none';
+    document.getElementById('inputProducto').focus();
+}
+
+function toggleClearBtn(inputEl, btnId) {
+    document.getElementById(btnId).style.display = inputEl.value.trim() ? 'block' : 'none';
+}
+
 // ── Autocompletado de productos ─────────────────────────
 (function() {
     const input = document.getElementById('inputProducto');
@@ -571,6 +634,14 @@ actualizarSecuencialUI();
     input.addEventListener('input', function() {
         productoSeleccionado = null;
         autocompleteIndex = -1;
+        toggleClearBtn(this, 'btnClearProducto');
+
+        // Si se vació, limpiar precio
+        if (!this.value.trim()) {
+            precioInput.value = '';
+            productoSeleccionado = null;
+        }
+
         if (debounceAC) clearTimeout(debounceAC);
 
         debounceAC = setTimeout(() => {
@@ -627,6 +698,7 @@ function seleccionarProductoCatalogo(index) {
     productoSeleccionado = producto;
     input.value = producto.nombre;
     precioInput.value = parseFloat(producto.precio_unitario).toFixed(2);
+    toggleClearBtn(input, 'btnClearProducto');
 
     list.classList.remove('show');
     list.innerHTML = '';
@@ -684,12 +756,21 @@ function escapeHtmlIndex(text) {
         statusIcon.style.display = 'none';
         msgDiv.style.display = 'none';
         clienteAutocompleteIndex = -1;
+        toggleClearBtn(this, 'btnClearCedula');
 
         // Cancelar búsquedas previas
         if (busquedaTimeout) clearTimeout(busquedaTimeout);
         if (debounceClientAC) clearTimeout(debounceClientAC);
 
         const val = this.value.trim();
+
+        // Si se vació, limpiar todos los campos dependientes
+        if (!val) {
+            document.getElementById('razonSocial').value = '';
+            document.getElementById('email').value = '';
+            document.getElementById('telefono').value = '';
+            document.getElementById('direccion').value = '';
+        }
 
         // ── Autocompletado local de clientes ──
         debounceClientAC = setTimeout(() => {
@@ -767,6 +848,7 @@ function seleccionarClienteCatalogo(index) {
     document.getElementById('email').value       = cliente.correo || '';
     document.getElementById('telefono').value    = cliente.telefono || '';
     document.getElementById('direccion').value   = cliente.direccion || '';
+    toggleClearBtn(input, 'btnClearCedula');
 
     clientList.classList.remove('show');
     clientList.innerHTML = '';
@@ -972,9 +1054,9 @@ async function emitirFactura() {
     else if (identificacion.length === 10) tipoId = '05'; // Cédula
     else return mostrarError('La identificación debe tener 10 dígitos (cédula) o 13 dígitos (RUC).');
 
-    // Fecha actual dd/mm/yyyy
-    const hoy = new Date();
-    const fechaEmision = `${String(hoy.getDate()).padStart(2, '0')}/${String(hoy.getMonth() + 1).padStart(2, '0')}/${hoy.getFullYear()}`;
+    // Fecha actual dd/mm/yyyy (hora de Ecuador)
+    const hoyEC = new Date(new Date().toLocaleString('en-US', { timeZone: 'America/Guayaquil' }));
+    const fechaEmision = `${String(hoyEC.getDate()).padStart(2, '0')}/${String(hoyEC.getMonth() + 1).padStart(2, '0')}/${hoyEC.getFullYear()}`;
 
     // Armar productos
     const productos = carrito.map(item => ({

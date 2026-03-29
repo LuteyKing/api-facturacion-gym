@@ -10,6 +10,7 @@ Incluye:
 
 import base64
 import logging
+from datetime import timedelta
 
 from fastapi import APIRouter, Depends, HTTPException, Query
 from fastapi.responses import Response
@@ -178,7 +179,7 @@ def listar_facturas(
             total=float(f.total),
             clave_acceso=f.clave_acceso,
             estado_sri=f.estado_sri,
-            created_at=f.created_at.strftime("%Y-%m-%d %H:%M:%S") if f.created_at else None,
+            created_at=(f.created_at - timedelta(hours=5)).strftime("%d/%m/%Y %H:%M:%S") if f.created_at else None,
         )
         resultado.append(item)
 
