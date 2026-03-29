@@ -18,7 +18,7 @@ from sqlalchemy.orm import Session
 
 from ..config import settings
 from ..database import get_db
-from ..models.db_models import Factura
+from ..models.db_models import Cliente, Factura
 from ..models.enums import TipoDocumento
 from ..models.schemas import (
     AutorizacionResponse,
@@ -157,12 +157,14 @@ def listar_facturas(
 
     Opcionalmente filtra por estado SRI y limita la cantidad de resultados.
     """
-    query = db.query(Factura)
+    query = db.query(Factura, Cliente.telefono).outerjoin(
+        Cliente, Factura.identificacion_cliente == Cliente.cedula_ruc
+    )
 
     if estado:
         query = query.filter(Factura.estado_sri == estado.upper())
 
-    facturas = (
+    filas = (
         query.order_by(Factura.created_at.desc())
         .limit(limite)
         .all()
@@ -170,7 +172,7 @@ def listar_facturas(
 
     # Convertir created_at a string para la respuesta
     resultado = []
-    for f in facturas:
+    for f, tel_cliente in filas:
         item = FacturaHistorialItem(
             id=f.id,
             secuencial=f.secuencial,
@@ -179,6 +181,7 @@ def listar_facturas(
             total=float(f.total),
             clave_acceso=f.clave_acceso,
             estado_sri=f.estado_sri,
+            telefono_cliente=tel_cliente,
             created_at=(f.created_at - timedelta(hours=5)).strftime("%d/%m/%Y %H:%M:%S") if f.created_at else None,
         )
         resultado.append(item)

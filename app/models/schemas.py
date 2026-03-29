@@ -246,6 +246,9 @@ class FacturaHistorialItem(BaseModel):
     total: float
     clave_acceso: str
     estado_sri: str
+    telefono_cliente: Optional[str] = Field(
+        None, description="Teléfono del cliente asociado"
+    )
     created_at: Optional[str] = Field(
         None, description="Fecha y hora de creación del registro (UTC)"
     )
