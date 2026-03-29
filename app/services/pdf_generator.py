@@ -10,6 +10,7 @@ Dependencias: reportlab, qrcode, pillow.
 import io
 import logging
 from pathlib import Path
+from xml.etree import ElementTree as ET
 
 import qrcode
 from reportlab.lib import colors
@@ -309,6 +310,102 @@ def generar_ride_pdf(factura, nombre_cliente: str | None = None) -> bytes:
     elementos.append(Spacer(1, 8 * mm))
 
     # ═══════════════════════════════════════════════════════
+    # ─── DETALLE DE PRODUCTOS / SERVICIOS ─────────────────
+    # ═══════════════════════════════════════════════════════
+    productos_detalles = []
+    subtotal_real = 0.0
+    iva_real = 0.0
+    try:
+        if factura.xml_generado:
+            xml_root = ET.fromstring(factura.xml_generado)
+            for det in xml_root.iter("detalle"):
+                desc = det.findtext("descripcion", "")
+                cant = float(det.findtext("cantidad", "1"))
+                precio = float(det.findtext("precioUnitario", "0"))
+                subtotal_item = float(det.findtext("precioTotalSinImpuesto", "0"))
+                # Extraer IVA del detalle
+                iva_item = 0.0
+                for imp in det.iter("impuesto"):
+                    iva_item += float(imp.findtext("valor", "0"))
+                productos_detalles.append({
+                    "descripcion": desc,
+                    "cantidad": cant,
+                    "precio": precio,
+                    "subtotal": subtotal_item,
+                    "iva": iva_item,
+                })
+                subtotal_real += subtotal_item
+                iva_real += iva_item
+    except Exception:
+        pass
+
+    if productos_detalles:
+        seccion_productos = Table(
+            [[
+                Paragraph(
+                    '<font name="Helvetica-Bold" size="10" color="#FFD700">■</font>'
+                    '&nbsp;&nbsp;'
+                    '<font name="Helvetica-Bold" size="11" color="#111111">PRODUCTOS / SERVICIOS</font>',
+                    ParagraphStyle("SecProd", leading=14),
+                )
+            ]],
+            colWidths=[COL_TOTAL],
+        )
+        seccion_productos.setStyle(
+            TableStyle(
+                [
+                    ("BOTTOMPADDING", (0, 0), (-1, -1), 4),
+                    ("TOPPADDING", (0, 0), (-1, -1), 0),
+                ]
+            )
+        )
+        elementos.append(seccion_productos)
+
+        prod_header = ["Descripción", "Cant.", "P. Unit.", "Subtotal"]
+        prod_data = [prod_header]
+        for p in productos_detalles:
+            cant_fmt = str(int(p["cantidad"])) if p["cantidad"] == int(p["cantidad"]) else f"{p['cantidad']:.2f}"
+            prod_data.append([
+                Paragraph(f'<font size="9">{p["descripcion"]}</font>', estilo_normal),
+                cant_fmt,
+                f"${p['precio']:,.2f}",
+                f"${p['subtotal']:,.2f}",
+            ])
+
+        tabla_productos = Table(
+            prod_data,
+            colWidths=[COL_TOTAL * 0.46, COL_TOTAL * 0.12, COL_TOTAL * 0.21, COL_TOTAL * 0.21],
+        )
+
+        prod_styles = [
+            ("BACKGROUND", (0, 0), (-1, 0), COLOR_NEGRO),
+            ("TEXTCOLOR", (0, 0), (-1, 0), COLOR_AMARILLO),
+            ("FONTNAME", (0, 0), (-1, 0), "Helvetica-Bold"),
+            ("FONTSIZE", (0, 0), (-1, 0), 9),
+            ("TOPPADDING", (0, 0), (-1, 0), 8),
+            ("BOTTOMPADDING", (0, 0), (-1, 0), 8),
+            ("FONTNAME", (0, 1), (-1, -1), "Helvetica"),
+            ("FONTSIZE", (0, 1), (-1, -1), 9),
+            ("TEXTCOLOR", (0, 1), (-1, -1), COLOR_TEXTO_OSCURO),
+            ("TOPPADDING", (0, 1), (-1, -1), 6),
+            ("BOTTOMPADDING", (0, 1), (-1, -1), 6),
+            ("LINEBELOW", (0, 0), (-1, -2), 0.3, COLOR_BORDE_GRIS),
+            ("ALIGN", (1, 0), (-1, -1), "RIGHT"),
+            ("LEFTPADDING", (0, 0), (-1, -1), 10),
+            ("RIGHTPADDING", (0, 0), (-1, -1), 10),
+            ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
+            ("BOX", (0, 0), (-1, -1), 0.8, COLOR_NEGRO),
+            ("ROUNDEDCORNERS", [4, 4, 4, 4]),
+        ]
+        for i in range(1, len(prod_data)):
+            if i % 2 == 0:
+                prod_styles.append(("BACKGROUND", (0, i), (-1, i), COLOR_FILA_ALT))
+
+        tabla_productos.setStyle(TableStyle(prod_styles))
+        elementos.append(tabla_productos)
+        elementos.append(Spacer(1, 8 * mm))
+
+    # ═══════════════════════════════════════════════════════
     # ─── TABLA DE TOTALES ─────────────────────────────────
     # ═══════════════════════════════════════════════════════
     seccion_totales = Table(
@@ -332,11 +429,15 @@ def generar_ride_pdf(factura, nombre_cliente: str | None = None) -> bytes:
     )
     elementos.append(seccion_totales)
 
-    # Header de tabla negro con letras amarillas/blancas
-    totales_header = ["Concepto", "Valor"]
-    subtotal_val = float(factura.total) / 1.15  # Estimación del subtotal (antes de IVA 15%)
-    iva_val = float(factura.total) - subtotal_val
+    # Usar valores reales del XML si se pudieron extraer, sino estimar
+    if productos_detalles:
+        subtotal_val = subtotal_real
+        iva_val = iva_real
+    else:
+        subtotal_val = float(factura.total) / 1.15
+        iva_val = float(factura.total) - subtotal_val
 
+    totales_header = ["Concepto", "Valor"]
     totales_data = [
         totales_header,
         ["Subtotal (Sin IVA)", f"${subtotal_val:,.2f}"],
