@@ -395,15 +395,16 @@
                                            style="padding-right: 70px;">
                                     <!-- Botón X para limpiar -->
                                     <button type="button" class="btn-clear-field" id="btnClearCedula"
-                                            title="Limpiar" onclick="limpiarCampoCliente()">
+                                            title="Limpiar" onclick="limpiarCampoCliente()"
+                                            style="right: 10px;">
                                         <i class="bi bi-x-circle"></i>
                                     </button>
                                     <!-- Spinner de búsqueda -->
-                                    <div id="cedulaSpinner" class="position-absolute" style="right: 36px; top: 50%; transform: translateY(-50%); display: none;">
+                                    <div id="cedulaSpinner" class="position-absolute" style="right: 38px; top: 50%; transform: translateY(-50%); display: none;">
                                         <div class="spinner-border spinner-border-sm" style="width: 1rem; height: 1rem; border-width: 2px; color: var(--accent);" role="status"></div>
                                     </div>
                                     <!-- Badge de estado -->
-                                    <div id="cedulaStatus" class="position-absolute" style="right: 12px; top: 50%; transform: translateY(-50%); display: none;"></div>
+                                    <div id="cedulaStatus" class="position-absolute" style="right: 38px; top: 50%; transform: translateY(-50%); display: none;"></div>
                                 </div>
                                 <div class="autocomplete-list" id="clienteAutocompleteList"></div>
                             </div>
