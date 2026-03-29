@@ -266,6 +266,12 @@
                         </svg>
                         Historial
                     </a>
+                    <a id="navUsuarios" href="usuarios.html"
+                       class="hidden sm:inline-flex items-center gap-1.5 text-gray-400 hover:text-gym-yellow px-3 py-2 rounded-lg text-sm font-medium transition-all duration-300"
+                       style="display:none !important;">
+                        <i class="bi bi-shield-lock"></i>
+                        Usuarios
+                    </a>
                     <a href="index.html"
                        class="inline-flex items-center gap-2 bg-gym-yellow/10 hover:bg-gym-yellow/20 text-gym-yellow px-4 py-2 rounded-lg text-sm font-semibold transition-all duration-300 hover:scale-105 border border-gym-yellow/20 hover:border-gym-yellow/40">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
@@ -525,6 +531,10 @@
             if (user && user.nombre_completo) {
                 const rol = user.rol ? user.rol.charAt(0).toUpperCase() + user.rol.slice(1) : '';
                 document.getElementById('userIndicator').textContent = `👤 ${user.nombre_completo} (${rol})`;
+                if (user.rol === 'admin') {
+                    const nu = document.getElementById('navUsuarios');
+                    if (nu) nu.style.cssText = '';
+                }
             }
         })
         .catch(() => {});

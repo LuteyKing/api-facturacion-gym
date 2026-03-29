@@ -10,7 +10,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from .database import Base, SessionLocal, engine
 from .models import db_models  # noqa: F401  — registra los modelos en Base.metadata
 from .models.db_models import Usuario
-from .routers import auth, clientes, facturas, facturar, productos
+from .routers import auth, clientes, facturas, facturar, productos, usuarios
 from .routers.auth import hash_password
 
 logging.basicConfig(
@@ -48,6 +48,7 @@ app.include_router(facturar.router, prefix="/api/v1")
 app.include_router(facturas.router, prefix="/api/v1")
 app.include_router(clientes.router, prefix="/api/v1")
 app.include_router(productos.router, prefix="/api/v1")
+app.include_router(usuarios.router, prefix="/api/v1")
 
 # ── Seed: crear usuario admin por defecto al arrancar ────
 @app.on_event("startup")

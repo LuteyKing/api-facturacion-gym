@@ -1,0 +1,604 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestión de Usuarios — MI GIMNASIO PRO</title>
+    <meta name="description" content="Gestión de usuarios y trabajadores. Sistema de facturación electrónica para Gimnasio y CrossFit.">
+
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Google Fonts: Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'gym-yellow': '#FFD700',
+                        'gym-yellow-hover': '#E6C200',
+                        'gym-yellow-soft': '#FFF8DC',
+                        'gym-black': '#0D0D0D',
+                        'gym-dark': '#111111',
+                        'gym-surface': '#1A1A1A',
+                    },
+                    fontFamily: {
+                        'inter': ['Inter', 'system-ui', 'sans-serif'],
+                    },
+                }
+            }
+        }
+    </script>
+
+    <style>
+        * { font-family: 'Inter', system-ui, sans-serif; }
+
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 10px; }
+        ::-webkit-scrollbar-thumb { background: #FFD700; border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: #E6C200; }
+
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes slideDown {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes shimmer {
+            0% { background-position: -200% 0; }
+            100% { background-position: 200% 0; }
+        }
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
+
+        .animate-fade-in-up { animation: fadeInUp 0.5s ease-out forwards; }
+        .animate-shake { animation: shake 0.4s ease-out; }
+
+        .skeleton {
+            background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+            background-size: 200% 100%;
+            animation: shimmer 1.5s infinite;
+            border-radius: 6px;
+        }
+
+        .navbar-gym {
+            background: linear-gradient(90deg, #0D0D0D 0%, #1A1A1A 50%, #0D0D0D 100%);
+            box-shadow: 0 2px 20px rgba(0,0,0,0.3);
+        }
+        .navbar-gym::after {
+            content: '';
+            position: absolute;
+            bottom: 0; left: 0;
+            width: 100%; height: 3px;
+            background: linear-gradient(90deg, transparent, #FFD700, transparent);
+        }
+
+        .table-row-hover { transition: all 0.2s ease; }
+        .table-row-hover:hover {
+            background-color: #F9FAFB !important;
+            transform: scale(1.002);
+            box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+        }
+
+        .toast {
+            position: fixed;
+            top: 80px;
+            right: 20px;
+            z-index: 9999;
+            animation: slideDown 0.4s ease-out;
+            max-width: 400px;
+        }
+        .toast.toast-exit {
+            animation: fadeInUp 0.3s ease-out reverse forwards;
+        }
+
+        .btn-guardar {
+            background: linear-gradient(135deg, #FFD700 0%, #E6C200 100%);
+            color: #0D0D0D;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        .btn-guardar::before {
+            content: '';
+            position: absolute;
+            top: 0; left: -100%;
+            width: 100%; height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+            transition: left 0.5s ease;
+        }
+        .btn-guardar:hover::before { left: 100%; }
+        .btn-guardar:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(255, 215, 0, 0.4);
+        }
+        .btn-guardar:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none !important;
+            box-shadow: none !important;
+        }
+
+        .form-input-gym {
+            transition: all 0.3s ease;
+            border: 1.5px solid #E5E7EB;
+        }
+        .form-input-gym:focus {
+            border-color: #FFD700;
+            box-shadow: 0 0 0 3px rgba(255, 215, 0, 0.15);
+            outline: none;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 min-h-screen">
+
+    <!-- ═══ NAVBAR ═══ -->
+    <nav class="navbar-gym sticky top-0 z-50 relative">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <div class="flex items-center gap-3">
+                    <div class="w-9 h-9 bg-gym-yellow rounded-lg flex items-center justify-center">
+                        <svg class="w-5 h-5 text-gym-black" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M20.57 14.86L22 13.43 20.57 12 17 15.57 8.43 7 12 3.43 10.57 2 9.14 3.43 7.71 2 5.57 4.14 4.14 2.71 2.71 4.14l1.43 1.43L2 7.71l1.43 1.43L2 10.57 3.43 12 7 8.43 15.57 17 12 20.57 13.43 22l1.43-1.43L16.29 22l2.14-2.14 1.43 1.43 1.43-1.43-1.43-1.43L22 16.29z"/>
+                        </svg>
+                    </div>
+                    <div>
+                        <h1 class="text-gym-yellow font-extrabold text-lg tracking-tight leading-none">MI GIMNASIO PRO</h1>
+                        <span class="text-gray-500 text-xs font-medium tracking-wider">GESTIÓN DE USUARIOS</span>
+                    </div>
+                </div>
+                <div class="flex items-center gap-3">
+                    <a href="clientes.html" class="hidden sm:inline-flex items-center gap-1.5 text-gray-400 hover:text-gym-yellow px-3 py-2 rounded-lg text-sm font-medium transition-all duration-300">
+                        <i class="bi bi-people"></i> Clientes
+                    </a>
+                    <a href="productos.html" class="hidden sm:inline-flex items-center gap-1.5 text-gray-400 hover:text-gym-yellow px-3 py-2 rounded-lg text-sm font-medium transition-all duration-300">
+                        <i class="bi bi-box-seam"></i> Productos
+                    </a>
+                    <a href="historial.html" class="hidden sm:inline-flex items-center gap-1.5 text-gray-400 hover:text-gym-yellow px-3 py-2 rounded-lg text-sm font-medium transition-all duration-300">
+                        <i class="bi bi-clock-history"></i> Historial
+                    </a>
+                    <a href="index.html" class="inline-flex items-center gap-2 bg-gym-yellow/10 hover:bg-gym-yellow/20 text-gym-yellow px-4 py-2 rounded-lg text-sm font-semibold transition-all duration-300 hover:scale-105 border border-gym-yellow/20 hover:border-gym-yellow/40">
+                        <i class="bi bi-arrow-left"></i> Volver al POS
+                    </a>
+                    <span id="userIndicator" class="hidden sm:inline-flex items-center gap-1.5 bg-gym-yellow/10 text-gym-yellow border border-gym-yellow/20 px-3 py-1.5 rounded-lg text-xs font-semibold tracking-wide">
+                        👤 Cargando...
+                    </span>
+                    <button onclick="cerrarSesion()" class="inline-flex items-center gap-2 bg-red-500/10 hover:bg-red-500/20 text-red-400 px-4 py-2 rounded-lg text-sm font-semibold transition-all duration-300 hover:scale-105 border border-red-500/20 hover:border-red-500/40">
+                        <i class="bi bi-box-arrow-right"></i> Salir
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div id="toastContainer"></div>
+
+    <!-- ═══ CONTENIDO PRINCIPAL ═══ -->
+    <main class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+
+        <!-- Título + Botón Nuevo -->
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-8 gap-4 animate-fade-in-up">
+            <div>
+                <h2 class="text-3xl font-extrabold text-gym-dark tracking-tight">Gestión de Usuarios</h2>
+                <p class="text-gray-500 mt-1 text-sm">Administra los trabajadores y sus accesos al sistema.</p>
+            </div>
+            <button onclick="abrirModalNuevo()" class="btn-guardar inline-flex items-center gap-2 px-5 py-3 rounded-xl font-bold text-sm tracking-wide">
+                <i class="bi bi-person-plus-fill text-base"></i>
+                Nuevo Usuario
+            </button>
+        </div>
+
+        <!-- Tabla -->
+        <div class="bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden animate-fade-in-up" style="animation-delay: 0.1s;">
+            <div class="bg-gym-black px-6 py-4 border-b-4 border-gym-yellow">
+                <div class="flex items-center gap-3">
+                    <div class="w-8 h-8 bg-gym-yellow rounded-lg flex items-center justify-center">
+                        <i class="bi bi-shield-lock-fill text-gym-black text-sm"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-white font-bold text-sm tracking-tight">Directorio de Usuarios</h3>
+                        <p class="text-gray-400 text-xs mt-0.5">Trabajadores con acceso al sistema</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="overflow-x-auto">
+                <table class="w-full">
+                    <thead class="bg-gray-50 border-b border-gray-200">
+                        <tr>
+                            <th class="px-6 py-3.5 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Nombre</th>
+                            <th class="px-6 py-3.5 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Usuario</th>
+                            <th class="px-6 py-3.5 text-center text-xs font-bold text-gray-500 uppercase tracking-wider">Rol</th>
+                            <th class="px-6 py-3.5 text-center text-xs font-bold text-gray-500 uppercase tracking-wider">Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody id="cuerpoTabla" class="divide-y divide-gray-100">
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="px-6 py-4 bg-gray-50 border-t border-gray-100 flex items-center justify-between" id="tableFooter" style="display: none;">
+                <p class="text-xs text-gray-400" id="footerInfo"></p>
+                <button onclick="cargarUsuarios()" class="inline-flex items-center gap-2 text-sm font-semibold text-gym-dark hover:text-gym-yellow transition-colors duration-300">
+                    <i class="bi bi-arrow-clockwise"></i> Actualizar
+                </button>
+            </div>
+        </div>
+    </main>
+
+    <!-- ═══ MODAL: Nuevo Usuario ═══ -->
+    <div id="modalNuevo" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4">
+        <div class="absolute inset-0 bg-black/70 backdrop-blur-sm" onclick="cerrarModalNuevo()"></div>
+        <div class="relative w-full max-w-md bg-[#1A1A1A] border border-yellow-500/20 rounded-2xl shadow-2xl overflow-hidden" style="animation: fadeInUp 0.3s ease-out;">
+            <div class="flex items-center justify-between px-6 py-4 border-b border-gray-700/50">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 bg-yellow-500/10 rounded-xl flex items-center justify-center">
+                        <i class="bi bi-person-plus-fill text-yellow-400 text-lg"></i>
+                    </div>
+                    <h3 class="text-white font-bold text-sm">Nuevo Usuario</h3>
+                </div>
+                <button onclick="cerrarModalNuevo()" class="text-gray-500 hover:text-white transition-colors p-1">
+                    <i class="bi bi-x-lg"></i>
+                </button>
+            </div>
+            <form id="formNuevo" class="px-6 py-5 space-y-4" onsubmit="return false;">
+                <div>
+                    <label class="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-1.5">Nombre Completo <span class="text-red-400">*</span></label>
+                    <input type="text" id="nuevoNombre" class="form-input-gym w-full px-4 py-3 rounded-xl text-sm bg-[#111] text-white border-gray-700" placeholder="Juan Carlos López" required>
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-1.5">Usuario (login) <span class="text-red-400">*</span></label>
+                    <input type="text" id="nuevoUsername" class="form-input-gym w-full px-4 py-3 rounded-xl text-sm bg-[#111] text-white border-gray-700" placeholder="jcarlos" required>
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-1.5">Contraseña <span class="text-red-400">*</span></label>
+                    <input type="password" id="nuevoPassword" class="form-input-gym w-full px-4 py-3 rounded-xl text-sm bg-[#111] text-white border-gray-700" placeholder="••••••••" required>
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-1.5">Rol</label>
+                    <select id="nuevoRol" class="form-input-gym w-full px-4 py-3 rounded-xl text-sm bg-[#111] text-white border-gray-700">
+                        <option value="vendedor">Vendedor</option>
+                        <option value="admin">Administrador</option>
+                    </select>
+                </div>
+                <button type="button" id="btnCrear" onclick="crearUsuario()" class="btn-guardar w-full py-3.5 rounded-xl font-bold text-sm tracking-wide flex items-center justify-center gap-2 mt-2">
+                    <i class="bi bi-check-lg text-base"></i> Crear Usuario
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- ═══ MODAL: Cambiar Contraseña ═══ -->
+    <div id="modalPassword" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4">
+        <div class="absolute inset-0 bg-black/70 backdrop-blur-sm" onclick="cerrarModalPassword()"></div>
+        <div class="relative w-full max-w-sm bg-[#1A1A1A] border border-yellow-500/20 rounded-2xl shadow-2xl overflow-hidden" style="animation: fadeInUp 0.3s ease-out;">
+            <div class="flex items-center justify-between px-6 py-4 border-b border-gray-700/50">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 bg-yellow-500/10 rounded-xl flex items-center justify-center">
+                        <i class="bi bi-key-fill text-yellow-400 text-lg"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-white font-bold text-sm">Cambiar Contraseña</h3>
+                        <p id="passwordUsuarioNombre" class="text-yellow-400 text-xs font-semibold"></p>
+                    </div>
+                </div>
+                <button onclick="cerrarModalPassword()" class="text-gray-500 hover:text-white transition-colors p-1">
+                    <i class="bi bi-x-lg"></i>
+                </button>
+            </div>
+            <div class="px-6 py-5 space-y-4">
+                <input type="hidden" id="passwordUsuarioId">
+                <div>
+                    <label class="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-1.5">Nueva Contraseña <span class="text-red-400">*</span></label>
+                    <input type="password" id="nuevaPassword" class="form-input-gym w-full px-4 py-3 rounded-xl text-sm bg-[#111] text-white border-gray-700" placeholder="••••••••">
+                </div>
+                <button type="button" onclick="guardarPassword()" class="btn-guardar w-full py-3.5 rounded-xl font-bold text-sm tracking-wide flex items-center justify-center gap-2">
+                    <i class="bi bi-check-lg text-base"></i> Guardar Contraseña
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ═══ JAVASCRIPT ═══ -->
+    <script>
+    const API_BASE_URL = 'https://api-facturacion-gym.onrender.com';
+
+    const GYM_TOKEN = localStorage.getItem('gym_token');
+    if (!GYM_TOKEN) { window.location.href = 'login.html'; }
+    function authHeaders(extra = {}) {
+        return { 'Authorization': `Bearer ${GYM_TOKEN}`, ...extra };
+    }
+
+    // Guard: solo admin puede ver esta página
+    fetch(`${API_BASE_URL}/api/v1/auth/me`, { headers: authHeaders() })
+        .then(r => {
+            if (!r.ok) { localStorage.removeItem('gym_token'); localStorage.removeItem('gym_user'); window.location.href = 'login.html'; }
+            return r.json();
+        })
+        .then(user => {
+            if (!user) return;
+            if (user.rol !== 'admin') {
+                alert('Acceso denegado: solo administradores pueden acceder a esta sección.');
+                window.location.href = 'index.html';
+                return;
+            }
+            const rol = user.rol.charAt(0).toUpperCase() + user.rol.slice(1);
+            document.getElementById('userIndicator').textContent = `👤 ${user.nombre_completo} (${rol})`;
+        })
+        .catch(() => {});
+
+    window.onload = function() {
+        cargarUsuarios();
+    };
+
+    async function cargarUsuarios() {
+        const cuerpo = document.getElementById('cuerpoTabla');
+        const footer = document.getElementById('tableFooter');
+        footer.style.display = 'none';
+
+        cuerpo.innerHTML = '';
+        for (let i = 0; i < 3; i++) {
+            cuerpo.innerHTML += `
+                <tr style="animation: fadeInUp 0.3s ease-out ${i * 0.08}s both;">
+                    <td class="px-6 py-4"><div class="skeleton h-5 w-36"></div></td>
+                    <td class="px-6 py-4"><div class="skeleton h-5 w-24"></div></td>
+                    <td class="px-6 py-4 text-center"><div class="skeleton h-6 w-20 mx-auto rounded-full"></div></td>
+                    <td class="px-6 py-4 text-center"><div class="skeleton h-8 w-40 mx-auto rounded-lg"></div></td>
+                </tr>`;
+        }
+
+        try {
+            const resp = await fetch(`${API_BASE_URL}/api/v1/usuarios`, { headers: authHeaders() });
+            if (!resp.ok) throw new Error(`Error ${resp.status}`);
+            const usuarios = await resp.json();
+
+            await new Promise(r => setTimeout(r, 300));
+
+            if (usuarios.length === 0) {
+                cuerpo.innerHTML = `
+                    <tr><td colspan="4" class="px-6 py-16 text-center">
+                        <div class="flex flex-col items-center gap-3 animate-fade-in-up">
+                            <div class="w-16 h-16 bg-gym-yellow/10 rounded-2xl flex items-center justify-center">
+                                <i class="bi bi-people text-3xl text-gym-yellow/60"></i>
+                            </div>
+                            <p class="text-gray-500 font-semibold">No hay usuarios registrados</p>
+                        </div>
+                    </td></tr>`;
+                return;
+            }
+
+            renderizarTabla(usuarios);
+        } catch (e) {
+            cuerpo.innerHTML = `
+                <tr><td colspan="4" class="px-6 py-14 text-center">
+                    <div class="flex flex-col items-center gap-3 animate-fade-in-up">
+                        <i class="bi bi-exclamation-triangle text-4xl text-red-400"></i>
+                        <p class="text-gray-600 font-semibold">Error de conexión</p>
+                        <p class="text-gray-400 text-sm">${e.message}</p>
+                        <button onclick="cargarUsuarios()" class="mt-2 inline-flex items-center gap-2 bg-gym-dark text-gym-yellow px-5 py-2.5 rounded-lg text-sm font-bold hover:bg-gym-black transition-all border border-gym-yellow/30">
+                            <i class="bi bi-arrow-clockwise"></i> Reintentar
+                        </button>
+                    </div>
+                </td></tr>`;
+        }
+    }
+
+    function renderizarTabla(usuarios) {
+        const cuerpo = document.getElementById('cuerpoTabla');
+        const footer = document.getElementById('tableFooter');
+
+        let html = '';
+        usuarios.forEach((u, index) => {
+            const esAdmin = u.rol === 'admin';
+            const badgeColor = esAdmin
+                ? 'bg-yellow-100 text-yellow-800 border border-yellow-300'
+                : 'bg-blue-100 text-blue-800 border border-blue-300';
+            const rolLabel = esAdmin ? 'Admin' : 'Vendedor';
+
+            const iniciales = u.nombre_completo.split(' ').slice(0, 2).map(n => n.charAt(0).toUpperCase()).join('');
+
+            html += `
+                <tr class="table-row-hover" style="animation: slideDown 0.3s ease-out ${index * 0.04}s both;">
+                    <td class="px-6 py-4">
+                        <div class="flex items-center gap-3">
+                            <div class="w-9 h-9 ${esAdmin ? 'bg-yellow-100 text-yellow-700' : 'bg-blue-100 text-blue-700'} rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0">
+                                ${iniciales}
+                            </div>
+                            <span class="text-sm font-semibold text-gray-800">${escapeHtml(u.nombre_completo)}</span>
+                        </div>
+                    </td>
+                    <td class="px-6 py-4">
+                        <span class="font-mono text-sm text-gray-600 bg-gray-100 px-2.5 py-1 rounded-lg">${escapeHtml(u.username)}</span>
+                    </td>
+                    <td class="px-6 py-4 text-center">
+                        <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold ${badgeColor}">
+                            <i class="bi ${esAdmin ? 'bi-shield-fill' : 'bi-person-fill'} mr-1"></i>
+                            ${rolLabel}
+                        </span>
+                    </td>
+                    <td class="px-6 py-4 text-center">
+                        <div class="inline-flex items-center gap-2">
+                            <button onclick="abrirModalPassword(${u.id}, '${escapeHtml(u.nombre_completo).replace(/'/g, "\\'")}')"
+                                    class="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-bold tracking-wide transition-all duration-300 hover:scale-105 bg-yellow-500/10 text-yellow-600 border border-yellow-500/20 hover:bg-yellow-500/20 hover:border-yellow-500/40"
+                                    title="Cambiar contraseña">
+                                <i class="bi bi-key-fill"></i> Contraseña
+                            </button>
+                            <button onclick="eliminarUsuario(${u.id}, '${escapeHtml(u.username).replace(/'/g, "\\'")}')"
+                                    class="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-bold tracking-wide transition-all duration-300 hover:scale-105 bg-red-500/10 text-red-500 border border-red-500/20 hover:bg-red-500/20 hover:border-red-500/40"
+                                    title="Eliminar usuario">
+                                <i class="bi bi-trash3-fill"></i> Eliminar
+                            </button>
+                        </div>
+                    </td>
+                </tr>`;
+        });
+
+        cuerpo.innerHTML = html;
+        footer.style.display = 'flex';
+        document.getElementById('footerInfo').textContent = `Total: ${usuarios.length} usuario${usuarios.length !== 1 ? 's' : ''}`;
+    }
+
+    // ── Crear Usuario ──────────────────────────────────
+    async function crearUsuario() {
+        const nombre = document.getElementById('nuevoNombre').value.trim();
+        const username = document.getElementById('nuevoUsername').value.trim();
+        const password = document.getElementById('nuevoPassword').value;
+        const rol = document.getElementById('nuevoRol').value;
+
+        if (!nombre || !username || !password) {
+            mostrarToast('Completa todos los campos obligatorios.', 'error');
+            return;
+        }
+        if (password.length < 4) {
+            mostrarToast('La contraseña debe tener al menos 4 caracteres.', 'error');
+            return;
+        }
+
+        const btn = document.getElementById('btnCrear');
+        btn.disabled = true;
+        btn.innerHTML = '<div class="w-5 h-5 border-2 border-gym-black border-t-transparent rounded-full animate-spin"></div> Creando...';
+
+        try {
+            const resp = await fetch(`${API_BASE_URL}/api/v1/usuarios`, {
+                method: 'POST',
+                headers: authHeaders({ 'Content-Type': 'application/json' }),
+                body: JSON.stringify({ username, password, nombre_completo: nombre, rol }),
+            });
+            const data = await resp.json();
+
+            if (resp.ok) {
+                mostrarToast(`✅ Usuario "${username}" creado exitosamente.`, 'success');
+                cerrarModalNuevo();
+                cargarUsuarios();
+            } else {
+                mostrarToast(`⚠️ ${data.detail || 'Error al crear usuario'}`, 'error');
+            }
+        } catch (e) {
+            mostrarToast(`❌ Error de conexión: ${e.message}`, 'error');
+        } finally {
+            btn.disabled = false;
+            btn.innerHTML = '<i class="bi bi-check-lg text-base"></i> Crear Usuario';
+        }
+    }
+
+    // ── Cambiar Contraseña ─────────────────────────────
+    async function guardarPassword() {
+        const id = document.getElementById('passwordUsuarioId').value;
+        const pwd = document.getElementById('nuevaPassword').value;
+
+        if (!pwd) {
+            mostrarToast('Ingresa la nueva contraseña.', 'error');
+            return;
+        }
+        if (pwd.length < 4) {
+            mostrarToast('La contraseña debe tener al menos 4 caracteres.', 'error');
+            return;
+        }
+
+        try {
+            const resp = await fetch(`${API_BASE_URL}/api/v1/usuarios/${id}/password`, {
+                method: 'PUT',
+                headers: authHeaders({ 'Content-Type': 'application/json' }),
+                body: JSON.stringify({ nueva_password: pwd }),
+            });
+            const data = await resp.json();
+
+            if (resp.ok) {
+                mostrarToast('✅ Contraseña actualizada correctamente.', 'success');
+                cerrarModalPassword();
+            } else {
+                mostrarToast(`⚠️ ${data.detail || 'Error al cambiar contraseña'}`, 'error');
+            }
+        } catch (e) {
+            mostrarToast(`❌ Error: ${e.message}`, 'error');
+        }
+    }
+
+    // ── Eliminar Usuario ───────────────────────────────
+    async function eliminarUsuario(id, username) {
+        if (!confirm(`¿Estás seguro de eliminar al usuario "${username}"?\n\nEsta acción no se puede deshacer.`)) return;
+
+        try {
+            const resp = await fetch(`${API_BASE_URL}/api/v1/usuarios/${id}`, {
+                method: 'DELETE',
+                headers: authHeaders(),
+            });
+            const data = await resp.json();
+
+            if (resp.ok) {
+                mostrarToast(`✅ Usuario "${username}" eliminado.`, 'success');
+                cargarUsuarios();
+            } else {
+                mostrarToast(`⚠️ ${data.detail || 'Error al eliminar'}`, 'error');
+            }
+        } catch (e) {
+            mostrarToast(`❌ Error: ${e.message}`, 'error');
+        }
+    }
+
+    // ── Helpers ────────────────────────────────────────
+    function abrirModalNuevo() {
+        document.getElementById('nuevoNombre').value = '';
+        document.getElementById('nuevoUsername').value = '';
+        document.getElementById('nuevoPassword').value = '';
+        document.getElementById('nuevoRol').value = 'vendedor';
+        document.getElementById('modalNuevo').classList.remove('hidden');
+        setTimeout(() => document.getElementById('nuevoNombre').focus(), 100);
+    }
+    function cerrarModalNuevo() { document.getElementById('modalNuevo').classList.add('hidden'); }
+
+    function abrirModalPassword(id, nombre) {
+        document.getElementById('passwordUsuarioId').value = id;
+        document.getElementById('passwordUsuarioNombre').textContent = nombre;
+        document.getElementById('nuevaPassword').value = '';
+        document.getElementById('modalPassword').classList.remove('hidden');
+        setTimeout(() => document.getElementById('nuevaPassword').focus(), 100);
+    }
+    function cerrarModalPassword() { document.getElementById('modalPassword').classList.add('hidden'); }
+
+    function escapeHtml(text) {
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+    }
+
+    function cerrarSesion() {
+        localStorage.removeItem('gym_token');
+        localStorage.removeItem('gym_user');
+        window.location.href = 'login.html';
+    }
+
+    function mostrarToast(mensaje, tipo = 'success') {
+        const container = document.getElementById('toastContainer');
+        const bg = tipo === 'success'
+            ? 'bg-green-50 border-green-300 text-green-800'
+            : 'bg-red-50 border-red-300 text-red-800';
+        const icon = tipo === 'success'
+            ? '<i class="bi bi-check-circle-fill text-green-500"></i>'
+            : '<i class="bi bi-exclamation-circle-fill text-red-500"></i>';
+        const toast = document.createElement('div');
+        toast.className = `toast ${bg} border rounded-xl px-5 py-4 shadow-lg flex items-start gap-3`;
+        toast.innerHTML = `
+            ${icon}
+            <p class="text-sm font-medium flex-1">${mensaje}</p>
+            <button onclick="this.parentElement.remove()" class="opacity-50 hover:opacity-100 transition-opacity">
+                <i class="bi bi-x-lg text-sm"></i>
+            </button>`;
+        container.appendChild(toast);
+        setTimeout(() => {
+            toast.classList.add('toast-exit');
+            setTimeout(() => toast.remove(), 300);
+        }, 5000);
+    }
+    </script>
+</body>
+</html>
