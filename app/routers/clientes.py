@@ -121,3 +121,60 @@ def obtener_cliente(cedula: str, db: Session = Depends(get_db), current_user: Us
         direccion=cliente.direccion,
         created_at=cliente.created_at.strftime("%d/%m/%Y %H:%M:%S") if cliente.created_at else None,
     )
+
+
+# ── PUT /clientes/{id} — Actualizar cliente ──────────────
+class ClienteUpdate(BaseModel):
+    nombre_completo: str
+    correo: str | None = None
+    telefono: str | None = None
+    direccion: str | None = None
+
+
+@router.put("/{cliente_id}", response_model=ClienteResponse, summary="Actualizar datos de un cliente")
+def actualizar_cliente(
+    cliente_id: int,
+    datos: ClienteUpdate,
+    db: Session = Depends(get_db),
+    current_user: Usuario = Depends(get_current_user),
+):
+    """Actualiza los datos de un cliente existente (no permite cambiar cédula/RUC)."""
+    cliente = db.query(Cliente).filter(Cliente.id == cliente_id).first()
+    if not cliente:
+        raise HTTPException(status_code=404, detail="Cliente no encontrado")
+
+    cliente.nombre_completo = datos.nombre_completo
+    cliente.correo = datos.correo
+    cliente.telefono = datos.telefono
+    cliente.direccion = datos.direccion
+    db.commit()
+    db.refresh(cliente)
+
+    logger.info("Cliente actualizado: %s — %s", cliente.cedula_ruc, cliente.nombre_completo)
+    return ClienteResponse(
+        id=cliente.id,
+        cedula_ruc=cliente.cedula_ruc,
+        nombre_completo=cliente.nombre_completo,
+        correo=cliente.correo,
+        telefono=cliente.telefono,
+        direccion=cliente.direccion,
+        created_at=cliente.created_at.strftime("%d/%m/%Y %H:%M:%S") if cliente.created_at else None,
+    )
+
+
+# ── DELETE /clientes/{id} — Eliminar cliente ─────────────
+@router.delete("/{cliente_id}", summary="Eliminar un cliente")
+def eliminar_cliente(
+    cliente_id: int,
+    db: Session = Depends(get_db),
+    current_user: Usuario = Depends(get_current_user),
+):
+    """Elimina un cliente de la base de datos."""
+    cliente = db.query(Cliente).filter(Cliente.id == cliente_id).first()
+    if not cliente:
+        raise HTTPException(status_code=404, detail="Cliente no encontrado")
+
+    db.delete(cliente)
+    db.commit()
+    logger.info("Cliente eliminado: %s — %s", cliente.cedula_ruc, cliente.nombre_completo)
+    return {"detail": "Cliente eliminado correctamente"}

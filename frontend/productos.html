@@ -11,6 +11,8 @@
 
     <!-- Google Fonts: Inter -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
 
     <script>
         tailwind.config = {
@@ -488,6 +490,7 @@
                                     <th class="px-5 py-3.5 text-right text-xs font-bold text-gray-500 uppercase tracking-wider">Precio Unit.</th>
                                     <th class="px-5 py-3.5 text-center text-xs font-bold text-gray-500 uppercase tracking-wider">IVA</th>
                                     <th class="px-5 py-3.5 text-center text-xs font-bold text-gray-500 uppercase tracking-wider">Creado</th>
+                                    <th class="px-5 py-3.5 text-center text-xs font-bold text-gray-500 uppercase tracking-wider">Acciones</th>
                                 </tr>
                             </thead>
                             <tbody id="cuerpoTabla" class="divide-y divide-gray-100">
@@ -660,6 +663,20 @@
                 <td class="px-5 py-4 text-center">
                     <span class="text-xs text-gray-400 font-medium">${p.created_at ? p.created_at : '—'}</span>
                 </td>
+                <td class="px-5 py-4 text-center">
+                    <div class="inline-flex items-center gap-1.5">
+                        <button onclick="editarProducto(${p.id})" 
+                                class="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-bold tracking-wide transition-all duration-300 hover:scale-105 bg-amber-500/10 text-amber-500 border border-amber-500/20 hover:bg-amber-500/20 hover:border-amber-500/40"
+                                title="Editar producto">
+                            <i class="bi bi-pencil-fill"></i>
+                        </button>
+                        <button onclick="eliminarProducto(${p.id}, '${escapeHtml(p.nombre).replace(/'/g, "\\'")}')"
+                                class="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-bold tracking-wide transition-all duration-300 hover:scale-105 bg-red-500/10 text-red-500 border border-red-500/20 hover:bg-red-500/20 hover:border-red-500/40"
+                                title="Eliminar producto">
+                            <i class="bi bi-trash3-fill"></i>
+                        </button>
+                    </div>
+                </td>
             `;
             cuerpo.appendChild(tr);
         });
@@ -695,17 +712,117 @@
     function generarSkeleton(filas) {
         let html = '';
         for (let i = 0; i < filas; i++) {
-            html += `<tr><td colspan="5" class="px-5 py-4"><div class="skeleton h-6 w-full"></div></td></tr>`;
+            html += `<tr><td colspan="6" class="px-5 py-4"><div class="skeleton h-6 w-full"></div></td></tr>`;
         }
         return html;
     }
 
     function mostrarVacio() {
-        document.getElementById('cuerpoTabla').innerHTML = '<tr><td colspan="5" class="px-6 py-12 text-center text-gray-400">No hay productos registrados</td></tr>';
+        document.getElementById('cuerpoTabla').innerHTML = '<tr><td colspan="6" class="px-6 py-12 text-center text-gray-400">No hay productos registrados</td></tr>';
     }
 
     function mostrarErrorTabla(msg) {
-        document.getElementById('cuerpoTabla').innerHTML = `<tr><td colspan="5" class="px-6 py-12 text-center text-red-400">Error: ${escapeHtml(msg)}</td></tr>`;
+        document.getElementById('cuerpoTabla').innerHTML = `<tr><td colspan="6" class="px-6 py-12 text-center text-red-400">Error: ${escapeHtml(msg)}</td></tr>`;
+    }
+
+    // ─────────────────────────────────────────────────────
+    // EDITAR PRODUCTO
+    // ─────────────────────────────────────────────────────
+    let editandoProductoId = null;
+
+    function editarProducto(id) {
+        const producto = todosLosProductos.find(p => p.id === id);
+        if (!producto) return;
+        editandoProductoId = id;
+        document.getElementById('editProductoCodigo').value = producto.codigo;
+        document.getElementById('editProductoNombre').value = producto.nombre;
+        document.getElementById('editProductoPrecio').value = producto.precio_unitario;
+        document.getElementById('editProductoIva').checked = producto.iva_aplica;
+        document.getElementById('modalEditarProducto').classList.remove('hidden');
+    }
+
+    function cerrarModalEditarProducto() {
+        document.getElementById('modalEditarProducto').classList.add('hidden');
+        editandoProductoId = null;
+    }
+
+    async function guardarEdicionProducto() {
+        const nombre = document.getElementById('editProductoNombre').value.trim();
+        const precio = document.getElementById('editProductoPrecio').value.trim();
+        if (!nombre || !precio) { mostrarToast('Nombre y precio son obligatorios.', 'error'); return; }
+
+        const btn = document.getElementById('btnGuardarEdicionProducto');
+        const orig = btn.innerHTML;
+        btn.disabled = true;
+        btn.innerHTML = '<i class="bi bi-arrow-repeat animate-spin"></i> Guardando...';
+
+        try {
+            const resp = await fetch(`${API_BASE_URL}/api/v1/productos/${editandoProductoId}`, {
+                method: 'PUT',
+                headers: authHeaders({ 'Content-Type': 'application/json' }),
+                body: JSON.stringify({
+                    nombre,
+                    precio_unitario: parseFloat(precio),
+                    iva_aplica: document.getElementById('editProductoIva').checked,
+                }),
+            });
+            const data = await resp.json();
+            if (resp.ok) {
+                mostrarToast('✅ Producto actualizado exitosamente.');
+                cerrarModalEditarProducto();
+                cargarProductos();
+            } else {
+                mostrarToast(`⚠️ ${data.detail || 'Error al actualizar.'}`, 'error');
+            }
+        } catch (e) {
+            mostrarToast(`❌ Error de conexión: ${e.message}`, 'error');
+        } finally {
+            btn.disabled = false;
+            btn.innerHTML = orig;
+        }
+    }
+
+    // ─────────────────────────────────────────────────────
+    // ELIMINAR PRODUCTO
+    // ─────────────────────────────────────────────────────
+    let eliminandoProductoId = null;
+
+    function eliminarProducto(id, nombre) {
+        eliminandoProductoId = id;
+        document.getElementById('eliminarNombreProducto').textContent = nombre;
+        document.getElementById('modalEliminarProducto').classList.remove('hidden');
+    }
+
+    function cerrarModalEliminarProducto() {
+        document.getElementById('modalEliminarProducto').classList.add('hidden');
+        eliminandoProductoId = null;
+    }
+
+    async function confirmarEliminacionProducto() {
+        const btn = document.getElementById('btnConfirmarEliminarProducto');
+        const orig = btn.innerHTML;
+        btn.disabled = true;
+        btn.innerHTML = '<i class="bi bi-arrow-repeat animate-spin"></i> Eliminando...';
+
+        try {
+            const resp = await fetch(`${API_BASE_URL}/api/v1/productos/${eliminandoProductoId}`, {
+                method: 'DELETE',
+                headers: authHeaders(),
+            });
+            if (resp.ok) {
+                mostrarToast('✅ Producto eliminado correctamente.');
+                cerrarModalEliminarProducto();
+                cargarProductos();
+            } else {
+                const data = await resp.json();
+                mostrarToast(`⚠️ ${data.detail || 'Error al eliminar.'}`, 'error');
+            }
+        } catch (e) {
+            mostrarToast(`❌ Error de conexión: ${e.message}`, 'error');
+        } finally {
+            btn.disabled = false;
+            btn.innerHTML = orig;
+        }
     }
 
     function cerrarSesion() {
@@ -714,5 +831,90 @@
         window.location.href = 'login.html';
     }
     </script>
+
+<!-- ═══ MODAL: Editar Producto ═══ -->
+<div id="modalEditarProducto" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4">
+    <div class="absolute inset-0 bg-black/70 backdrop-blur-sm" onclick="cerrarModalEditarProducto()"></div>
+    <div class="relative w-full max-w-md bg-[#1A1A1A] border border-yellow-500/20 rounded-2xl shadow-2xl overflow-hidden" style="animation: fadeInUp 0.3s ease-out;">
+        <div class="flex items-center justify-between px-6 py-4 border-b border-gray-700/50">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 bg-amber-500/10 rounded-xl flex items-center justify-center border border-amber-500/20">
+                    <i class="bi bi-pencil-fill text-amber-400 text-lg"></i>
+                </div>
+                <div>
+                    <h3 class="text-white font-bold text-sm">Editar Producto</h3>
+                    <p class="text-gray-400 text-xs mt-0.5">Modifica los datos del producto</p>
+                </div>
+            </div>
+            <button onclick="cerrarModalEditarProducto()" class="text-gray-500 hover:text-white transition-colors p-1">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
+                </svg>
+            </button>
+        </div>
+        <div class="px-6 py-5 space-y-4">
+            <div>
+                <label class="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-1.5">Código</label>
+                <input type="text" id="editProductoCodigo" readonly class="w-full px-4 py-3 rounded-xl text-sm bg-gray-800 border border-gray-700 text-gray-500 cursor-not-allowed">
+            </div>
+            <div>
+                <label class="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-1.5">Nombre <span class="text-red-400">*</span></label>
+                <input type="text" id="editProductoNombre" class="w-full px-4 py-3 rounded-xl text-sm bg-gray-800/50 border border-gray-700 text-gray-200 focus:border-yellow-500 focus:outline-none transition-colors">
+            </div>
+            <div>
+                <label class="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-1.5">Precio Unitario <span class="text-red-400">*</span></label>
+                <div class="relative">
+                    <span class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 font-bold">$</span>
+                    <input type="number" id="editProductoPrecio" step="0.01" min="0" class="w-full pl-8 pr-4 py-3 rounded-xl text-sm bg-gray-800/50 border border-gray-700 text-gray-200 focus:border-yellow-500 focus:outline-none transition-colors">
+                </div>
+            </div>
+            <div class="flex items-center justify-between p-3 bg-gray-800/30 rounded-xl border border-gray-700/50">
+                <div>
+                    <p class="text-sm font-bold text-gray-300">Aplica IVA (15%)</p>
+                    <p class="text-xs text-gray-500">Si este servicio grava impuestos</p>
+                </div>
+                <label class="switch">
+                    <input type="checkbox" id="editProductoIva">
+                    <span class="slider"></span>
+                </label>
+            </div>
+        </div>
+        <div class="flex gap-3 px-6 py-5 border-t border-gray-700/50">
+            <button onclick="cerrarModalEditarProducto()" class="flex-1 py-3 rounded-xl font-bold text-sm text-gray-300 bg-gray-700/50 hover:bg-gray-700 border border-gray-600/50 transition-all duration-300">
+                Cancelar
+            </button>
+            <button id="btnGuardarEdicionProducto" onclick="guardarEdicionProducto()" class="flex-1 py-3 rounded-xl font-bold text-sm text-gym-black bg-gym-yellow hover:bg-gym-yellow-hover border border-yellow-500/50 transition-all duration-300 hover:shadow-lg hover:shadow-yellow-600/30 flex items-center justify-center gap-2">
+                <i class="bi bi-check-lg"></i> Guardar Cambios
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- ═══ MODAL: Confirmar Eliminación Producto ═══ -->
+<div id="modalEliminarProducto" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4">
+    <div class="absolute inset-0 bg-black/70 backdrop-blur-sm" onclick="cerrarModalEliminarProducto()"></div>
+    <div class="relative w-full max-w-sm bg-[#1A1A1A] border border-red-500/30 rounded-2xl shadow-2xl overflow-hidden" style="animation: fadeInUp 0.3s ease-out;">
+        <div class="flex flex-col items-center text-center px-6 pt-7 pb-2">
+            <div class="w-16 h-16 bg-red-500/10 rounded-2xl flex items-center justify-center mb-4 border border-red-500/20">
+                <i class="bi bi-exclamation-triangle-fill text-red-400 text-3xl"></i>
+            </div>
+            <h3 class="text-white font-bold text-lg mb-2">⚠️ Eliminar Producto</h3>
+            <p class="text-gray-400 text-sm leading-relaxed">
+                ¿Estás seguro de eliminar el producto<br>
+                <span id="eliminarNombreProducto" class="text-red-400 font-bold"></span>?
+            </p>
+            <p class="text-gray-500 text-xs mt-2">Esta acción no se puede deshacer.</p>
+        </div>
+        <div class="flex gap-3 px-6 py-5">
+            <button onclick="cerrarModalEliminarProducto()" class="flex-1 py-3 rounded-xl font-bold text-sm text-gray-300 bg-gray-700/50 hover:bg-gray-700 border border-gray-600/50 transition-all duration-300">
+                Cancelar
+            </button>
+            <button id="btnConfirmarEliminarProducto" onclick="confirmarEliminacionProducto()" class="flex-1 py-3 rounded-xl font-bold text-sm text-white bg-red-600 hover:bg-red-700 border border-red-500/50 transition-all duration-300 hover:shadow-lg hover:shadow-red-600/30 flex items-center justify-center gap-2">
+                <i class="bi bi-trash3-fill"></i> Sí, Eliminar
+            </button>
+        </div>
+    </div>
+</div>
+
 </body>
 </html>

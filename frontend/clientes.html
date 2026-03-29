@@ -770,12 +770,23 @@
                         <span class="text-xs text-gray-400">${cliente.created_at ? cliente.created_at : '—'}</span>
                     </td>
                     <td class="px-5 py-4 text-center">
-                        <button onclick="verHistorial('${cliente.cedula_ruc}', '${cliente.nombre_completo.replace(/'/g, "\\'")}')" 
-                                class="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-bold tracking-wide transition-all duration-300 hover:scale-105 bg-blue-500/10 text-blue-500 border border-blue-500/20 hover:bg-blue-500/20 hover:border-blue-500/40"
-                                title="Ver historial de compras">
-                            <i class="bi bi-clock-history"></i>
-                            Historial
-                        </button>
+                        <div class="inline-flex items-center gap-1.5">
+                            <button onclick="verHistorial('${cliente.cedula_ruc}', '${cliente.nombre_completo.replace(/'/g, "\\'")}')" 
+                                    class="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-bold tracking-wide transition-all duration-300 hover:scale-105 bg-blue-500/10 text-blue-500 border border-blue-500/20 hover:bg-blue-500/20 hover:border-blue-500/40"
+                                    title="Ver historial de compras">
+                                <i class="bi bi-clock-history"></i>
+                            </button>
+                            <button onclick="editarCliente(${cliente.id})" 
+                                    class="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-bold tracking-wide transition-all duration-300 hover:scale-105 bg-amber-500/10 text-amber-500 border border-amber-500/20 hover:bg-amber-500/20 hover:border-amber-500/40"
+                                    title="Editar cliente">
+                                <i class="bi bi-pencil-fill"></i>
+                            </button>
+                            <button onclick="eliminarCliente(${cliente.id}, '${cliente.nombre_completo.replace(/'/g, "\\'")}')" 
+                                    class="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-bold tracking-wide transition-all duration-300 hover:scale-105 bg-red-500/10 text-red-500 border border-red-500/20 hover:bg-red-500/20 hover:border-red-500/40"
+                                    title="Eliminar cliente">
+                                <i class="bi bi-trash3-fill"></i>
+                            </button>
+                        </div>
                     </td>
                 </tr>`;
         });
@@ -1037,12 +1048,192 @@
         document.getElementById('modalHistorial').classList.add('hidden');
     }
 
+    // ─────────────────────────────────────────────────────
+    // EDITAR CLIENTE
+    // ─────────────────────────────────────────────────────
+    let editandoClienteId = null;
+
+    function editarCliente(id) {
+        const cliente = todosLosClientes.find(c => c.id === id);
+        if (!cliente) return;
+        editandoClienteId = id;
+        document.getElementById('editClienteCedula').value = cliente.cedula_ruc;
+        document.getElementById('editClienteNombre').value = cliente.nombre_completo;
+        document.getElementById('editClienteCorreo').value = cliente.correo || '';
+        document.getElementById('editClienteTelefono').value = cliente.telefono || '';
+        document.getElementById('editClienteDireccion').value = cliente.direccion || '';
+        document.getElementById('modalEditarCliente').classList.remove('hidden');
+    }
+
+    function cerrarModalEditarCliente() {
+        document.getElementById('modalEditarCliente').classList.add('hidden');
+        editandoClienteId = null;
+    }
+
+    async function guardarEdicionCliente() {
+        const nombre = document.getElementById('editClienteNombre').value.trim();
+        if (!nombre) { mostrarToast('El nombre es obligatorio.', 'error'); return; }
+
+        const btn = document.getElementById('btnGuardarEdicionCliente');
+        const orig = btn.innerHTML;
+        btn.disabled = true;
+        btn.innerHTML = '<i class="bi bi-arrow-repeat animate-spin"></i> Guardando...';
+
+        try {
+            const resp = await fetch(`${API_BASE_URL}/api/v1/clientes/${editandoClienteId}`, {
+                method: 'PUT',
+                headers: authHeaders({ 'Content-Type': 'application/json' }),
+                body: JSON.stringify({
+                    nombre_completo: nombre,
+                    correo: document.getElementById('editClienteCorreo').value.trim() || null,
+                    telefono: document.getElementById('editClienteTelefono').value.trim() || null,
+                    direccion: document.getElementById('editClienteDireccion').value.trim() || null,
+                }),
+            });
+            const data = await resp.json();
+            if (resp.ok) {
+                mostrarToast('✅ Cliente actualizado exitosamente.', 'success');
+                cerrarModalEditarCliente();
+                cargarClientes();
+            } else {
+                mostrarToast(`⚠️ ${data.detail || 'Error al actualizar.'}`, 'error');
+            }
+        } catch (e) {
+            mostrarToast(`❌ Error de conexión: ${e.message}`, 'error');
+        } finally {
+            btn.disabled = false;
+            btn.innerHTML = orig;
+        }
+    }
+
+    // ─────────────────────────────────────────────────────
+    // ELIMINAR CLIENTE
+    // ─────────────────────────────────────────────────────
+    let eliminandoClienteId = null;
+
+    function eliminarCliente(id, nombre) {
+        eliminandoClienteId = id;
+        document.getElementById('eliminarNombreCliente').textContent = nombre;
+        document.getElementById('modalEliminarCliente').classList.remove('hidden');
+    }
+
+    function cerrarModalEliminarCliente() {
+        document.getElementById('modalEliminarCliente').classList.add('hidden');
+        eliminandoClienteId = null;
+    }
+
+    async function confirmarEliminacionCliente() {
+        const btn = document.getElementById('btnConfirmarEliminarCliente');
+        const orig = btn.innerHTML;
+        btn.disabled = true;
+        btn.innerHTML = '<i class="bi bi-arrow-repeat animate-spin"></i> Eliminando...';
+
+        try {
+            const resp = await fetch(`${API_BASE_URL}/api/v1/clientes/${eliminandoClienteId}`, {
+                method: 'DELETE',
+                headers: authHeaders(),
+            });
+            if (resp.ok) {
+                mostrarToast('✅ Cliente eliminado correctamente.', 'success');
+                cerrarModalEliminarCliente();
+                cargarClientes();
+            } else {
+                const data = await resp.json();
+                mostrarToast(`⚠️ ${data.detail || 'Error al eliminar.'}`, 'error');
+            }
+        } catch (e) {
+            mostrarToast(`❌ Error de conexión: ${e.message}`, 'error');
+        } finally {
+            btn.disabled = false;
+            btn.innerHTML = orig;
+        }
+    }
+
     function cerrarSesion() {
         localStorage.removeItem('gym_token');
         localStorage.removeItem('gym_user');
         window.location.href = 'login.html';
     }
     </script>
+
+<!-- ═══ MODAL: Editar Cliente ═══ -->
+<div id="modalEditarCliente" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4">
+    <div class="absolute inset-0 bg-black/70 backdrop-blur-sm" onclick="cerrarModalEditarCliente()"></div>
+    <div class="relative w-full max-w-md bg-[#1A1A1A] border border-yellow-500/20 rounded-2xl shadow-2xl overflow-hidden" style="animation: fadeInUp 0.3s ease-out;">
+        <div class="flex items-center justify-between px-6 py-4 border-b border-gray-700/50">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 bg-amber-500/10 rounded-xl flex items-center justify-center border border-amber-500/20">
+                    <i class="bi bi-pencil-fill text-amber-400 text-lg"></i>
+                </div>
+                <div>
+                    <h3 class="text-white font-bold text-sm">Editar Cliente</h3>
+                    <p class="text-gray-400 text-xs mt-0.5">Modifica los datos del cliente</p>
+                </div>
+            </div>
+            <button onclick="cerrarModalEditarCliente()" class="text-gray-500 hover:text-white transition-colors p-1">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
+                </svg>
+            </button>
+        </div>
+        <div class="px-6 py-5 space-y-4">
+            <div>
+                <label class="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-1.5">Cédula/RUC</label>
+                <input type="text" id="editClienteCedula" readonly class="w-full px-4 py-3 rounded-xl text-sm bg-gray-800 border border-gray-700 text-gray-500 cursor-not-allowed">
+            </div>
+            <div>
+                <label class="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-1.5">Nombre Completo <span class="text-red-400">*</span></label>
+                <input type="text" id="editClienteNombre" class="w-full px-4 py-3 rounded-xl text-sm bg-gray-800/50 border border-gray-700 text-gray-200 focus:border-yellow-500 focus:outline-none transition-colors">
+            </div>
+            <div>
+                <label class="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-1.5">Correo</label>
+                <input type="email" id="editClienteCorreo" class="w-full px-4 py-3 rounded-xl text-sm bg-gray-800/50 border border-gray-700 text-gray-200 focus:border-yellow-500 focus:outline-none transition-colors">
+            </div>
+            <div>
+                <label class="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-1.5">Teléfono</label>
+                <input type="text" id="editClienteTelefono" class="w-full px-4 py-3 rounded-xl text-sm bg-gray-800/50 border border-gray-700 text-gray-200 focus:border-yellow-500 focus:outline-none transition-colors">
+            </div>
+            <div>
+                <label class="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-1.5">Dirección</label>
+                <input type="text" id="editClienteDireccion" class="w-full px-4 py-3 rounded-xl text-sm bg-gray-800/50 border border-gray-700 text-gray-200 focus:border-yellow-500 focus:outline-none transition-colors">
+            </div>
+        </div>
+        <div class="flex gap-3 px-6 py-5 border-t border-gray-700/50">
+            <button onclick="cerrarModalEditarCliente()" class="flex-1 py-3 rounded-xl font-bold text-sm text-gray-300 bg-gray-700/50 hover:bg-gray-700 border border-gray-600/50 transition-all duration-300">
+                Cancelar
+            </button>
+            <button id="btnGuardarEdicionCliente" onclick="guardarEdicionCliente()" class="flex-1 py-3 rounded-xl font-bold text-sm text-gym-black bg-gym-yellow hover:bg-gym-yellow-hover border border-yellow-500/50 transition-all duration-300 hover:shadow-lg hover:shadow-yellow-600/30 flex items-center justify-center gap-2">
+                <i class="bi bi-check-lg"></i> Guardar Cambios
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- ═══ MODAL: Confirmar Eliminación Cliente ═══ -->
+<div id="modalEliminarCliente" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4">
+    <div class="absolute inset-0 bg-black/70 backdrop-blur-sm" onclick="cerrarModalEliminarCliente()"></div>
+    <div class="relative w-full max-w-sm bg-[#1A1A1A] border border-red-500/30 rounded-2xl shadow-2xl overflow-hidden" style="animation: fadeInUp 0.3s ease-out;">
+        <div class="flex flex-col items-center text-center px-6 pt-7 pb-2">
+            <div class="w-16 h-16 bg-red-500/10 rounded-2xl flex items-center justify-center mb-4 border border-red-500/20">
+                <i class="bi bi-exclamation-triangle-fill text-red-400 text-3xl"></i>
+            </div>
+            <h3 class="text-white font-bold text-lg mb-2">⚠️ Eliminar Cliente</h3>
+            <p class="text-gray-400 text-sm leading-relaxed">
+                ¿Estás seguro de eliminar al cliente<br>
+                <span id="eliminarNombreCliente" class="text-red-400 font-bold"></span>?
+            </p>
+            <p class="text-gray-500 text-xs mt-2">Esta acción no se puede deshacer.</p>
+        </div>
+        <div class="flex gap-3 px-6 py-5">
+            <button onclick="cerrarModalEliminarCliente()" class="flex-1 py-3 rounded-xl font-bold text-sm text-gray-300 bg-gray-700/50 hover:bg-gray-700 border border-gray-600/50 transition-all duration-300">
+                Cancelar
+            </button>
+            <button id="btnConfirmarEliminarCliente" onclick="confirmarEliminacionCliente()" class="flex-1 py-3 rounded-xl font-bold text-sm text-white bg-red-600 hover:bg-red-700 border border-red-500/50 transition-all duration-300 hover:shadow-lg hover:shadow-red-600/30 flex items-center justify-center gap-2">
+                <i class="bi bi-trash3-fill"></i> Sí, Eliminar
+            </button>
+        </div>
+    </div>
+</div>
 
 <!-- ═══ MODAL: Historial de Compras ═══ -->
 <div id="modalHistorial" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4">

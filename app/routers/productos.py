@@ -69,3 +69,52 @@ def listar_productos(db: Session = Depends(get_db), current_user: Usuario = Depe
         )
         for p in productos
     ]
+
+
+# ── PUT /productos/{id} — Actualizar producto ────────────
+class ProductoUpdate(BaseModel):
+    nombre: str
+    precio_unitario: float
+    iva_aplica: bool = True
+
+
+@router.put("/{producto_id}", response_model=ProductoResponse)
+def actualizar_producto(
+    producto_id: int,
+    datos: ProductoUpdate,
+    db: Session = Depends(get_db),
+    current_user: Usuario = Depends(get_current_user),
+):
+    producto = db.query(Producto).filter(Producto.id == producto_id).first()
+    if not producto:
+        raise HTTPException(status_code=404, detail="Producto no encontrado")
+
+    producto.nombre = datos.nombre
+    producto.precio_unitario = datos.precio_unitario
+    producto.iva_aplica = datos.iva_aplica
+    db.commit()
+    db.refresh(producto)
+    return ProductoResponse(
+        id=producto.id,
+        codigo=producto.codigo,
+        nombre=producto.nombre,
+        precio_unitario=producto.precio_unitario,
+        iva_aplica=producto.iva_aplica,
+        created_at=_formato_fecha_ec(producto.created_at),
+    )
+
+
+# ── DELETE /productos/{id} — Eliminar producto ───────────
+@router.delete("/{producto_id}")
+def eliminar_producto(
+    producto_id: int,
+    db: Session = Depends(get_db),
+    current_user: Usuario = Depends(get_current_user),
+):
+    producto = db.query(Producto).filter(Producto.id == producto_id).first()
+    if not producto:
+        raise HTTPException(status_code=404, detail="Producto no encontrado")
+
+    db.delete(producto)
+    db.commit()
+    return {"detail": "Producto eliminado correctamente"}
