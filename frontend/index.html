@@ -1140,11 +1140,10 @@ async function emitirFactura() {
                 </div>
                 ${facturaId ? `
                 <div class="btn-group-acciones">
-                    <a href="${API_BASE.replace('/api/v1', '')}/api/v1/facturas/${facturaId}/pdf"
-                       target="_blank" class="btn btn-pdf">
+                    <button class="btn btn-pdf" onclick="descargarPdf(${facturaId})">
                         <i class="bi bi-printer-fill me-2"></i>
                         Ver / Descargar PDF
-                    </a>
+                    </button>
                     <button class="btn btn-whatsapp" onclick="enviarWhatsApp(${facturaId})">
                         📲 Enviar por WhatsApp
                     </button>
@@ -1212,6 +1211,19 @@ function enviarWhatsApp(facturaId) {
     
     // 6. Abrir WhatsApp Web / App
     window.open(`https://api.whatsapp.com/send?phone=${numeroLimpio}&text=${mensajeCodificado}`, '_blank');
+}
+
+// ── Descargar PDF con autenticación ────────────────────
+async function descargarPdf(facturaId) {
+    try {
+        const resp = await fetch(`${API_BASE}/facturas/${facturaId}/pdf`, { headers: authHeaders() });
+        if (!resp.ok) throw new Error(`Error ${resp.status}`);
+        const blob = await resp.blob();
+        const url = URL.createObjectURL(blob);
+        window.open(url, '_blank');
+    } catch (e) {
+        alert('No se pudo descargar el PDF: ' + e.message);
+    }
 }
 
 // ── Cerrar sesión ───────────────────────────────────────
