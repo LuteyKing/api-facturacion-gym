@@ -1,8 +1,12 @@
-from datetime import datetime, timezone
+from datetime import datetime
 from typing import Optional
+from zoneinfo import ZoneInfo
+
 from sqlalchemy import DateTime, ForeignKey, Integer, Numeric, String, Text, Boolean
 from sqlalchemy.orm import Mapped, mapped_column
 from ..database import Base
+
+EC_TZ = ZoneInfo("America/Guayaquil")
 
 
 # --- TABLA: USUARIOS ---
@@ -13,7 +17,7 @@ class Usuario(Base):
     password_hash: Mapped[str] = mapped_column(String(255), nullable=False)
     nombre_completo: Mapped[str] = mapped_column(String(255), nullable=False)
     rol: Mapped[str] = mapped_column(String(20), nullable=False, default="vendedor")
-    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc))
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=lambda: datetime.now(EC_TZ))
 
 
 class Factura(Base):
@@ -26,7 +30,7 @@ class Factura(Base):
     clave_acceso: Mapped[str] = mapped_column(String(49), nullable=False, unique=True, index=True)
     estado_sri: Mapped[str] = mapped_column(String(30), nullable=False, default="SIMULADO")
     xml_generado: Mapped[str] = mapped_column(Text, nullable=False)
-    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False, default=lambda: datetime.now(timezone.utc))
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False, default=lambda: datetime.now(EC_TZ))
     usuario_id: Mapped[Optional[int]] = mapped_column(Integer, ForeignKey("usuarios.id"), nullable=True)
 
 # --- NUEVA TABLA: CLIENTES (ALUMNOS) ---
@@ -38,7 +42,7 @@ class Cliente(Base):
     correo: Mapped[str] = mapped_column(String(255), nullable=True)
     telefono: Mapped[str] = mapped_column(String(20), nullable=True)
     direccion: Mapped[str] = mapped_column(Text, nullable=True)
-    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc))
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=lambda: datetime.now(EC_TZ))
 
 # --- NUEVA TABLA: PRODUCTOS (SERVICIOS) ---
 class Producto(Base):
@@ -48,4 +52,4 @@ class Producto(Base):
     nombre: Mapped[str] = mapped_column(String(255), nullable=False)
     precio_unitario: Mapped[float] = mapped_column(Numeric(10, 2), nullable=False)
     iva_aplica: Mapped[bool] = mapped_column(Boolean, default=True)
-    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc))
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=lambda: datetime.now(EC_TZ))

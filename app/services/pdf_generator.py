@@ -59,13 +59,14 @@ def _generar_qr(clave_acceso: str) -> io.BytesIO:
     return buf
 
 
-def generar_ride_pdf(factura) -> bytes:
+def generar_ride_pdf(factura, nombre_cliente: str | None = None) -> bytes:
     """Genera el PDF del RIDE a partir de un registro de Factura (SQLAlchemy).
 
     Args:
         factura: Instancia del modelo db_models.Factura con los campos:
                  id, secuencial, fecha_emision, identificacion_cliente,
                  total, clave_acceso, estado_sri, created_at.
+        nombre_cliente: Nombre completo del cliente (opcional).
 
     Returns:
         Contenido del PDF como bytes.
@@ -262,11 +263,16 @@ def generar_ride_pdf(factura) -> bytes:
     num_factura = f"{settings.EMISOR_ESTABLECIMIENTO}-{settings.EMISOR_PUNTO_EMISION}-{factura.secuencial}"
 
     # Cuadro de datos del cliente con fondo gris claro y bordes finos
+    # Texto del cliente: nombre + identificación, o solo identificación
+    cliente_texto = str(factura.identificacion_cliente)
+    if nombre_cliente:
+        cliente_texto = f"{nombre_cliente}"
+
     info_pairs = [
         ("N° Factura", num_factura, "Fecha de Emisión", str(factura.fecha_emision)),
         ("Secuencial", str(factura.secuencial), "Estado SRI", str(factura.estado_sri)),
-        ("Identificación Cliente", str(factura.identificacion_cliente), "Establecimiento",
-         f"{settings.EMISOR_ESTABLECIMIENTO}-{settings.EMISOR_PUNTO_EMISION}"),
+        ("Cliente", cliente_texto, "Identificación", str(factura.identificacion_cliente)),
+        ("Establecimiento", f"{settings.EMISOR_ESTABLECIMIENTO}-{settings.EMISOR_PUNTO_EMISION}", "", ""),
     ]
 
     datos_rows = []
@@ -522,7 +528,7 @@ def generar_ride_pdf(factura) -> bytes:
 
     timestamp = ""
     if factura.created_at:
-        timestamp = factura.created_at.strftime("%Y-%m-%d %H:%M:%S UTC")
+        timestamp = factura.created_at.strftime("%d/%m/%Y %H:%M:%S")
     elementos.append(
         Paragraph(
             f"Generado: {timestamp} &nbsp;|&nbsp; ID interno: {factura.id}",

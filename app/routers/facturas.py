@@ -10,7 +10,6 @@ Incluye:
 
 import base64
 import logging
-from datetime import timedelta
 
 from fastapi import APIRouter, Depends, HTTPException, Query
 from fastapi.responses import Response
@@ -189,7 +188,7 @@ def listar_facturas(
             estado_sri=f.estado_sri,
             telefono_cliente=tel_cliente,
             vendedor_nombre=vendedor_nombre,
-            created_at=(f.created_at - timedelta(hours=5)).strftime("%d/%m/%Y %H:%M:%S") if f.created_at else None,
+            created_at=f.created_at.strftime("%d/%m/%Y %H:%M:%S") if f.created_at else None,
         )
         resultado.append(item)
 
@@ -231,7 +230,7 @@ def historial_cliente(
             estado_sri=f.estado_sri,
             telefono_cliente=tel,
             vendedor_nombre=vendedor,
-            created_at=(f.created_at - timedelta(hours=5)).strftime("%d/%m/%Y %H:%M:%S") if f.created_at else None,
+            created_at=f.created_at.strftime("%d/%m/%Y %H:%M:%S") if f.created_at else None,
         )
         for f, tel, vendedor in filas
     ]
@@ -269,9 +268,13 @@ def descargar_ride_pdf(
             detail=f"No se encontró una factura con ID {id_factura}.",
         )
 
+    # Obtener nombre del cliente
+    cliente = db.query(Cliente).filter(Cliente.cedula_ruc == factura.identificacion_cliente).first()
+    nombre_cliente = cliente.nombre_completo if cliente else None
+
     # Generar PDF
     try:
-        pdf_bytes = generar_ride_pdf(factura)
+        pdf_bytes = generar_ride_pdf(factura, nombre_cliente=nombre_cliente)
     except Exception as e:
         logger.exception("Error al generar RIDE PDF para factura id=%d", id_factura)
         raise HTTPException(

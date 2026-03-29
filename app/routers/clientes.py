@@ -8,7 +8,6 @@ Incluye:
 """
 
 import logging
-from datetime import timedelta
 
 from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel
@@ -76,7 +75,7 @@ def crear_cliente(cliente: ClienteCreate, db: Session = Depends(get_db), current
         correo=db_cliente.correo,
         telefono=db_cliente.telefono,
         direccion=db_cliente.direccion,
-        created_at=(db_cliente.created_at - timedelta(hours=5)).strftime("%d/%m/%Y %H:%M:%S") if db_cliente.created_at else None,
+        created_at=db_cliente.created_at.strftime("%d/%m/%Y %H:%M:%S") if db_cliente.created_at else None,
     )
 
 
@@ -95,7 +94,7 @@ def listar_clientes(db: Session = Depends(get_db), current_user: Usuario = Depen
             correo=c.correo,
             telefono=c.telefono,
             direccion=c.direccion,
-            created_at=(c.created_at - timedelta(hours=5)).strftime("%d/%m/%Y %H:%M:%S") if c.created_at else None,
+            created_at=c.created_at.strftime("%d/%m/%Y %H:%M:%S") if c.created_at else None,
         ))
 
     logger.info("Clientes consultados: %d registros", len(resultado))
@@ -117,5 +116,5 @@ def obtener_cliente(cedula: str, db: Session = Depends(get_db), current_user: Us
         correo=cliente.correo,
         telefono=cliente.telefono,
         direccion=cliente.direccion,
-        created_at=(cliente.created_at - timedelta(hours=5)).strftime("%d/%m/%Y %H:%M:%S") if cliente.created_at else None,
+        created_at=cliente.created_at.strftime("%d/%m/%Y %H:%M:%S") if cliente.created_at else None,
     )
