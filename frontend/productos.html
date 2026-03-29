@@ -1,0 +1,615 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestión de Productos — MI GIMNASIO PRO</title>
+    <meta name="description" content="Registro y gestión de productos y servicios. Sistema de facturación electrónica para Gimnasio y CrossFit.">
+
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Google Fonts: Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'gym-yellow': '#FFD700',
+                        'gym-yellow-hover': '#E6C200',
+                        'gym-yellow-soft': '#FFF8DC',
+                        'gym-black': '#0D0D0D',
+                        'gym-dark': '#111111',
+                        'gym-surface': '#1A1A1A',
+                    },
+                    fontFamily: {
+                        'inter': ['Inter', 'system-ui', 'sans-serif'],
+                    },
+                }
+            }
+        }
+    </script>
+
+    <style>
+        * { font-family: 'Inter', system-ui, sans-serif; }
+
+        /* ── Scrollbar ───────────────────────────────── */
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 10px; }
+        ::-webkit-scrollbar-thumb { background: #FFD700; border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: #E6C200; }
+
+        /* ── Animaciones ─────────────────────────────── */
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes fadeInLeft {
+            from { opacity: 0; transform: translateX(-20px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+        @keyframes fadeInRight {
+            from { opacity: 0; transform: translateX(20px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+        @keyframes shimmer {
+            0% { background-position: -200% 0; }
+            100% { background-position: 200% 0; }
+        }
+        @keyframes slideDown {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
+
+        .animate-fade-in-up { animation: fadeInUp 0.5s ease-out forwards; }
+        .animate-fade-in-left { animation: fadeInLeft 0.5s ease-out forwards; }
+        .animate-fade-in-right { animation: fadeInRight 0.5s ease-out forwards; }
+        .animate-shake { animation: shake 0.4s ease-out; }
+
+        .skeleton {
+            background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+            background-size: 200% 100%;
+            animation: shimmer 1.5s infinite;
+            border-radius: 6px;
+        }
+
+        /* ── Navbar ──────────────────────────────────── */
+        .navbar-gym {
+            background: linear-gradient(90deg, #0D0D0D 0%, #1A1A1A 50%, #0D0D0D 100%);
+            box-shadow: 0 2px 20px rgba(0,0,0,0.3);
+        }
+        .navbar-gym::after {
+            content: '';
+            position: absolute;
+            bottom: 0; left: 0;
+            width: 100%; height: 3px;
+            background: linear-gradient(90deg, transparent, #FFD700, transparent);
+        }
+
+        /* ── Form inputs ─────────────────────────────── */
+        .form-input-gym {
+            transition: all 0.3s ease;
+            border: 1.5px solid #E5E7EB;
+        }
+        .form-input-gym:focus {
+            border-color: #FFD700;
+            box-shadow: 0 0 0 3px rgba(255, 215, 0, 0.15);
+            outline: none;
+        }
+        .form-input-gym:hover:not(:focus) {
+            border-color: #D1D5DB;
+        }
+        .form-input-gym::placeholder {
+            color: #9CA3AF;
+        }
+
+        /* ── Table rows ──────────────────────────────── */
+        .table-row-hover { transition: all 0.2s ease; }
+        .table-row-hover:hover {
+            background-color: #F9FAFB !important;
+            transform: scale(1.002);
+            box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+        }
+
+        /* ── Botón principal ─────────────────────────── */
+        .btn-guardar {
+            background: linear-gradient(135deg, #FFD700 0%, #E6C200 100%);
+            color: #0D0D0D;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        .btn-guardar::before {
+            content: '';
+            position: absolute;
+            top: 0; left: -100%;
+            width: 100%; height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+            transition: left 0.5s ease;
+        }
+        .btn-guardar:hover::before { left: 100%; }
+        .btn-guardar:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(255, 215, 0, 0.4);
+        }
+        .btn-guardar:active { transform: translateY(0); }
+        .btn-guardar:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none !important;
+            box-shadow: none !important;
+        }
+
+        /* ── Botón limpiar ───────────────────────────── */
+        .btn-limpiar {
+            transition: all 0.3s ease;
+        }
+        .btn-limpiar:hover {
+            background-color: #F3F4F6;
+            transform: translateY(-1px);
+        }
+
+        /* ── Search input ────────────────────────────── */
+        .search-input:focus {
+            border-color: #FFD700;
+            box-shadow: 0 0 0 3px rgba(255, 215, 0, 0.15);
+        }
+
+        /* ── Toast notification ──────────────────────── */
+        .toast {
+            position: fixed;
+            top: 80px;
+            right: 20px;
+            z-index: 9999;
+            animation: slideDown 0.4s ease-out;
+            max-width: 400px;
+        }
+        .toast.toast-exit {
+            animation: fadeInUp 0.3s ease-out reverse forwards;
+        }
+
+        /* ── Switch/Toggle ───────────────────────────── */
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 44px;
+            height: 24px;
+        }
+        .switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #D1D5DB;
+            transition: .4s;
+            border-radius: 24px;
+        }
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 18px;
+            width: 18px;
+            left: 3px;
+            bottom: 3px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+        input:checked + .slider {
+            background-color: #FFD700;
+        }
+        input:focus + .slider {
+            box-shadow: 0 0 1px #FFD700;
+        }
+        input:checked + .slider:before {
+            transform: translateX(20px);
+        }
+
+        /* ── Responsive ──────────────────────────────── */
+        @media (max-width: 1024px) {
+            .layout-grid {
+                grid-template-columns: 1fr !important;
+            }
+        }
+    </style>
+</head>
+<body class="bg-gray-100 min-h-screen">
+
+    <!-- ═══════════════════════════════════════════════════ -->
+    <!-- NAVBAR -->
+    <!-- ═══════════════════════════════════════════════════ -->
+    <nav class="navbar-gym sticky top-0 z-50 relative">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <!-- Logo -->
+                <div class="flex items-center gap-3">
+                    <div class="w-9 h-9 bg-gym-yellow rounded-lg flex items-center justify-center">
+                        <svg class="w-5 h-5 text-gym-black" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M20.57 14.86L22 13.43 20.57 12 17 15.57 8.43 7 12 3.43 10.57 2 9.14 3.43 7.71 2 5.57 4.14 4.14 2.71 2.71 4.14l1.43 1.43L2 7.71l1.43 1.43L2 10.57 3.43 12 7 8.43 15.57 17 12 20.57 13.43 22l1.43-1.43L16.29 22l2.14-2.14 1.43 1.43 1.43-1.43-1.43-1.43L22 16.29z"/>
+                        </svg>
+                    </div>
+                    <div>
+                        <h1 class="text-gym-yellow font-extrabold text-lg tracking-tight leading-none">
+                            MI GIMNASIO PRO
+                        </h1>
+                        <span class="text-gray-500 text-xs font-medium tracking-wider">GESTIÓN DE PRODUCTOS</span>
+                    </div>
+                </div>
+
+                <!-- Navegación -->
+                <div class="flex items-center gap-3">
+                    <a href="clientes.html"
+                       class="hidden sm:inline-flex items-center gap-1.5 text-gray-400 hover:text-gym-yellow px-3 py-2 rounded-lg text-sm font-medium transition-all duration-300">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/>
+                        </svg>
+                        Clientes
+                    </a>
+                    <a href="historial.html"
+                       class="hidden sm:inline-flex items-center gap-1.5 text-gray-400 hover:text-gym-yellow px-3 py-2 rounded-lg text-sm font-medium transition-all duration-300">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                        </svg>
+                        Historial
+                    </a>
+                    <a href="index.html"
+                       class="inline-flex items-center gap-2 bg-gym-yellow/10 hover:bg-gym-yellow/20 text-gym-yellow px-4 py-2 rounded-lg text-sm font-semibold transition-all duration-300 hover:scale-105 border border-gym-yellow/20 hover:border-gym-yellow/40">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
+                        </svg>
+                        Volver al POS
+                    </a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- ═══════════════════════════════════════════════════ -->
+    <!-- TOAST CONTAINER -->
+    <!-- ═══════════════════════════════════════════════════ -->
+    <div id="toastContainer"></div>
+
+    <!-- ═══════════════════════════════════════════════════ -->
+    <!-- CONTENIDO PRINCIPAL -->
+    <!-- ═══════════════════════════════════════════════════ -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+
+        <!-- ── Título ────────────────────────────────── -->
+        <div class="mb-8 animate-fade-in-up">
+            <h2 class="text-3xl font-extrabold text-gym-dark tracking-tight">
+                Catálogo de Productos y Servicios
+            </h2>
+            <p class="text-gray-500 mt-1 text-sm">
+                Registra los servicios y membresías de tu gimnasio.
+            </p>
+        </div>
+
+        <!-- ═══ LAYOUT: Formulario + Tabla ═══ -->
+        <div class="layout-grid grid gap-6" style="grid-template-columns: 380px 1fr;">
+
+            <!-- ── COLUMNA IZQUIERDA: Formulario ─────── -->
+            <div class="animate-fade-in-left" style="animation-delay: 0.15s;">
+                <div class="bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden sticky top-24">
+
+                    <!-- Header del formulario -->
+                    <div class="bg-gym-black px-6 py-4 border-b-4 border-gym-yellow">
+                        <div class="flex items-center gap-3">
+                            <div class="w-8 h-8 bg-gym-yellow rounded-lg flex items-center justify-center">
+                                <svg class="w-4 h-4 text-gym-black" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/>
+                                </svg>
+                            </div>
+                            <div>
+                                <h3 class="text-white font-bold text-sm tracking-tight">Nuevo Item</h3>
+                                <p class="text-gray-400 text-xs mt-0.5">Define servicios o membresías</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Cuerpo del formulario -->
+                    <form id="formProducto" class="p-6 space-y-4" onsubmit="return false;">
+
+                        <!-- Código -->
+                        <div>
+                            <label for="codigo" class="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1.5">
+                                Código <span class="text-red-400">*</span>
+                            </label>
+                            <input type="text" id="codigo"
+                                   class="form-input-gym w-full px-4 py-3 rounded-xl text-sm"
+                                   placeholder="MEM-001" required>
+                        </div>
+
+                        <!-- Nombre -->
+                        <div>
+                            <label for="nombre" class="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1.5">
+                                Nombre del Item <span class="text-red-400">*</span>
+                            </label>
+                            <input type="text" id="nombre"
+                                   class="form-input-gym w-full px-4 py-3 rounded-xl text-sm"
+                                   placeholder="Membresía Mensual" required>
+                        </div>
+
+                        <!-- Precio Unitario -->
+                        <div>
+                            <label for="precio_unitario" class="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1.5">
+                                Precio Unitario <span class="text-red-400">*</span>
+                            </label>
+                            <div class="relative">
+                                <span class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 font-bold">$</span>
+                                <input type="number" id="precio_unitario" step="0.01"
+                                       class="form-input-gym w-full pl-8 pr-4 py-3 rounded-xl text-sm"
+                                       placeholder="35.00" required>
+                            </div>
+                        </div>
+
+                        <!-- Aplica IVA -->
+                        <div class="flex items-center justify-between p-3 bg-gray-50 rounded-xl border border-gray-100">
+                            <div>
+                                <p class="text-sm font-bold text-gray-700">Aplica IVA (15%)</p>
+                                <p class="text-xs text-gray-400">Si este servicio grava impuestos</p>
+                            </div>
+                            <label class="switch">
+                                <input type="checkbox" id="iva_aplica" checked>
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+
+                        <!-- Botones -->
+                        <div class="pt-2 space-y-3">
+                            <button type="button" id="btnGuardar" onclick="guardarProducto()"
+                                    class="btn-guardar w-full py-3.5 rounded-xl font-bold text-sm tracking-wide flex items-center justify-center gap-2">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/>
+                                </svg>
+                                Guardar Item
+                            </button>
+                            <button type="button" onclick="limpiarFormulario()"
+                                    class="btn-limpiar w-full py-3 rounded-xl font-semibold text-sm text-gray-500 border border-gray-200 flex items-center justify-center gap-2">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                                </svg>
+                                Limpiar Formulario
+                            </button>
+                        </div>
+
+                    </form>
+                </div>
+            </div>
+
+            <!-- ── COLUMNA DERECHA: Tabla de Productos ──── -->
+            <div class="animate-fade-in-right" style="animation-delay: 0.2s;">
+                <div class="bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden">
+
+                    <!-- Header de la tabla -->
+                    <div class="bg-gym-black px-6 py-4 border-b-4 border-gym-yellow">
+                        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                            <div class="flex items-center gap-3">
+                                <div class="w-8 h-8 bg-gym-yellow rounded-lg flex items-center justify-center">
+                                    <svg class="w-4 h-4 text-gym-black" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 10h16M4 14h16M4 18h16"/>
+                                    </svg>
+                                </div>
+                                <div>
+                                    <h3 class="text-white font-bold text-sm tracking-tight">Lista de Items</h3>
+                                    <p class="text-gray-400 text-xs mt-0.5">Servicios y Membresías habilitadas</p>
+                                </div>
+                            </div>
+
+                            <!-- Buscador -->
+                            <div class="relative">
+                                <svg class="w-4 h-4 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+                                </svg>
+                                <input type="text" id="searchInput"
+                                       placeholder="Buscar por código o nombre..."
+                                       class="search-input bg-gym-surface border border-gray-700 text-gray-200 text-sm rounded-lg pl-10 pr-4 py-2.5 w-full sm:w-64 focus:outline-none transition-all duration-300 placeholder:text-gray-500">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Tabla -->
+                    <div class="overflow-x-auto">
+                        <table class="w-full" id="tablaProductos">
+                            <thead class="bg-gray-50 border-b border-gray-200">
+                                <tr>
+                                    <th class="px-5 py-3.5 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Código</th>
+                                    <th class="px-5 py-3.5 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Nombre</th>
+                                    <th class="px-5 py-3.5 text-right text-xs font-bold text-gray-500 uppercase tracking-wider">Precio Unit.</th>
+                                    <th class="px-5 py-3.5 text-center text-xs font-bold text-gray-500 uppercase tracking-wider">IVA</th>
+                                    <th class="px-5 py-3.5 text-center text-xs font-bold text-gray-500 uppercase tracking-wider">Creado</th>
+                                </tr>
+                            </thead>
+                            <tbody id="cuerpoTabla" class="divide-y divide-gray-100">
+                                <!-- Contenido dinámico -->
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Footer -->
+                    <div class="px-6 py-4 bg-gray-50 border-t border-gray-100 flex flex-col sm:flex-row items-center justify-between gap-3" id="tableFooter" style="display: none;">
+                        <p class="text-xs text-gray-400" id="footerInfo"></p>
+                        <button onclick="cargarProductos()"
+                                class="inline-flex items-center gap-2 text-sm font-semibold text-gym-dark hover:text-gym-yellow transition-colors duration-300">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+                            </svg>
+                            Actualizar
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- ═══════════════════════════════════════════════════ -->
+    <!-- JAVASCRIPT -->
+    <!-- ═══════════════════════════════════════════════════ -->
+    <script>
+    const API_BASE_URL = 'https://api-facturacion-gym.onrender.com';
+
+    let todosLosProductos = [];
+
+    window.onload = function() {
+        cargarProductos();
+
+        document.getElementById('searchInput').addEventListener('input', function() {
+            const termino = this.value.trim().toLowerCase();
+            if (!termino) {
+                renderizarTabla(todosLosProductos);
+                return;
+            }
+            const filtrados = todosLosProductos.filter(p =>
+                p.nombre.toLowerCase().includes(termino) ||
+                p.codigo.toLowerCase().includes(termino)
+            );
+            renderizarTabla(filtrados);
+        });
+    };
+
+    async function cargarProductos() {
+        const cuerpo = document.getElementById('cuerpoTabla');
+        const footer = document.getElementById('tableFooter');
+        footer.style.display = 'none';
+
+        cuerpo.innerHTML = generarSkeleton(4);
+
+        try {
+            const response = await fetch(`${API_BASE_URL}/api/v1/productos`);
+            if (!response.ok) throw new Error('Error al cargar productos');
+
+            const productos = await response.json();
+            todosLosProductos = productos;
+
+            if (productos.length === 0) {
+                mostrarVacio();
+            } else {
+                renderizarTabla(productos);
+            }
+        } catch (error) {
+            console.error(error);
+            mostrarErrorTabla(error.message);
+        }
+    }
+
+    async function guardarProducto() {
+        const codigo = document.getElementById('codigo').value.trim();
+        const nombre = document.getElementById('nombre').value.trim();
+        const precio = document.getElementById('precio_unitario').value.trim();
+        const iva = document.getElementById('iva_aplica').checked;
+
+        if (!codigo || !nombre || !precio) {
+            mostrarToast('Por favor completa todos los campos requeridos', 'error');
+            return;
+        }
+
+        const btn = document.getElementById('btnGuardar');
+        const btnOriginal = btn.innerHTML;
+        btn.disabled = true;
+        btn.innerHTML = 'Guardando...';
+
+        try {
+            const response = await fetch(`${API_BASE_URL}/api/v1/productos`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    codigo,
+                    nombre,
+                    precio_unitario: parseFloat(precio),
+                    iva_aplica: iva
+                })
+            });
+
+            if (response.ok) {
+                mostrarToast('Item guardado exitosamente');
+                limpiarFormulario();
+                cargarProductos();
+            } else {
+                const data = await response.json();
+                mostrarToast(data.detail || 'Error al guardar', 'error');
+            }
+        } catch (error) {
+            mostrarToast('Error de conexión con la API', 'error');
+        } finally {
+            btn.disabled = false;
+            btn.innerHTML = btnOriginal;
+        }
+    }
+
+    function renderizarTabla(productos) {
+        const cuerpo = document.getElementById('cuerpoTabla');
+        cuerpo.innerHTML = '';
+        
+        productos.forEach((p, index) => {
+            const html = `
+                <tr class="table-row-hover" style="animation: fadeInUp 0.3s ease-out ${index * 0.05}s both;">
+                    <td class="px-5 py-4"><span class="font-mono font-bold text-xs bg-gray-100 px-2.5 py-1 rounded-lg text-gym-black">${p.codigo}</span></td>
+                    <td class="px-5 py-4 decoration-gym-yellow decoration-2"><p class="text-sm font-semibold text-gray-800">${p.nombre}</p></td>
+                    <td class="px-5 py-4 text-right"><p class="text-sm font-extrabold text-gym-black">$${parseFloat(p.precio_unitario).toFixed(2)}</p></td>
+                    <td class="px-5 py-4 text-center">
+                        <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-bold ${p.iva_aplica ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'}">
+                            ${p.iva_aplica ? 'SI' : 'NO'}
+                        </span>
+                    </td>
+                    <td class="px-5 py-4 text-center">
+                        <span class="text-xs text-gray-400 font-medium">${p.created_at ? p.created_at.split('T')[0] : '—'}</span>
+                    </td>
+                </tr>
+            `;
+            cuerpo.innerHTML += html;
+        });
+
+        const footer = document.getElementById('tableFooter');
+        footer.style.display = 'flex';
+        document.getElementById('footerInfo').textContent = `Total: ${productos.length} items registrados`;
+    }
+
+    function limpiarFormulario() {
+        document.getElementById('codigo').value = '';
+        document.getElementById('nombre').value = '';
+        document.getElementById('precio_unitario').value = '';
+        document.getElementById('iva_aplica').checked = true;
+    }
+
+    function mostrarToast(mensaje, tipo = 'success') {
+        const container = document.getElementById('toastContainer');
+        const bg = tipo === 'success' ? 'bg-green-50 text-green-800 border-green-300' : 'bg-red-50 text-red-800 border-red-300';
+        const toast = document.createElement('div');
+        toast.className = `toast ${bg} border rounded-xl px-5 py-4 shadow-lg flex items-center gap-3`;
+        toast.innerHTML = `<p class="text-sm font-bold">${mensaje}</p>`;
+        container.appendChild(toast);
+        setTimeout(() => toast.remove(), 4000);
+    }
+
+    function generarSkeleton(filas) {
+        let html = '';
+        for (let i = 0; i < filas; i++) {
+            html += `<tr><td colspan="5" class="px-5 py-4"><div class="skeleton h-6 w-full"></div></td></tr>`;
+        }
+        return html;
+    }
+
+    function mostrarVacio() {
+        document.getElementById('cuerpoTabla').innerHTML = '<tr><td colspan="5" class="px-6 py-12 text-center text-gray-400">No hay productos registrados</td></tr>';
+    }
+
+    function mostrarErrorTabla(msg) {
+        document.getElementById('cuerpoTabla').innerHTML = `<tr><td colspan="5" class="px-6 py-12 text-center text-red-400">Error: ${msg}</td></tr>`;
+    }
+    </script>
+</body>
+</html>
