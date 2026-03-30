@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="es" data-theme="dark">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -14,6 +14,8 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     <!-- Bootstrap Icons -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+    <!-- Shared Styles -->
+    <link rel="stylesheet" href="shared.css">
 
     <script>
         tailwind.config = {
@@ -216,15 +218,23 @@
 
 <script>
 // ══════════════════════════════════════════════════════════
+// THEME INIT
+// ══════════════════════════════════════════════════════════
+(function initTheme() {
+    const saved = localStorage.getItem('gym_theme') || 'dark';
+    document.documentElement.setAttribute('data-theme', saved);
+})();
+
+// ══════════════════════════════════════════════════════════
 // CONFIGURACIÓN
 // ══════════════════════════════════════════════════════════
-const API_BASE = 'https://api-facturacion-gym.onrender.com/api/v1';
+const API_BASE_URL = 'https://api-facturacion-gym.onrender.com';
 
 // Si ya tiene token válido, redirigir directo
 (function checkExistingSession() {
     const token = localStorage.getItem('gym_token');
     if (token) {
-        fetch(`${API_BASE}/auth/me`, {
+        fetch(`${API_BASE_URL}/api/v1/auth/me`, {
             headers: { 'Authorization': `Bearer ${token}` }
         })
         .then(r => {
@@ -266,7 +276,7 @@ async function handleLogin(e) {
         body.append('username', username);
         body.append('password', password);
 
-        const resp = await fetch(`${API_BASE}/auth/token`, {
+        const resp = await fetch(`${API_BASE_URL}/api/v1/auth/token`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
             body: body.toString(),
@@ -283,7 +293,7 @@ async function handleLogin(e) {
         localStorage.setItem('gym_token', data.access_token);
 
         // Obtener perfil del usuario
-        const meResp = await fetch(`${API_BASE}/auth/me`, {
+        const meResp = await fetch(`${API_BASE_URL}/api/v1/auth/me`, {
             headers: { 'Authorization': `Bearer ${data.access_token}` }
         });
         if (meResp.ok) {
