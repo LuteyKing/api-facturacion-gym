@@ -460,24 +460,24 @@ body {
 }
 
 /* ═══ PAGE HERO ═══ */
-.page-hero { padding: 0 0 0.2rem; flex-shrink: 0; }
+.page-hero { padding: 0.1rem 0 0.35rem; flex-shrink: 0; }
 .page-hero h2 {
-    font-size: 0.95rem; font-weight: 800;
+    font-size: 1rem; font-weight: 800;
     color: var(--text-primary); margin: 0;
-    display: flex; align-items: center; gap: 6px;
+    display: flex; align-items: center; gap: 7px;
 }
-.page-hero h2 i { color: var(--accent); font-size: 0.95rem; }
+.page-hero h2 i { color: var(--accent); font-size: 1rem; }
 .page-hero p {
-    font-size: 0.68rem; color: var(--text-muted); margin: 0;
+    font-size: 0.72rem; color: var(--text-muted); margin: 0.05rem 0 0;
 }
 
 /* ═══ FOOTER ═══ */
 .footer-premium {
-    text-align: center; padding: 0.15rem 0.5rem;
+    text-align: center; padding: 0.25rem 0.5rem;
     border-top: 1px solid var(--footer-border);
     flex-shrink: 0;
 }
-.footer-premium p { font-size: 0.58rem; color: var(--footer-text); margin: 0; }
+.footer-premium p { font-size: 0.6rem; color: var(--footer-text); margin: 0; }
 
 /* ═══ RESPONSIVE ═══ */
 @media (max-width: 768px) {
@@ -900,107 +900,104 @@ body {
 /* ═══ DENSE FORM COMPACTING ════════════════════════════ */
 /* Input fields: reduce vertical padding (overrides Tailwind py-3) */
 .main-content .form-input-gym {
-    padding-top: 0.25rem !important;
-    padding-bottom: 0.25rem !important;
-}
-/* Form spacing between fields (overrides Tailwind space-y-3/4) */
-.form-card-scroll form > :not([hidden]) ~ :not([hidden]) {
-    margin-top: 0.15rem !important;
-}
-/* Form internal padding (overrides Tailwind p-4/p-6) */
-.form-card-scroll form {
-    padding: 0.35rem 0.6rem !important;
-}
-/* Form label margins (overrides Tailwind mb-1.5) */
-.form-card-scroll form label {
-    margin-bottom: 0 !important;
-    font-size: 0.6rem !important;
-}
-/* Action buttons: reduce padding */
-.main-content .btn-guardar {
     padding-top: 0.35rem !important;
     padding-bottom: 0.35rem !important;
 }
+/* Form spacing between fields (overrides Tailwind space-y-3/4) */
+.form-card-scroll form > :not([hidden]) ~ :not([hidden]) {
+    margin-top: 0.35rem !important;
+}
+/* Form internal padding (overrides Tailwind p-4/p-6) */
+.form-card-scroll form {
+    padding: 0.5rem 0.75rem !important;
+}
+/* Form label margins (overrides Tailwind mb-1.5) */
+.form-card-scroll form label {
+    margin-bottom: 0.1rem !important;
+    font-size: 0.65rem !important;
+}
+/* Action buttons: reduce padding */
+.main-content .btn-guardar {
+    padding-top: 0.45rem !important;
+    padding-bottom: 0.45rem !important;
+}
 .main-content .btn-limpiar {
-    padding-top: 0.3rem !important;
-    padding-bottom: 0.3rem !important;
+    padding-top: 0.4rem !important;
+    padding-bottom: 0.4rem !important;
 }
 /* Button container spacing */
 .form-card-scroll form .space-y-3 > :not([hidden]) ~ :not([hidden]) {
-    margin-top: 0.1rem !important;
+    margin-top: 0.25rem !important;
 }
 
 /* ═══ DENSE CARD HEADERS ═══════════════════════════════ */
 .table-card > .bg-gym-black,
 .form-card-scroll > .bg-gym-black {
-    padding: 0.2rem 0.6rem !important;
+    padding: 0.35rem 0.75rem !important;
     flex-shrink: 0;
-}
-.table-card > .bg-gym-black p[class*="text-xs"],
-.form-card-scroll > .bg-gym-black p[class*="text-xs"] {
-    display: none;
 }
 .table-card > .bg-gym-black .w-8,
 .form-card-scroll > .bg-gym-black .w-8 {
-    width: 1.35rem !important;
-    height: 1.35rem !important;
+    width: 1.5rem !important;
+    height: 1.5rem !important;
 }
 .table-card > .bg-gym-black h3,
 .form-card-scroll > .bg-gym-black h3 {
-    font-size: 0.72rem !important;
+    font-size: 0.78rem !important;
+}
+.table-card > .bg-gym-black p[class*="text-xs"],
+.form-card-scroll > .bg-gym-black p[class*="text-xs"] {
+    font-size: 0.6rem !important;
+    margin-top: 0 !important;
 }
 
 /* ═══ DENSE STAT CARDS ═════════════════════════════════ */
 .main-content > [class*="grid"]:not(.layout-grid) {
     flex-shrink: 0;
-    margin-bottom: 0.25rem !important;
+    margin-bottom: 0.3rem !important;
 }
 .main-content > [class*="grid"]:not(.layout-grid) > * {
-    padding: 0.25rem 0.5rem !important;
+    padding: 0.4rem 0.65rem !important;
     border-radius: 0.75rem !important;
 }
 .main-content > [class*="grid"]:not(.layout-grid) .text-lg {
-    font-size: 0.88rem !important;
-    margin-top: 0 !important;
-    line-height: 1.2 !important;
-}
-.main-content > [class*="grid"]:not(.layout-grid) .text-xl {
-    font-size: 0.95rem !important;
-    margin-top: 0 !important;
-    line-height: 1.2 !important;
-}
-.main-content > [class*="grid"]:not(.layout-grid) .text-2xl {
     font-size: 1rem !important;
     margin-top: 0 !important;
-    line-height: 1.2 !important;
+    line-height: 1.3 !important;
 }
-.main-content > [class*="grid"]:not(.layout-grid) .text-3xl {
+.main-content > [class*="grid"]:not(.layout-grid) .text-xl {
     font-size: 1.05rem !important;
     margin-top: 0 !important;
-    line-height: 1.2 !important;
+    line-height: 1.3 !important;
+}
+.main-content > [class*="grid"]:not(.layout-grid) .text-2xl {
+    font-size: 1.1rem !important;
+    margin-top: 0 !important;
+    line-height: 1.3 !important;
+}
+.main-content > [class*="grid"]:not(.layout-grid) .text-3xl {
+    font-size: 1.15rem !important;
+    margin-top: 0 !important;
+    line-height: 1.3 !important;
 }
 .main-content > [class*="grid"]:not(.layout-grid) [class*="w-9"] {
-    width: 1.5rem !important;
-    height: 1.5rem !important;
+    width: 1.75rem !important;
+    height: 1.75rem !important;
 }
 .main-content > [class*="grid"]:not(.layout-grid) [class*="w-11"] {
-    width: 1.5rem !important;
-    height: 1.5rem !important;
+    width: 1.75rem !important;
+    height: 1.75rem !important;
 }
 .main-content > [class*="grid"]:not(.layout-grid) [class*="w-12"] {
-    width: 1.5rem !important;
-    height: 1.5rem !important;
+    width: 1.75rem !important;
+    height: 1.75rem !important;
 }
 .main-content > [class*="grid"]:not(.layout-grid) svg {
-    width: 0.85rem !important;
-    height: 0.85rem !important;
+    width: 1rem !important;
+    height: 1rem !important;
 }
 .main-content > [class*="grid"]:not(.layout-grid) i {
-    font-size: 0.85rem !important;
-}
-/* Hide sublabels in stat cards for density */
-.main-content > [class*="grid"]:not(.layout-grid) .stat-card p.text-xs:last-of-type:not(:first-of-type) {
-    display: none;
+    font-size: 1rem !important;
 }
 .main-content > [class*="grid"]:not(.layout-grid) [class*="mt-1"] {
     margin-top: 0 !important;
@@ -1019,11 +1016,11 @@ body {
 }
 /* Dense table cells */
 .table-scroll-container td {
-    padding: 0.4rem 0.75rem !important;
+    padding: 0.45rem 0.75rem !important;
     font-size: 0.82rem;
 }
 .table-scroll-container th {
-    padding: 0.5rem 0.75rem !important;
+    padding: 0.45rem 0.75rem !important;
 }
 .table-scroll-container table {
     min-width: 800px;
