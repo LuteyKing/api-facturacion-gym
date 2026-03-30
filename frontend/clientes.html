@@ -90,31 +90,77 @@
 
         /* ── Navbar Premium ────────────────────────────── */
         .navbar-premium {
-            position: sticky; top: 0; z-index: 100;
+            position: sticky; top: 0; z-index: 1050;
             background: rgba(13,13,13,0.88);
             backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
             border-bottom: 1px solid rgba(255,215,0,0.15);
         }
-        .nav-inner { max-width: 1280px; margin: auto; display: flex; align-items: center; justify-content: space-between; padding: 0 1.5rem; height: 60px; }
-        .nav-brand { display: flex; align-items: center; gap: .6rem; text-decoration: none; }
-        .nav-brand img { width: 34px; height: 34px; border-radius: 8px; }
-        .nav-brand span { font-weight: 800; font-size: 1.05rem; color: #FFD700; letter-spacing: .5px; }
-        .nav-links-premium { display: flex; gap: .35rem; }
-        .nav-link-p { color: #aaa; text-decoration: none; font-size: .82rem; font-weight: 600; padding: .45rem .9rem; border-radius: 8px; transition: .25s; display: inline-flex; align-items: center; gap: 5px; }
+        .navbar-premium .nav-inner {
+            max-width: 1320px; margin: 0 auto;
+            padding: 0 1.5rem;
+            display: flex; align-items: center; justify-content: space-between;
+            height: 60px;
+        }
+        .navbar-premium .nav-brand {
+            display: flex; align-items: center; gap: 10px; text-decoration: none;
+        }
+        .navbar-premium .nav-brand img { width: 32px; height: 32px; }
+        .navbar-premium .nav-brand span {
+            font-weight: 900; font-size: 1.1rem; color: #FFD700; letter-spacing: -0.5px;
+        }
+        .nav-links-premium { display: flex; align-items: center; gap: 4px; }
+        .nav-link-p {
+            display: inline-flex; align-items: center; gap: 5px;
+            padding: 7px 14px; border-radius: 8px;
+            font-size: 0.82rem; font-weight: 600; color: #8892b0;
+            text-decoration: none; transition: all 0.25s; border: none; background: none;
+        }
         .nav-link-p:hover, .nav-link-p.active { color: #FFD700; background: rgba(255,215,0,0.08); }
-        .nav-right { display: flex; align-items: center; gap: .6rem; }
-        .user-badge-glass { display: inline-flex; align-items: center; gap: .45rem; background: rgba(255,215,0,0.08); border: 1px solid rgba(255,215,0,0.18); padding: .35rem .85rem; border-radius: 999px; font-size: .75rem; color: #FFD700; font-weight: 600; }
-        .btn-logout-nav { background: rgba(239,68,68,0.10); border: 1px solid rgba(239,68,68,0.25); color: #f87171; font-size: .78rem; font-weight: 600; padding: .4rem .85rem; border-radius: 8px; cursor: pointer; transition: .25s; }
-        .btn-logout-nav:hover { background: rgba(239,68,68,0.20); }
-        .hamburger-btn { display: none; background: none; border: 1px solid rgba(255,215,0,0.2); color: #FFD700; padding: 6px 10px; border-radius: 8px; cursor: pointer; font-size: 1.2rem; }
-        .nav-mobile { display: none; padding: 8px 1.5rem 16px; border-top: 1px solid rgba(255,215,0,0.1); background: rgba(13,13,13,0.95); }
-        .nav-mobile a { display: block; padding: 10px 12px; color: #aaa; text-decoration: none; font-size: .88rem; font-weight: 600; border-radius: 8px; transition: .2s; }
+        .nav-right { display: flex; align-items: center; gap: 10px; }
+        .user-badge-glass {
+            display: inline-flex; align-items: center; gap: 8px;
+            background: rgba(255,215,0,0.08); border: 1px solid rgba(255,215,0,0.15);
+            padding: 6px 14px; border-radius: 50px;
+            font-size: 0.78rem; font-weight: 600; color: #FFD700;
+        }
+        .btn-logout-nav {
+            display: inline-flex; align-items: center; gap: 6px;
+            background: rgba(239,68,68,0.1); border: 1px solid rgba(239,68,68,0.2);
+            color: #f87171; padding: 6px 14px; border-radius: 50px;
+            font-size: 0.78rem; font-weight: 600; cursor: pointer; transition: all 0.2s;
+        }
+        .btn-logout-nav:hover { background: rgba(239,68,68,0.2); }
+        .hamburger-btn {
+            display: none; background: none; border: 1px solid rgba(255,215,0,0.2);
+            color: #FFD700; padding: 6px 10px; border-radius: 8px; cursor: pointer; font-size: 1.2rem;
+        }
+        .nav-mobile {
+            display: none; padding: 8px 0 16px;
+            border-top: 1px solid rgba(255,215,0,0.1);
+        }
+        .nav-mobile a {
+            display: block; padding: 10px 16px; color: #8892b0;
+            text-decoration: none; font-size: 0.88rem; font-weight: 600;
+            border-radius: 8px; transition: all 0.2s;
+        }
         .nav-mobile a:hover { color: #FFD700; background: rgba(255,215,0,0.08); }
-        @media(max-width:768px) { .nav-links-premium, .user-badge-glass { display: none !important; } .hamburger-btn { display: inline-flex !important; } }
-        .page-hero { text-align: center; padding: 2.5rem 1rem 1.8rem; }
-        .page-hero h2 { font-size: 1.75rem; font-weight: 800; color: #111; }
-        .page-hero p { color: #6B7280; font-size: .92rem; margin-top: .3rem; }
-        .footer-premium { text-align: center; padding: 2rem 1rem; font-size: .78rem; color: #9CA3AF; border-top: 1px solid rgba(0,0,0,0.06); margin-top: 3rem; }
+        @media (max-width: 768px) {
+            .nav-links-premium { display: none !important; }
+            .hamburger-btn { display: inline-flex !important; }
+            .user-badge-glass { display: none !important; }
+        }
+        .page-hero {
+            padding: 0.5rem 0;
+        }
+        .page-hero h2 { font-size: 1.5rem; font-weight: 800; color: #111; margin: 0; }
+        .page-hero p { font-size: 0.85rem; color: #6B7280; margin: 0.25rem 0 0; }
+        .footer-premium {
+            text-align: center; padding: 2rem 1rem; margin-top: 2rem;
+            border-top: 1px solid rgba(0,0,0,0.06);
+        }
+        .footer-premium p {
+            font-size: 0.75rem; color: #9CA3AF; margin: 0;
+        }
 
         /* ── Form inputs ─────────────────────────────── */
         .form-input-gym {
@@ -225,28 +271,28 @@
             <div class="nav-right">
                 <span id="sedeIndicator" class="user-badge-glass" style="background:rgba(99,102,241,0.10);border-color:rgba(99,102,241,0.25);color:#818cf8;font-size:0.72rem;">📍 Sede: —</span>
                 <span id="userIndicator" class="user-badge-glass">👤 Cargando...</span>
-                <button class="btn-logout-nav" onclick="cerrarSesion()"><i class="bi bi-box-arrow-right"></i> Salir</button>
+                <button onclick="cerrarSesion()" class="btn-logout-nav"><i class="bi bi-box-arrow-right"></i> Salir</button>
                 <button class="hamburger-btn" onclick="toggleMobileMenu()"><i class="bi bi-list"></i></button>
             </div>
         </div>
-        <div class="nav-mobile" id="mobileMenu">
-            <a href="index.html"><i class="bi bi-lightning-charge-fill"></i> Ventas</a>
-            <a href="clientes.html"><i class="bi bi-people-fill"></i> Clientes</a>
-            <a href="productos.html"><i class="bi bi-box-seam-fill"></i> Productos</a>
-            <a href="historial.html"><i class="bi bi-clock-history"></i> Historial</a>
-            <a id="navUsuariosMobile" href="usuarios.html" style="display:none;"><i class="bi bi-shield-lock-fill"></i> Usuarios</a>
+        <div id="mobileMenu" class="nav-mobile" style="max-width:1320px;margin:0 auto;padding-left:1.5rem;padding-right:1.5rem;">
+            <a href="index.html"><i class="bi bi-lightning-charge-fill me-2"></i>Ventas</a>
+            <a href="clientes.html"><i class="bi bi-people-fill me-2"></i>Clientes</a>
+            <a href="productos.html"><i class="bi bi-box-seam-fill me-2"></i>Productos</a>
+            <a href="historial.html"><i class="bi bi-clock-history me-2"></i>Historial</a>
+            <a id="navUsuariosMobile" href="usuarios.html" style="display:none;"><i class="bi bi-shield-lock-fill me-2"></i>Usuarios</a>
         </div>
     </nav>
 
     <div id="toastContainer"></div>
 
-    <!-- ═══ HERO ═══ -->
-    <section class="page-hero">
-        <h2><i class="bi bi-people-fill"></i> Gestión de Clientes</h2>
-        <p>Registra y administra los alumnos de tu gimnasio.</p>
-    </section>
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
 
-    <main class="max-w-full mx-auto px-4 sm:px-6 lg:px-10 py-8">
+        <!-- Hero -->
+        <div class="page-hero mb-3">
+            <h2><i class="bi bi-people-fill"></i> Gestión de Clientes</h2>
+            <p>Registra y administra los alumnos de tu gimnasio.</p>
+        </div>
 
         <!-- ── Stats rápidas ─────────────────────────── -->
         <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8" style="animation: fadeInUp 0.5s ease-out 0.1s both;">
@@ -479,12 +525,6 @@
             </div>
         </div>
 
-        <!-- ── Footer de página ──────────────────────── -->
-        <div class="mt-8 text-center" style="animation: fadeInUp 0.5s ease-out 0.4s both;">
-            <p class="text-xs text-gray-400">
-                MI GIMNASIO PRO &nbsp;•&nbsp; Gestión de Clientes &nbsp;•&nbsp; Powered by FastAPI + SRI
-            </p>
-        </div>
     </main>
 
     <!-- ═══════════════════════════════════════════════════ -->

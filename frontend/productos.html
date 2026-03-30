@@ -293,87 +293,44 @@
 </head>
 <body class="bg-gray-100 min-h-screen">
 
-    <!-- ═══════════════════════════════════════════════════ -->
-    <!-- NAVBAR -->
-    <!-- ═══════════════════════════════════════════════════ -->
-    <nav class="navbar-gym sticky top-0 z-50 relative">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex items-center justify-between h-16">
-                <!-- Logo -->
-                <div class="flex items-center gap-3">
-                    <div class="w-9 h-9 bg-gym-yellow rounded-lg flex items-center justify-center">
-                        <svg class="w-5 h-5 text-gym-black" fill="currentColor" viewBox="0 0 24 24">
-                            <path d="M20.57 14.86L22 13.43 20.57 12 17 15.57 8.43 7 12 3.43 10.57 2 9.14 3.43 7.71 2 5.57 4.14 4.14 2.71 2.71 4.14l1.43 1.43L2 7.71l1.43 1.43L2 10.57 3.43 12 7 8.43 15.57 17 12 20.57 13.43 22l1.43-1.43L16.29 22l2.14-2.14 1.43 1.43 1.43-1.43-1.43-1.43L22 16.29z"/>
-                        </svg>
-                    </div>
-                    <div>
-                        <h1 class="text-gym-yellow font-extrabold text-lg tracking-tight leading-none">
-                            MI GIMNASIO PRO
-                        </h1>
-                        <span class="text-gray-500 text-xs font-medium tracking-wider">GESTIÓN DE PRODUCTOS</span>
-                    </div>
-                </div>
-
-                <!-- Navegación -->
-                <div class="flex items-center gap-3">
-                    <a href="clientes.html"
-                       class="hidden sm:inline-flex items-center gap-1.5 text-gray-400 hover:text-gym-yellow px-3 py-2 rounded-lg text-sm font-medium transition-all duration-300">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/>
-                        </svg>
-                        Clientes
-                    </a>
-                    <a href="historial.html"
-                       class="hidden sm:inline-flex items-center gap-1.5 text-gray-400 hover:text-gym-yellow px-3 py-2 rounded-lg text-sm font-medium transition-all duration-300">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                        </svg>
-                        Historial
-                    </a>
-                    <a id="navUsuarios" href="usuarios.html"
-                       class="hidden sm:inline-flex items-center gap-1.5 text-gray-400 hover:text-gym-yellow px-3 py-2 rounded-lg text-sm font-medium transition-all duration-300"
-                       style="display:none !important;">
-                        <i class="bi bi-shield-lock"></i>
-                        Usuarios
-                    </a>
-                    <a href="index.html"
-                       class="inline-flex items-center gap-2 bg-gym-yellow/10 hover:bg-gym-yellow/20 text-gym-yellow px-4 py-2 rounded-lg text-sm font-semibold transition-all duration-300 hover:scale-105 border border-gym-yellow/20 hover:border-gym-yellow/40">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
-                        </svg>
-                        Volver al POS
-                    </a>
-                    <span id="userIndicator" class="hidden sm:inline-flex items-center gap-1.5 bg-gym-yellow/10 text-gym-yellow border border-gym-yellow/20 px-3 py-1.5 rounded-lg text-xs font-semibold tracking-wide">
-                        👤 Cargando...
-                    </span>
-                    <button onclick="cerrarSesion()"
-                       class="inline-flex items-center gap-2 bg-red-500/10 hover:bg-red-500/20 text-red-400 px-4 py-2 rounded-lg text-sm font-semibold transition-all duration-300 hover:scale-105 border border-red-500/20 hover:border-red-500/40">
-                        <i class="bi bi-box-arrow-right"></i>
-                        Salir
-                    </button>
-                </div>
+    <!-- ═══ NAVBAR PREMIUM ═══ -->
+    <nav class="navbar-premium">
+        <div class="nav-inner">
+            <a href="index.html" class="nav-brand">
+                <img src="https://cdn-icons-png.flaticon.com/512/3003/3003984.png" alt="Logo">
+                <span>POWER GYM & POWER BOX</span>
+            </a>
+            <div class="nav-links-premium">
+                <a href="index.html" class="nav-link-p"><i class="bi bi-lightning-charge-fill"></i> Ventas</a>
+                <a href="clientes.html" class="nav-link-p"><i class="bi bi-people-fill"></i> Clientes</a>
+                <a href="productos.html" class="nav-link-p active"><i class="bi bi-box-seam-fill"></i> Productos</a>
+                <a href="historial.html" class="nav-link-p"><i class="bi bi-clock-history"></i> Historial</a>
+                <a id="navUsuarios" href="usuarios.html" class="nav-link-p" style="display:none;"><i class="bi bi-shield-lock-fill"></i> Usuarios</a>
             </div>
+            <div class="nav-right">
+                <span id="sedeIndicator" class="user-badge-glass" style="background:rgba(99,102,241,0.10);border-color:rgba(99,102,241,0.25);color:#818cf8;font-size:0.72rem;">📍 Sede: —</span>
+                <span id="userIndicator" class="user-badge-glass">👤 Cargando...</span>
+                <button onclick="cerrarSesion()" class="btn-logout-nav"><i class="bi bi-box-arrow-right"></i> Salir</button>
+                <button class="hamburger-btn" onclick="toggleMobileMenu()"><i class="bi bi-list"></i></button>
+            </div>
+        </div>
+        <div id="mobileMenu" class="nav-mobile" style="max-width:1320px;margin:0 auto;padding-left:1.5rem;padding-right:1.5rem;">
+            <a href="index.html"><i class="bi bi-lightning-charge-fill me-2"></i>Ventas</a>
+            <a href="clientes.html"><i class="bi bi-people-fill me-2"></i>Clientes</a>
+            <a href="productos.html"><i class="bi bi-box-seam-fill me-2"></i>Productos</a>
+            <a href="historial.html"><i class="bi bi-clock-history me-2"></i>Historial</a>
+            <a id="navUsuariosMobile" href="usuarios.html" style="display:none;"><i class="bi bi-shield-lock-fill me-2"></i>Usuarios</a>
         </div>
     </nav>
 
-    <!-- ═══════════════════════════════════════════════════ -->
-    <!-- TOAST CONTAINER -->
-    <!-- ═══════════════════════════════════════════════════ -->
     <div id="toastContainer"></div>
 
-    <!-- ═══════════════════════════════════════════════════ -->
-    <!-- CONTENIDO PRINCIPAL -->
-    <!-- ═══════════════════════════════════════════════════ -->
     <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
 
-        <!-- ── Título ────────────────────────────────── -->
-        <div class="mb-8 animate-fade-in-up">
-            <h2 class="text-3xl font-extrabold text-gym-dark tracking-tight">
-                Catálogo de Productos y Servicios
-            </h2>
-            <p class="text-gray-500 mt-1 text-sm">
-                Registra los servicios y membresías de tu gimnasio.
-            </p>
+        <!-- Hero -->
+        <div class="page-hero mb-3">
+            <h2><i class="bi bi-box-seam-fill"></i> Catálogo de Productos y Servicios</h2>
+            <p>Registra los servicios y membresías de tu gimnasio.</p>
         </div>
 
         <!-- ── Stats rápidas ─────────────────────────── -->
