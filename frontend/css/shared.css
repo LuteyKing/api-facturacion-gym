@@ -455,6 +455,7 @@ body {
     flex: 1;
     height: calc(100vh - 52px);
     max-width: calc(100% - 240px);
+    overflow-x: hidden;
     overflow-y: auto;
     display: flex;
     flex-direction: column;
@@ -489,7 +490,7 @@ body {
     .topbar-hamburger { display: inline-flex !important; }
     .profile-info { display: none; }
     .profile-chevron { display: none; }
-    .main-content { margin-left: 0; max-width: 100%; padding: 0.75rem 1rem; height: calc(100vh - 52px); overflow-y: auto; }
+    .main-content { margin-left: 0; max-width: 100%; padding: 0.75rem 1rem; height: calc(100vh - 52px); overflow-x: hidden; overflow-y: auto; }
 }
 
 /* ═══ CARDS ═══ */
