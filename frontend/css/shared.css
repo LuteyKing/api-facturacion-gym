@@ -154,10 +154,12 @@ body {
 }
 
 /* ── Scrollbar ─────────────────────────────────────────── */
-::-webkit-scrollbar { width: 6px; height: 6px; }
-::-webkit-scrollbar-track { background: var(--scrollbar-track); border-radius: 10px; }
-::-webkit-scrollbar-thumb { background: var(--scrollbar-thumb); border-radius: 10px; }
+::-webkit-scrollbar { width: 10px; height: 8px; }
+::-webkit-scrollbar-track { background: var(--scrollbar-track); border-radius: 10px; margin: 4px 0; }
+::-webkit-scrollbar-thumb { background: var(--scrollbar-thumb); border-radius: 10px; border: 2px solid var(--scrollbar-track); }
 ::-webkit-scrollbar-thumb:hover { background: var(--scrollbar-hover); }
+/* Horizontal scrollbar inside tables: thinner */
+.table-scroll-container::-webkit-scrollbar { height: 6px; width: 0; }
 
 /* ── Animations ────────────────────────────────────────── */
 @keyframes fadeInUp {
@@ -852,9 +854,8 @@ body {
 .gap-grid { display: grid; gap: 1rem; }
 .gap-grid-sm { display: grid; gap: 0.75rem; }
 
-/* ═══ DENSE LAYOUT: Zero-scroll flex cascade ══════════ */
+/* ═══ LAYOUT: flex cascade (natural flow, page scrolls) ════════ */
 .layout-grid {
-    flex: 1 1 0;
     min-height: 0;
     grid-template-rows: 1fr;
 }
@@ -863,38 +864,29 @@ body {
     display: flex;
     flex-direction: column;
 }
-.layout-grid > * > * {
-    flex: 1;
-    min-height: 0;
-}
 
-/* Table card wrapper: flex column that fills available space */
+/* Table card wrapper */
 .table-card {
     display: flex !important;
     flex-direction: column !important;
-    flex: 1 1 0 !important;
     min-height: 0 !important;
-    overflow: hidden !important;
 }
 
-/* Form card: header fixed, form scrolls */
+/* Form card: header fixed, form grows naturally */
 .form-card-scroll {
     display: flex;
     flex-direction: column;
     min-height: 0;
-    overflow: hidden;
 }
 .form-card-scroll > form {
     flex: 1;
     min-height: 0;
-    overflow-y: auto;
 }
 
-/* Container inside main-content (POS page): scroll internally */
+/* Container inside main-content (POS page) */
 .main-content > .container {
-    flex: 1 1 0;
+    flex: 1 1 auto;
     min-height: 0;
-    overflow-y: auto;
 }
 
 /* ═══ DENSE FORM COMPACTING ════════════════════════════ */
@@ -1009,9 +1001,7 @@ body {
 /* ═══ TABLE SCROLL CONTAINER ═══════════════════════════ */
 .table-scroll-container {
     width: 100%;
-    flex: 1 1 0;
-    min-height: 0;
-    overflow-y: auto;
+    overflow-y: visible;
     overflow-x: auto;
 }
 /* Dense table cells */
@@ -1024,12 +1014,6 @@ body {
 }
 .table-scroll-container table {
     min-width: 800px;
-}
-.table-scroll-container thead th {
-    position: sticky;
-    top: 0;
-    z-index: 10;
-    background: var(--table-header-bg, #f9fafb);
 }
 [data-theme="dark"] .table-scroll-container thead th {
     background: var(--bg-surface);
