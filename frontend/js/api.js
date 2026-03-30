@@ -14,7 +14,7 @@ function authHeaders(extra = {}) {
 
 /**
  * Verifica token + sede activa. Redirige a login si faltan.
- * Carga nombre de usuario en topbar y muestra enlace "Usuarios" si es admin.
+ * Carga perfil del usuario en el dropdown del header.
  * @param {Object} opts
  * @param {boolean} opts.requireAdmin  — si true, redirige a index.html si no es admin
  * @param {Function} opts.onAdmin      — callback que se ejecuta si el usuario es admin
@@ -22,11 +22,6 @@ function authHeaders(extra = {}) {
 function initSessionGuard(opts = {}) {
     if (!GYM_TOKEN) { window.location.href = 'login.html'; return; }
     if (!localStorage.getItem('sede_activa')) { window.location.href = 'login.html'; return; }
-
-    // Sede indicator
-    const sede = localStorage.getItem('sede_activa') || 'gym';
-    const sedeEl = document.getElementById('sedeIndicator');
-    if (sedeEl) sedeEl.textContent = '📍 ' + (sede === 'box' ? 'POWER BOX' : 'POWER GYM');
 
     // Verificar token con el backend
     fetch(`${API_BASE_URL}/api/v1/auth/me`, { headers: authHeaders() })
@@ -42,10 +37,25 @@ function initSessionGuard(opts = {}) {
         .then(user => {
             if (!user) return;
 
-            // Mostrar nombre de usuario
+            const nombre = user.nombre_completo || 'Usuario';
             const rol = user.rol ? user.rol.charAt(0).toUpperCase() + user.rol.slice(1) : '';
-            const userEl = document.getElementById('userIndicator');
-            if (userEl) userEl.textContent = `👤 ${user.nombre_completo} (${rol})`;
+            const inicial = nombre.charAt(0).toUpperCase();
+
+            // Poblar profile capsule (topbar)
+            const pName = document.getElementById('profileName');
+            const pRole = document.getElementById('profileRole');
+            const pAvatar = document.getElementById('profileAvatar');
+            if (pName) pName.textContent = nombre;
+            if (pRole) pRole.textContent = rol;
+            if (pAvatar) pAvatar.textContent = inicial;
+
+            // Poblar profile dropdown
+            const ddName = document.getElementById('profileDdName');
+            const ddRole = document.getElementById('profileDdRole');
+            const ddAvatar = document.getElementById('profileAvatarLg');
+            if (ddName) ddName.textContent = nombre;
+            if (ddRole) ddRole.textContent = rol;
+            if (ddAvatar) ddAvatar.textContent = inicial;
 
             // Enlace "Usuarios" solo para admin
             if (user.rol === 'admin') {
@@ -60,7 +70,12 @@ function initSessionGuard(opts = {}) {
                 window.location.href = 'index.html';
             }
         })
-        .catch(() => {});
+        .catch(err => {
+            if (err.message !== 'Token inválido') {
+                console.warn('Error de conexión al verificar sesión:', err.message);
+                mostrarToast('⚠️ No se pudo conectar con el servidor. Verifica tu conexión.', 'error');
+            }
+        });
 }
 
 // ── Cerrar Sesión ───────────────────────────────────────────

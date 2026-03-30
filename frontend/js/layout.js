@@ -12,9 +12,7 @@
 
 /**
  * Inyecta el layout completo (sidebar + topbar + wrapper) en el <body>.
- * Debe llamarse al inicio del <script> de cada página.
- *
- * @param {string} activePage — Nombre del archivo activo: 'index','clientes','productos','historial','usuarios'
+ * @param {string} activePage — 'index','clientes','productos','historial','usuarios'
  */
 function initLayout(activePage) {
     const links = [
@@ -32,18 +30,24 @@ function initLayout(activePage) {
         return `<a${id} href="${l.href}" class="sidebar-link${active}"${hide}><i class="bi ${l.icon}"></i> ${l.label}</a>`;
     }).join('\n            ');
 
+    // ── Sede dinámica ──
+    const sede = localStorage.getItem('sede_activa') || '';
+    const esBox = sede === 'box';
+    const sedeName = esBox ? 'POWER BOX' : 'POWER GYM';
+    const sedeClass = esBox ? 'sede-box' : 'sede-gym';
+
     // ── Sidebar ──
     const sidebarHTML = `
     <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
     <aside class="sidebar" id="sidebar">
         <a href="index.html" class="sidebar-brand">
             <img src="https://cdn-icons-png.flaticon.com/512/3003/3003984.png" alt="Logo">
-            <span>POWER GYM &amp; POWER BOX</span>
+            <span>POWER GYM &amp; BOX</span>
         </a>
         <nav class="sidebar-nav">
             ${navHTML}
         </nav>
-        <div class="sidebar-footer">&copy; 2026 POWER GYM &amp; POWER BOX</div>
+        <div class="sidebar-footer">&copy; 2026 POWER GYM &amp; BOX</div>
     </aside>`;
 
     // ── TopBar ──
@@ -51,27 +55,44 @@ function initLayout(activePage) {
     <header class="topbar">
         <div class="topbar-sede">
             <button class="topbar-hamburger" onclick="toggleSidebar()"><i class="bi bi-list"></i></button>
-            <span id="sedeIndicator">📍 Sede: —</span>
+            <span id="sedeIndicator" class="sede-badge ${sedeClass}">📍 ${sedeName}</span>
         </div>
         <div class="topbar-right">
             <button class="theme-toggle" onclick="toggleTheme()" title="Cambiar tema">
                 <i class="bi bi-moon-fill" id="themeIcon"></i>
             </button>
-            <span id="userIndicator" class="topbar-user">👤 Cargando...</span>
-            <button onclick="cerrarSesion()" class="topbar-logout"><i class="bi bi-box-arrow-right"></i> Cerrar Sesión</button>
+            <div class="profile-capsule" id="profileCapsule" onclick="toggleProfileMenu()">
+                <div class="profile-avatar" id="profileAvatar">?</div>
+                <div class="profile-info">
+                    <span class="profile-name" id="profileName">Cargando…</span>
+                    <span class="profile-role" id="profileRole"></span>
+                </div>
+                <i class="bi bi-chevron-down profile-chevron" id="profileChevron"></i>
+            </div>
+            <div class="profile-dropdown" id="profileDropdown">
+                <div class="profile-dropdown-header">
+                    <div class="profile-avatar-lg" id="profileAvatarLg">?</div>
+                    <div>
+                        <p class="profile-dd-name" id="profileDdName">…</p>
+                        <p class="profile-dd-role" id="profileDdRole">…</p>
+                    </div>
+                </div>
+                <div class="profile-dropdown-divider"></div>
+                <button class="profile-dropdown-item" onclick="cerrarSesion()">
+                    <i class="bi bi-box-arrow-right"></i> Cerrar Sesión
+                </button>
+            </div>
         </div>
     </header>`;
 
-    // Crear contenedor <main> si no existe
+    // Inyectar en el DOM
     const existingMain = document.querySelector('main.main-content, div.main-content');
     let mainEl;
 
     if (existingMain) {
-        // El contenido ya está dentro de un main-content, solo inyectamos sidebar+topbar antes
         mainEl = existingMain;
         mainEl.insertAdjacentHTML('beforebegin', sidebarHTML + topbarHTML);
     } else {
-        // Envolver todo el body content en <main class="main-content">
         const bodyContent = document.body.innerHTML;
         document.body.innerHTML = '';
         document.body.insertAdjacentHTML('afterbegin', sidebarHTML + topbarHTML);
@@ -81,18 +102,37 @@ function initLayout(activePage) {
         document.body.appendChild(mainEl);
     }
 
-    // ── Footer (se añade al final del main) ──
+    // ── Footer ──
     if (!mainEl.querySelector('.footer-premium')) {
         mainEl.insertAdjacentHTML('beforeend', `
         <footer class="footer-premium">
-            <p>&copy; 2026 POWER GYM &amp; POWER BOX &nbsp;|&nbsp; El Triunfo, Ecuador &nbsp;|&nbsp; Gestión Profesional de Gimnasio</p>
+            <p>&copy; 2026 POWER GYM &amp; BOX &nbsp;|&nbsp; El Triunfo, Ecuador &nbsp;|&nbsp; Gestión Profesional de Gimnasio</p>
         </footer>`);
     }
 
-    // Establecer icono de tema correcto
+    // Icono de tema correcto
     const saved = localStorage.getItem('gym_theme') || 'dark';
     const icon = document.getElementById('themeIcon');
     if (icon) icon.className = saved === 'dark' ? 'bi bi-moon-fill' : 'bi bi-sun-fill';
+
+    // Cerrar dropdown al hacer click fuera
+    document.addEventListener('click', function(e) {
+        const capsule = document.getElementById('profileCapsule');
+        const dropdown = document.getElementById('profileDropdown');
+        if (capsule && dropdown && !capsule.contains(e.target) && !dropdown.contains(e.target)) {
+            dropdown.classList.remove('open');
+            const chev = document.getElementById('profileChevron');
+            if (chev) chev.classList.remove('rotated');
+        }
+    });
+}
+
+// ── Profile Dropdown Toggle ─────────────────────────────────
+function toggleProfileMenu() {
+    const dd = document.getElementById('profileDropdown');
+    const chev = document.getElementById('profileChevron');
+    if (dd) dd.classList.toggle('open');
+    if (chev) chev.classList.toggle('rotated');
 }
 
 // ── Theme Toggle ────────────────────────────────────────────
