@@ -176,6 +176,10 @@ def listar_facturas(
         None,
         description="Filtrar por estado SRI (ej: SIMULADO, DEVUELTA, AUTORIZADO)",
     ),
+    sede: str | None = Query(
+        None,
+        description="Filtrar por sede (gym o box)",
+    ),
 ):
     """Lista el historial de facturas. Admin ve todas, vendedor solo las suyas."""
     query = db.query(Factura, Cliente.telefono, Usuario.nombre_completo).outerjoin(
@@ -186,6 +190,9 @@ def listar_facturas(
 
     if estado:
         query = query.filter(Factura.estado_sri == estado.upper())
+
+    if sede:
+        query = query.filter(Factura.sede == sede)
 
     # Filtrar por rol: vendedor solo ve sus facturas
     if current_user.rol != "admin":
@@ -211,6 +218,7 @@ def listar_facturas(
             vendedor_nombre=vendedor_nombre,
             created_at=f.created_at.strftime("%d/%m/%Y %H:%M:%S") if f.created_at else None,
             detalles=_extraer_detalles_xml(f.xml_generado) if f.xml_generado else [],
+            sede=f.sede,
         )
         resultado.append(item)
 
@@ -254,6 +262,7 @@ def historial_cliente(
             vendedor_nombre=vendedor,
             created_at=f.created_at.strftime("%d/%m/%Y %H:%M:%S") if f.created_at else None,
             detalles=_extraer_detalles_xml(f.xml_generado) if f.xml_generado else [],
+            sede=f.sede,
         )
         for f, tel, vendedor in filas
     ]

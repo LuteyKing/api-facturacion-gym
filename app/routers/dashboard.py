@@ -8,7 +8,7 @@ from datetime import datetime, timedelta
 from xml.etree import ElementTree as ET
 from zoneinfo import ZoneInfo
 
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, Query
 from pydantic import BaseModel
 from sqlalchemy import func
 from sqlalchemy.orm import Session
@@ -56,47 +56,49 @@ class DashboardStats(BaseModel):
 def obtener_stats(
     db: Session = Depends(get_db),
     current_user: Usuario = Depends(require_admin),
+    sede: str | None = Query(None, description="Filtrar por sede: gym o box"),
 ):
     ahora = datetime.now(EC_TZ).replace(tzinfo=None)
     hoy_inicio = ahora.replace(hour=0, minute=0, second=0, microsecond=0)
     hace_30d = ahora - timedelta(days=30)
 
     # ── Ventas de hoy ────────────────────────────────────
-    resultado_hoy = (
-        db.query(func.coalesce(func.sum(Factura.total), 0), func.count(Factura.id))
-        .filter(Factura.created_at >= hoy_inicio)
-        .first()
-    )
+    q_hoy = db.query(func.coalesce(func.sum(Factura.total), 0), func.count(Factura.id)).filter(Factura.created_at >= hoy_inicio)
+    if sede:
+        q_hoy = q_hoy.filter(Factura.sede == sede)
+    resultado_hoy = q_hoy.first()
     ventas_hoy = float(resultado_hoy[0])
     facturas_hoy = int(resultado_hoy[1])
 
     # ── Clientes ─────────────────────────────────────────
-    clientes_total = db.query(func.count(Cliente.id)).scalar() or 0
-    clientes_nuevos_30d = (
-        db.query(func.count(Cliente.id))
-        .filter(Cliente.created_at >= hace_30d)
-        .scalar() or 0
-    )
+    q_clientes = db.query(func.count(Cliente.id))
+    if sede:
+        q_clientes = q_clientes.filter(Cliente.sede == sede)
+    clientes_total = q_clientes.scalar() or 0
+    q_clientes_new = db.query(func.count(Cliente.id)).filter(Cliente.created_at >= hace_30d)
+    if sede:
+        q_clientes_new = q_clientes_new.filter(Cliente.sede == sede)
+    clientes_nuevos_30d = q_clientes_new.scalar() or 0
 
     # ── Productos ────────────────────────────────────────
-    productos_total = db.query(func.count(Producto.id)).scalar() or 0
-    productos_recientes = (
-        db.query(Producto)
-        .order_by(Producto.created_at.desc())
-        .limit(5)
-        .all()
-    )
+    q_prod = db.query(func.count(Producto.id))
+    if sede:
+        q_prod = q_prod.filter(Producto.sede == sede)
+    productos_total = q_prod.scalar() or 0
+    q_prod_recent = db.query(Producto).order_by(Producto.created_at.desc())
+    if sede:
+        q_prod_recent = q_prod_recent.filter(Producto.sede == sede)
+    productos_recientes = q_prod_recent.limit(5).all()
 
     # ── Resumen semanal (últimos 7 días) ─────────────────
     resumen_semanal = []
     for i in range(6, -1, -1):
         dia = hoy_inicio - timedelta(days=i)
         dia_fin = dia + timedelta(days=1)
-        total_dia = (
-            db.query(func.coalesce(func.sum(Factura.total), 0))
-            .filter(Factura.created_at >= dia, Factura.created_at < dia_fin)
-            .scalar()
-        )
+        q_dia = db.query(func.coalesce(func.sum(Factura.total), 0)).filter(Factura.created_at >= dia, Factura.created_at < dia_fin)
+        if sede:
+            q_dia = q_dia.filter(Factura.sede == sede)
+        total_dia = q_dia.scalar()
         resumen_semanal.append(VentaDia(
             fecha=dia.strftime("%d/%m"),
             total=float(total_dia),
@@ -104,11 +106,10 @@ def obtener_stats(
 
     # ── Ventas por producto (últimos 30 días) ────────────
     ventas_por_producto: dict[str, float] = defaultdict(float)
-    facturas_30d = (
-        db.query(Factura.xml_generado)
-        .filter(Factura.created_at >= hace_30d, Factura.xml_generado.isnot(None))
-        .all()
-    )
+    q_f30 = db.query(Factura.xml_generado).filter(Factura.created_at >= hace_30d, Factura.xml_generado.isnot(None))
+    if sede:
+        q_f30 = q_f30.filter(Factura.sede == sede)
+    facturas_30d = q_f30.all()
     for (xml_str,) in facturas_30d:
         try:
             root = ET.fromstring(xml_str)

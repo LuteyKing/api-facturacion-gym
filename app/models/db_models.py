@@ -29,6 +29,7 @@ class Factura(Base):
     xml_generado: Mapped[str] = mapped_column(Text, nullable=False)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=False), nullable=False)
     usuario_id: Mapped[Optional[int]] = mapped_column(Integer, ForeignKey("usuarios.id"), nullable=True)
+    sede: Mapped[Optional[str]] = mapped_column(String(10), nullable=True, default="gym", index=True)
 
 # --- NUEVA TABLA: CLIENTES (ALUMNOS) ---
 class Cliente(Base):
@@ -40,6 +41,7 @@ class Cliente(Base):
     telefono: Mapped[str] = mapped_column(String(20), nullable=True)
     direccion: Mapped[str] = mapped_column(Text, nullable=True)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=False), nullable=False)
+    sede: Mapped[Optional[str]] = mapped_column(String(10), nullable=True, default="gym", index=True)
 
 # --- NUEVA TABLA: PRODUCTOS (SERVICIOS) ---
 class Producto(Base):
@@ -50,3 +52,4 @@ class Producto(Base):
     precio_unitario: Mapped[float] = mapped_column(Numeric(10, 2), nullable=False)
     iva_aplica: Mapped[bool] = mapped_column(Boolean, default=True)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=False), nullable=False)
+    sede: Mapped[Optional[str]] = mapped_column(String(10), nullable=True, default="gym", index=True)

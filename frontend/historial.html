@@ -3,9 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Historial | Tecnomundo</title>
+    <title>Historial | POWER GYM</title>
     <link rel="icon" type="image/png" href="https://cdn-icons-png.flaticon.com/512/3003/3003984.png">
-    <meta name="description" content="Historial de facturas electrónicas. Sistema POS Tecnomundo.">
+    <meta name="description" content="Historial de facturas electrónicas. Sistema POS POWER GYM.">
 
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -525,7 +525,7 @@
 
         <!-- Footer de la página -->
         <footer class="footer-premium">
-            <p>&copy; 2026 Tecnomundo POS &nbsp;|&nbsp; El Triunfo, Ecuador &nbsp;|&nbsp; Potenciado por IA</p>
+            <p>&copy; 2026 POWER GYM &amp; POWER BOX &nbsp;|&nbsp; El Triunfo, Ecuador &nbsp;|&nbsp; Gestión Profesional de Gimnasio</p>
         </footer>
     </main>
 
@@ -541,9 +541,17 @@
     // ── Session Guard ───────────────────────────────────
     const GYM_TOKEN = localStorage.getItem('gym_token');
     if (!GYM_TOKEN) { window.location.href = 'login.html'; }
+    if (!localStorage.getItem('sede_activa')) { window.location.href = 'login.html'; }
     function authHeaders(extra = {}) {
         return { 'Authorization': `Bearer ${GYM_TOKEN}`, ...extra };
     }
+
+    // ── Sede indicator ──
+    (function() {
+        const s = localStorage.getItem('sede_activa') || 'gym';
+        const el = document.getElementById('sedeIndicator');
+        if (el) el.textContent = '📍 ' + (s === 'gym' ? 'POWER GYM' : 'POWER BOX');
+    })();
     fetch(`${API_BASE_URL}/api/v1/auth/me`, { headers: authHeaders() })
         .then(r => { if (!r.ok) { localStorage.removeItem('gym_token'); localStorage.removeItem('gym_user'); window.location.href = 'login.html'; } return r.json(); })
         .then(user => {
@@ -615,7 +623,8 @@
         cuerpo.innerHTML = generarSkeleton(5);
 
         try {
-            const response = await fetch(`${API_BASE_URL}/api/v1/facturas`, { headers: authHeaders() });
+            const sedeActiva = localStorage.getItem('sede_activa') || 'gym';
+            const response = await fetch(`${API_BASE_URL}/api/v1/facturas?sede=${sedeActiva}`, { headers: authHeaders() });
 
             if (!response.ok) {
                 throw new Error(`Error HTTP ${response.status}: ${response.statusText}`);

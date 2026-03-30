@@ -299,6 +299,7 @@ def facturar(
         xml_generado=xml_firmado.decode("utf-8"),
         usuario_id=current_user.id,
         created_at=hora_ecuador,
+        sede=datos.sede or "gym",
     )
     db.add(factura_db)
     db.commit()

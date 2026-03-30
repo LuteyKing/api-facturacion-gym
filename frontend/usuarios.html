@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Usuarios | Tecnomundo</title>
+    <title>Usuarios | POWER GYM</title>
     <link rel="icon" type="image/png" href="https://cdn-icons-png.flaticon.com/512/3003/3003984.png">
     <meta name="description" content="Gestión de usuarios y trabajadores. Sistema de facturación electrónica para Gimnasio y CrossFit.">
 
@@ -199,7 +199,7 @@
         <div class="nav-inner">
             <a href="index.html" class="nav-brand">
                 <img src="https://cdn-icons-png.flaticon.com/512/3003/3003984.png" alt="Logo">
-                <span>TECNOMUNDO POS</span>
+                <span>POWER GYM & POWER BOX</span>
             </a>
             <div class="nav-links-premium">
                 <a href="index.html" class="nav-link-p"><i class="bi bi-lightning-charge-fill"></i> Ventas</a>
@@ -209,6 +209,7 @@
                 <a href="usuarios.html" class="nav-link-p active" id="navUsuarios"><i class="bi bi-shield-lock-fill"></i> Usuarios</a>
             </div>
             <div class="nav-right">
+                <span id="sedeIndicator" class="user-badge-glass" style="background:rgba(99,102,241,0.10);border-color:rgba(99,102,241,0.25);color:#818cf8;font-size:0.72rem;">📍 Sede: —</span>
                 <span class="user-badge-glass" id="userIndicator">👤 Cargando...</span>
                 <button class="btn-logout-nav" onclick="cerrarSesion()"><i class="bi bi-box-arrow-right"></i> Salir</button>
                 <button class="hamburger-btn" onclick="toggleMobileMenu()"><i class="bi bi-list"></i></button>
@@ -359,9 +360,17 @@
 
     const GYM_TOKEN = localStorage.getItem('gym_token');
     if (!GYM_TOKEN) { window.location.href = 'login.html'; }
+    if (!localStorage.getItem('sede_activa')) { window.location.href = 'login.html'; }
     function authHeaders(extra = {}) {
         return { 'Authorization': `Bearer ${GYM_TOKEN}`, ...extra };
     }
+
+    // ── Sede indicator ──
+    (function() {
+        const s = localStorage.getItem('sede_activa') || 'gym';
+        const el = document.getElementById('sedeIndicator');
+        if (el) el.textContent = '📍 ' + (s === 'gym' ? 'POWER GYM' : 'POWER BOX');
+    })();
 
     // Guard: solo admin puede ver esta página
     fetch(`${API_BASE_URL}/api/v1/auth/me`, { headers: authHeaders() })
@@ -699,7 +708,7 @@
 
     <!-- ═══ FOOTER ═══ -->
     <footer class="footer-premium">
-        &copy; 2026 Tecnomundo POS &nbsp;|&nbsp; El Triunfo, Ecuador &nbsp;|&nbsp; Potenciado por IA
+        &copy; 2026 POWER GYM &amp; POWER BOX &nbsp;|&nbsp; El Triunfo, Ecuador &nbsp;|&nbsp; Gestión Profesional de Gimnasio
     </footer>
 </body>
 </html>

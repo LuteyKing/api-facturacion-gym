@@ -266,6 +266,9 @@ class FacturaHistorialItem(BaseModel):
     detalles: list[DetalleHistorialItem] = Field(
         default_factory=list, description="Productos/servicios de la factura"
     )
+    sede: Optional[str] = Field(
+        None, description="Sede donde se emitió la factura (gym/box)"
+    )
 
     class Config:
         from_attributes = True
@@ -387,4 +390,9 @@ class FacturarRequest(BaseModel):
     info_adicional: Optional[dict[str, str]] = Field(
         None,
         description="Campos adicionales opcionales (email, teléfono, etc.)",
+    )
+    sede: Optional[str] = Field(
+        default="gym",
+        pattern=r"^(gym|box)$",
+        description="Sede: 'gym' para POWER GYM, 'box' para POWER BOX",
     )

@@ -11,13 +11,15 @@ import logging
 from datetime import datetime
 from zoneinfo import ZoneInfo
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Query
 from pydantic import BaseModel
 from sqlalchemy.orm import Session
 
 from ..database import get_db
 from ..models.db_models import Cliente, Usuario
 from .auth import get_current_user
+
+from typing import Optional
 
 logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/clientes", tags=["Clientes"])
@@ -30,6 +32,7 @@ class ClienteCreate(BaseModel):
     correo: str | None = None
     telefono: str | None = None
     direccion: str | None = None
+    sede: str = "gym"
 
 
 class ClienteResponse(BaseModel):
@@ -39,6 +42,7 @@ class ClienteResponse(BaseModel):
     correo: str | None = None
     telefono: str | None = None
     direccion: str | None = None
+    sede: str | None = None
     created_at: str | None = None
 
     class Config:
@@ -63,6 +67,7 @@ def crear_cliente(cliente: ClienteCreate, db: Session = Depends(get_db), current
         correo=cliente.correo,
         telefono=cliente.telefono,
         direccion=cliente.direccion,
+        sede=cliente.sede,
         created_at=datetime.now(ZoneInfo("America/Guayaquil")).replace(tzinfo=None),
     )
     db.add(db_cliente)
@@ -78,15 +83,23 @@ def crear_cliente(cliente: ClienteCreate, db: Session = Depends(get_db), current
         correo=db_cliente.correo,
         telefono=db_cliente.telefono,
         direccion=db_cliente.direccion,
+        sede=db_cliente.sede,
         created_at=db_cliente.created_at.strftime("%d/%m/%Y %H:%M:%S") if db_cliente.created_at else None,
     )
 
 
 # ── GET /clientes — Listar clientes ─────────────────────
 @router.get("", response_model=list[ClienteResponse], summary="Listar todos los clientes")
-def listar_clientes(db: Session = Depends(get_db), current_user: Usuario = Depends(get_current_user)):
+def listar_clientes(
+    db: Session = Depends(get_db),
+    current_user: Usuario = Depends(get_current_user),
+    sede: Optional[str] = Query(None, description="Filtrar por sede: gym o box"),
+):
     """Retorna todos los clientes registrados, ordenados del más reciente al más antiguo."""
-    clientes = db.query(Cliente).order_by(Cliente.created_at.desc()).all()
+    query = db.query(Cliente)
+    if sede:
+        query = query.filter(Cliente.sede == sede)
+    clientes = query.order_by(Cliente.created_at.desc()).all()
 
     resultado = []
     for c in clientes:
@@ -97,6 +110,7 @@ def listar_clientes(db: Session = Depends(get_db), current_user: Usuario = Depen
             correo=c.correo,
             telefono=c.telefono,
             direccion=c.direccion,
+            sede=c.sede,
             created_at=c.created_at.strftime("%d/%m/%Y %H:%M:%S") if c.created_at else None,
         ))
 
@@ -119,6 +133,7 @@ def obtener_cliente(cedula: str, db: Session = Depends(get_db), current_user: Us
         correo=cliente.correo,
         telefono=cliente.telefono,
         direccion=cliente.direccion,
+        sede=cliente.sede,
         created_at=cliente.created_at.strftime("%d/%m/%Y %H:%M:%S") if cliente.created_at else None,
     )
 
@@ -158,6 +173,7 @@ def actualizar_cliente(
         correo=cliente.correo,
         telefono=cliente.telefono,
         direccion=cliente.direccion,
+        sede=cliente.sede,
         created_at=cliente.created_at.strftime("%d/%m/%Y %H:%M:%S") if cliente.created_at else None,
     )
 

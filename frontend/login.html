@@ -3,9 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Iniciar Sesión | Tecnomundo</title>
+    <title>Iniciar Sesión | POWER GYM</title>
     <link rel="icon" type="image/png" href="https://cdn-icons-png.flaticon.com/512/3003/3003984.png">
-    <meta name="description" content="Sistema de facturación electrónica SRI para Gimnasio y CrossFit.">
+    <meta name="description" content="Sistema de facturación electrónica SRI para POWER GYM & POWER BOX.">
 
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -111,7 +111,7 @@
             <div class="inline-flex items-center justify-center w-16 h-16 bg-gym-yellow/10 rounded-2xl mb-4">
                 <i class="bi bi-lightning-charge-fill text-gym-yellow text-3xl"></i>
             </div>
-            <h1 class="text-2xl font-extrabold text-white tracking-tight">TECNOMUNDO POS</h1>
+            <h1 class="text-2xl font-extrabold text-white tracking-tight">POWER GYM & POWER BOX</h1>
             <p class="text-gray-500 text-sm mt-1">Sistema de Facturación Electrónica</p>
         </div>
 
@@ -174,7 +174,43 @@
 
         <!-- Footer -->
         <p class="text-center text-gray-600 text-xs mt-8">
-            &copy; 2026 Tecnomundo POS &nbsp;|&nbsp; El Triunfo, Ecuador &nbsp;|&nbsp; Potenciado por IA
+            &copy; 2026 POWER GYM &amp; POWER BOX &nbsp;|&nbsp; El Triunfo, Ecuador &nbsp;|&nbsp; Gestión Profesional de Gimnasio
+        </p>
+    </div>
+
+    <!-- ═══ SEDE SELECTOR (oculto hasta login exitoso) ═══ -->
+    <div id="sedeSelector" class="hidden animate-card relative w-full max-w-lg">
+        <div class="text-center mb-8">
+            <div class="inline-flex items-center justify-center w-16 h-16 bg-gym-yellow/10 rounded-2xl mb-4">
+                <i class="bi bi-geo-alt-fill text-gym-yellow text-3xl"></i>
+            </div>
+            <h2 class="text-2xl font-extrabold text-white tracking-tight">Selecciona tu Sede</h2>
+            <p class="text-gray-400 text-sm mt-1">¿Dónde trabajarás hoy?</p>
+        </div>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
+            <!-- POWER GYM -->
+            <button onclick="elegirSede('gym')" class="group bg-gym-dark border-2 border-gray-700 hover:border-gym-yellow rounded-2xl p-6 text-center transition-all duration-300 hover:scale-105 hover:shadow-lg hover:shadow-gym-yellow/10 cursor-pointer">
+                <div class="w-20 h-20 mx-auto mb-4 bg-gym-yellow/10 rounded-full flex items-center justify-center group-hover:bg-gym-yellow/20 transition-colors">
+                    <svg class="w-10 h-10 text-gym-yellow" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M20.57 14.86L22 13.43 20.57 12 17 15.57 8.43 7 12 3.43 10.57 2 9.14 3.43 7.71 2 5.57 4.14 4.14 2.71 2.71 4.14l1.43 1.43L2 7.71l1.43 1.43L2 10.57 3.43 12 7 8.43 15.57 17 12 20.57 13.43 22l1.43-1.43L16.29 22l2.14-2.14 1.43 1.43 1.43-1.43-1.43-1.43L22 16.29z"/>
+                    </svg>
+                </div>
+                <h3 class="text-lg font-extrabold text-gym-yellow mb-1">POWER GYM</h3>
+                <p class="text-gray-500 text-xs">Gimnasio & Fitness</p>
+            </button>
+            <!-- POWER BOX -->
+            <button onclick="elegirSede('box')" class="group bg-gym-dark border-2 border-gray-700 hover:border-red-500 rounded-2xl p-6 text-center transition-all duration-300 hover:scale-105 hover:shadow-lg hover:shadow-red-500/10 cursor-pointer">
+                <div class="w-20 h-20 mx-auto mb-4 bg-red-500/10 rounded-full flex items-center justify-center group-hover:bg-red-500/20 transition-colors">
+                    <svg class="w-10 h-10 text-red-500" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M7 5h10v2H7zm0 4h10v2H7zm0 4h10v2H7zm-2 6h14a2 2 0 002-2V7a2 2 0 00-2-2h-1V3H6v2H5a2 2 0 00-2 2v10a2 2 0 002 2zm0-12h14v10H5z"/>
+                    </svg>
+                </div>
+                <h3 class="text-lg font-extrabold text-red-500 mb-1">POWER BOX</h3>
+                <p class="text-gray-500 text-xs">CrossFit & Funcional</p>
+            </button>
+        </div>
+        <p class="text-center text-gray-600 text-xs mt-8">
+            &copy; 2026 POWER GYM &amp; POWER BOX &nbsp;|&nbsp; El Triunfo, Ecuador
         </p>
     </div>
 
@@ -188,12 +224,18 @@ const API_BASE = 'https://api-facturacion-gym.onrender.com/api/v1';
 (function checkExistingSession() {
     const token = localStorage.getItem('gym_token');
     if (token) {
-        // Verificar si el token sigue vigente
         fetch(`${API_BASE}/auth/me`, {
             headers: { 'Authorization': `Bearer ${token}` }
         })
         .then(r => {
-            if (r.ok) window.location.href = 'index.html';
+            if (r.ok) {
+                if (localStorage.getItem('sede_activa')) {
+                    window.location.href = 'index.html';
+                } else {
+                    document.querySelector('.login-card').classList.add('hidden');
+                    document.getElementById('sedeSelector').classList.remove('hidden');
+                }
+            }
         })
         .catch(() => {});
     }
@@ -249,8 +291,9 @@ async function handleLogin(e) {
             localStorage.setItem('gym_user', JSON.stringify(user));
         }
 
-        // Redirigir
-        window.location.href = 'index.html';
+        // Redirigir — mostrar selector de sede
+        document.querySelector('.login-card').classList.add('hidden');
+        document.getElementById('sedeSelector').classList.remove('hidden');
 
     } catch (error) {
         alertMsg.textContent = error.message;
@@ -275,6 +318,11 @@ function togglePassword() {
         input.type = 'password';
         icon.classList.replace('bi-eye-slash-fill', 'bi-eye-fill');
     }
+}
+
+function elegirSede(sede) {
+    localStorage.setItem('sede_activa', sede);
+    window.location.href = 'index.html';
 }
 </script>
 </body>
