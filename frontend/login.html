@@ -193,7 +193,6 @@
             <!-- POWER GYM -->
             <button onclick="elegirSede('gym')" class="group bg-gym-dark border-2 border-gray-700 hover:border-gym-yellow rounded-2xl p-6 text-center transition-all duration-300 hover:scale-105 hover:shadow-lg hover:shadow-gym-yellow/10 cursor-pointer">
                 <div class="w-20 h-20 mx-auto mb-4 bg-gym-yellow/10 rounded-full flex items-center justify-center group-hover:bg-gym-yellow/20 transition-colors" id="sedeGymIcon">
-                    <i class="bi bi-lightning-charge-fill text-gym-yellow text-3xl"></i>
                 </div>
                 <h3 class="text-lg font-extrabold text-gym-yellow mb-1">POWER GYM</h3>
                 <p class="text-gray-500 text-xs">Gimnasio & Fitness</p>
@@ -201,7 +200,6 @@
             <!-- POWER BOX -->
             <button onclick="elegirSede('box')" class="group bg-gym-dark border-2 border-gray-700 hover:border-red-500 rounded-2xl p-6 text-center transition-all duration-300 hover:scale-105 hover:shadow-lg hover:shadow-red-500/10 cursor-pointer">
                 <div class="w-20 h-20 mx-auto mb-4 bg-red-500/10 rounded-full flex items-center justify-center group-hover:bg-red-500/20 transition-colors" id="sedeBoxIcon">
-                    <i class="bi bi-lightning-charge-fill text-red-500 text-3xl"></i>
                 </div>
                 <h3 class="text-lg font-extrabold text-red-500 mb-1">POWER BOX</h3>
                 <p class="text-gray-500 text-xs">CrossFit & Funcional</p>
@@ -337,15 +335,23 @@ function elegirSede(sede) {
             }
 
             // Logo GYM en tarjeta de sede
-            if (config.logo_gym_url) {
-                const gymIcon = document.getElementById('sedeGymIcon');
-                if (gymIcon) gymIcon.innerHTML = `<img src="${config.logo_gym_url}" alt="Power Gym" class="max-h-14 object-contain">`;
+            const gymIcon = document.getElementById('sedeGymIcon');
+            if (gymIcon) {
+                if (config.logo_gym_url) {
+                    gymIcon.innerHTML = `<img src="${config.logo_gym_url}" alt="Power Gym" class="max-h-14 object-contain">`;
+                } else {
+                    gymIcon.style.display = 'none';
+                }
             }
 
             // Logo BOX en tarjeta de sede
-            if (config.logo_box_url) {
-                const boxIcon = document.getElementById('sedeBoxIcon');
-                if (boxIcon) boxIcon.innerHTML = `<img src="${config.logo_box_url}" alt="Power Box" class="max-h-14 object-contain">`;
+            const boxIcon = document.getElementById('sedeBoxIcon');
+            if (boxIcon) {
+                if (config.logo_box_url) {
+                    boxIcon.innerHTML = `<img src="${config.logo_box_url}" alt="Power Box" class="max-h-14 object-contain">`;
+                } else {
+                    boxIcon.style.display = 'none';
+                }
             }
         })
         .catch(() => {});

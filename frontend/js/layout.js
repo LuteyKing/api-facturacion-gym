@@ -43,7 +43,7 @@ function initLayout(activePage) {
     <aside class="sidebar" id="sidebar">
         <div class="sidebar-brand-block">
             <a href="index.html" class="sidebar-brand">
-                <img id="sidebar-logo" src="" alt="Logo" class="w-full max-w-[140px] h-auto object-contain mx-auto mb-2">
+                <img id="sidebar-logo" src="" alt="Logo" style="display:none;" class="w-full max-w-[140px] h-auto object-contain mx-auto mb-2">
             </a>
             <span class="sidebar-sede-label ${sedeClass}">${sedeName}</span>
         </div>

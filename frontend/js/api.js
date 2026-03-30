@@ -140,7 +140,14 @@ function loadDynamicConfig() {
             const sede = localStorage.getItem('sede_activa') || 'gym';
             const logoUrl = sede === 'box' ? config.logo_box_url : config.logo_gym_url;
             const sidebarLogo = document.getElementById('sidebar-logo');
-            if (sidebarLogo && logoUrl) sidebarLogo.src = logoUrl;
+            if (sidebarLogo) {
+                if (logoUrl) {
+                    sidebarLogo.src = logoUrl;
+                    sidebarLogo.style.display = '';
+                } else {
+                    sidebarLogo.style.display = 'none';
+                }
+            }
 
             // Favicon dinámico
             if (config.favicon_url) {
