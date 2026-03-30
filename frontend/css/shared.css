@@ -453,10 +453,11 @@ body {
     margin-left: 240px; margin-top: 52px;
     padding: 1.25rem 1.5rem;
     flex: 1;
-    height: calc(100vh - 52px);
+    height: auto !important;
+    min-height: calc(100vh - 52px);
     max-width: calc(100% - 240px);
     overflow-x: hidden;
-    overflow-y: auto;
+    overflow-y: visible !important;
     display: flex;
     flex-direction: column;
     transition: margin 0.3s;
@@ -490,7 +491,7 @@ body {
     .topbar-hamburger { display: inline-flex !important; }
     .profile-info { display: none; }
     .profile-chevron { display: none; }
-    .main-content { margin-left: 0; max-width: 100%; padding: 0.75rem 1rem; height: calc(100vh - 52px); overflow-x: hidden; overflow-y: auto; }
+    .main-content { margin-left: 0; max-width: 100%; padding: 0.75rem 1rem; height: auto !important; min-height: calc(100vh - 52px); overflow-x: hidden; overflow-y: visible !important; }
 }
 
 /* ═══ CARDS ═══ */
@@ -855,13 +856,13 @@ body {
 .gap-grid { display: grid; gap: 1rem; }
 .gap-grid-sm { display: grid; gap: 0.75rem; }
 
-/* ═══ LAYOUT: flex cascade (natural flow, page scrolls) ════════ */
+/* ═══ LAYOUT: natural flow, page scrolls vertically ════════ */
 .layout-grid {
-    min-height: 0;
-    grid-template-rows: 1fr;
+    height: auto !important;
 }
 .layout-grid > * {
-    min-height: 0;
+    height: auto !important;
+    overflow-y: visible !important;
     display: flex;
     flex-direction: column;
 }
@@ -870,24 +871,26 @@ body {
 .table-card {
     display: flex !important;
     flex-direction: column !important;
-    min-height: 0 !important;
+    height: auto !important;
+    overflow-y: visible !important;
 }
 
-/* Form card: header fixed, form grows naturally */
+/* Form card: content grows freely, no internal scroll */
 .form-card-scroll {
     display: flex;
     flex-direction: column;
-    min-height: 0;
+    height: auto !important;
+    overflow-y: visible !important;
 }
 .form-card-scroll > form {
-    flex: 1;
-    min-height: 0;
+    height: auto !important;
+    overflow-y: visible !important;
 }
 
 /* Container inside main-content (POS page) */
 .main-content > .container {
-    flex: 1 1 auto;
-    min-height: 0;
+    height: auto !important;
+    overflow-y: visible !important;
 }
 
 /* ═══ DENSE FORM COMPACTING ════════════════════════════ */
@@ -1002,8 +1005,10 @@ body {
 /* ═══ TABLE SCROLL CONTAINER ═══════════════════════════ */
 .table-scroll-container {
     width: 100%;
-    overflow-y: visible;
-    overflow-x: auto;
+    height: auto !important;
+    max-height: none !important;
+    overflow-y: visible !important;
+    overflow-x: auto !important;
 }
 /* Dense table cells */
 .table-scroll-container td {
@@ -1014,7 +1019,7 @@ body {
     padding: 0.6rem 0.85rem !important;
 }
 .table-scroll-container table {
-    min-width: 800px;
+    min-width: 900px;
 }
 [data-theme="dark"] .table-scroll-container thead th {
     background: var(--bg-surface);
