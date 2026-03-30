@@ -344,7 +344,7 @@
                     </div>
 
                     <!-- Tabla -->
-                    <div class="overflow-x-auto">
+                    <div class="table-scroll-container">
                         <table class="w-full" id="tablaClientes">
                             <thead class="bg-gray-50 border-b border-gray-200">
                                 <tr>
@@ -362,16 +362,17 @@
                         </table>
                     </div>
 
-                    <!-- Footer -->
-                    <div class="px-6 py-4 bg-gray-50 border-t border-gray-100 flex flex-col sm:flex-row items-center justify-between gap-3" id="tableFooter" style="display: none;">
-                        <p class="text-xs text-gray-400" id="footerInfo"></p>
-                        <button onclick="cargarClientes()"
-                                class="inline-flex items-center gap-2 text-sm font-semibold text-gym-dark hover:text-gym-yellow transition-colors duration-300">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
-                            </svg>
-                            Actualizar
-                        </button>
+                    <!-- Status Bar -->
+                    <div class="table-status-bar" id="tableFooter" style="display: none;">
+                        <div class="table-status-left">
+                            <span id="footerInfo">Mostrando 0 registros</span> &bull;
+                            <span class="live-clock" id="liveClock">--:--:--</span>
+                        </div>
+                        <div class="table-pagination">
+                            <button disabled><i class="bi bi-chevron-left"></i> Anterior</button>
+                            <span class="page-info">1 de 1</span>
+                            <button disabled>Siguiente <i class="bi bi-chevron-right"></i></button>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -637,7 +638,8 @@
         // Footer
         footer.style.display = 'flex';
         document.getElementById('footerInfo').textContent =
-            `Mostrando ${clientes.length} cliente${clientes.length !== 1 ? 's' : ''} • ${new Date().toLocaleTimeString('es-EC')}`;
+            `Mostrando ${clientes.length} registro${clientes.length !== 1 ? 's' : ''}`;
+        initLiveClock();
     }
 
     // ─────────────────────────────────────────────────────

@@ -210,17 +210,31 @@ body {
     transition: transform 0.3s cubic-bezier(.4,0,.2,1);
     overflow-y: auto;
 }
-.sidebar-brand {
-    display: flex; align-items: center; gap: 12px;
-    padding: 1.1rem 1.25rem;
-    text-decoration: none;
+.sidebar-brand-block {
+    display: flex; flex-direction: column; align-items: center;
+    padding: 1.1rem 1.25rem 0.75rem;
     border-bottom: 1px solid var(--border-subtle);
+    flex-shrink: 0; gap: 4px;
+}
+.sidebar-brand {
+    display: flex; align-items: center; justify-content: center;
+    text-decoration: none;
     flex-shrink: 0;
 }
-.sidebar-brand img { width: 34px; height: 34px; }
-.sidebar-brand span {
-    font-weight: 900; font-size: 0.82rem; color: var(--accent);
-    letter-spacing: -0.3px; line-height: 1.3;
+.sidebar-logo {
+    max-height: 40px; width: auto; object-fit: contain;
+}
+.sidebar-sede-label {
+    font-weight: 900; font-size: 0.78rem;
+    letter-spacing: 0.5px; text-align: center;
+}
+.sidebar-sede-label.sede-gym {
+    color: #FFD700;
+    text-shadow: 0 0 12px rgba(255,215,0,0.3);
+}
+.sidebar-sede-label.sede-box {
+    color: #f87171;
+    text-shadow: 0 0 12px rgba(239,68,68,0.3);
 }
 .sidebar-nav {
     flex: 1; padding: 0.75rem 0.65rem;
@@ -258,7 +272,7 @@ body {
     padding: 0 1.25rem;
     transition: background 0.3s, border-color 0.3s;
 }
-.topbar-sede {
+.topbar-left {
     display: flex; align-items: center; gap: 8px;
 }
 .topbar-right { display: flex; align-items: center; gap: 10px; position: relative; }
@@ -824,3 +838,69 @@ body {
 .border-accent { border-color: var(--accent) !important; }
 .gap-grid { display: grid; gap: 1rem; }
 .gap-grid-sm { display: grid; gap: 0.75rem; }
+
+/* ═══ TABLE SCROLL CONTAINER ═══════════════════════════ */
+.table-scroll-container {
+    max-height: 450px;
+    overflow-y: auto;
+    overflow-x: auto;
+}
+.table-scroll-container thead th {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    background: var(--table-header-bg, #f9fafb);
+}
+[data-theme="dark"] .table-scroll-container thead th {
+    background: var(--bg-surface);
+}
+[data-theme="light"] .table-scroll-container thead th {
+    background: #f9fafb;
+}
+
+/* ═══ TABLE STATUS BAR (pagination/footer) ═════════════ */
+.table-status-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 8px;
+    padding: 0.65rem 1.25rem;
+    border-top: 1px solid var(--table-border);
+    background: var(--bg-surface);
+    font-size: 0.75rem;
+    color: var(--text-muted);
+}
+.table-status-left {
+    display: flex; align-items: center; gap: 6px;
+    font-weight: 500;
+}
+.table-status-left .live-clock {
+    font-variant-numeric: tabular-nums;
+}
+.table-pagination {
+    display: flex; align-items: center; gap: 4px;
+}
+.table-pagination .page-info {
+    font-size: 0.72rem; font-weight: 600;
+    color: var(--text-muted); padding: 0 8px;
+    white-space: nowrap;
+}
+.table-pagination button {
+    display: inline-flex; align-items: center; gap: 4px;
+    padding: 5px 12px; border-radius: 8px;
+    font-size: 0.72rem; font-weight: 700;
+    border: 1px solid var(--border-input);
+    background: transparent;
+    color: var(--text-muted);
+    cursor: pointer; transition: all 0.2s;
+    font-family: inherit;
+}
+.table-pagination button:hover:not(:disabled) {
+    border-color: var(--accent);
+    color: var(--text-accent);
+    background: var(--accent-soft);
+}
+.table-pagination button:disabled {
+    opacity: 0.4; cursor: not-allowed;
+}

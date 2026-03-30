@@ -126,3 +126,14 @@ function mostrarToast(mensaje, tipo = 'success') {
         setTimeout(() => toast.remove(), 300);
     }, 5000);
 }
+
+// ── Live Clock (para barra de estado de tablas) ─────────────
+let _liveClockInterval = null;
+function initLiveClock() {
+    const el = document.getElementById('liveClock');
+    if (!el) return;
+    const tick = () => { el.textContent = new Date().toLocaleTimeString('es-EC'); };
+    tick();
+    if (_liveClockInterval) clearInterval(_liveClockInterval);
+    _liveClockInterval = setInterval(tick, 1000);
+}

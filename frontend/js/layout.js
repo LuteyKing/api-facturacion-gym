@@ -40,10 +40,12 @@ function initLayout(activePage) {
     const sidebarHTML = `
     <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
     <aside class="sidebar" id="sidebar">
-        <a href="index.html" class="sidebar-brand">
-            <img src="https://cdn-icons-png.flaticon.com/512/3003/3003984.png" alt="Logo">
-            <span>POWER GYM &amp; BOX</span>
-        </a>
+        <div class="sidebar-brand-block">
+            <a href="index.html" class="sidebar-brand">
+                <img src="https://via.placeholder.com/150x50?text=LOGO+AQUI" alt="Logo" class="sidebar-logo">
+            </a>
+            <span class="sidebar-sede-label ${sedeClass}">${sedeName}</span>
+        </div>
         <nav class="sidebar-nav">
             ${navHTML}
         </nav>
@@ -53,9 +55,8 @@ function initLayout(activePage) {
     // ── TopBar ──
     const topbarHTML = `
     <header class="topbar">
-        <div class="topbar-sede">
+        <div class="topbar-left">
             <button class="topbar-hamburger" onclick="toggleSidebar()"><i class="bi bi-list"></i></button>
-            <span id="sedeIndicator" class="sede-badge ${sedeClass}">📍 ${sedeName}</span>
         </div>
         <div class="topbar-right">
             <button class="theme-toggle" onclick="toggleTheme()" title="Cambiar tema">
