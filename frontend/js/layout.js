@@ -21,6 +21,7 @@ function initLayout(activePage) {
         { href: 'productos.html',  icon: 'bi-box-seam-fill',        label: 'Productos', key: 'productos' },
         { href: 'historial.html',  icon: 'bi-clock-history',        label: 'Historial', key: 'historial' },
         { href: 'usuarios.html',   icon: 'bi-shield-lock-fill',     label: 'Usuarios',  key: 'usuarios', id: 'navUsuarios', hidden: true },
+        { href: 'configuracion.html', icon: 'bi-gear-fill',           label: 'Configuración', key: 'configuracion', id: 'navConfiguracion', hidden: true },
     ];
 
     const navHTML = links.map(l => {
@@ -42,7 +43,7 @@ function initLayout(activePage) {
     <aside class="sidebar" id="sidebar">
         <div class="sidebar-brand-block">
             <a href="index.html" class="sidebar-brand">
-                <img src="./img/logo-powergym.png" alt="Logo POWER GYM" class="h-10 mb-2">
+                <img id="sidebar-logo" src="" alt="Logo" class="w-full max-w-[140px] h-auto object-contain mx-auto mb-2">
             </a>
             <span class="sidebar-sede-label ${sedeClass}">${sedeName}</span>
         </div>
@@ -126,6 +127,9 @@ function initLayout(activePage) {
             if (chev) chev.classList.remove('rotated');
         }
     });
+
+    // Cargar logo y favicon dinámicos desde la BD
+    loadDynamicConfig();
 }
 
 // ── Profile Dropdown Toggle ─────────────────────────────────
@@ -151,4 +155,29 @@ function toggleTheme() {
 function toggleSidebar() {
     document.getElementById('sidebar').classList.toggle('open');
     document.getElementById('sidebarOverlay').classList.toggle('active');
+}
+
+// ── Dynamic Config (logo + favicon) ────────────────────────
+function loadDynamicConfig() {
+    const apiBase = typeof API_BASE_URL !== 'undefined' ? API_BASE_URL : '';
+    if (!apiBase) return;
+
+    fetch(`${apiBase}/api/v1/configuracion`)
+        .then(r => r.ok ? r.json() : null)
+        .then(config => {
+            if (!config) return;
+
+            // Logo del sidebar según sede activa
+            const sede = localStorage.getItem('sede_activa') || 'gym';
+            const logoUrl = sede === 'box' ? config.logo_box_url : config.logo_gym_url;
+            const sidebarLogo = document.getElementById('sidebar-logo');
+            if (sidebarLogo && logoUrl) sidebarLogo.src = logoUrl;
+
+            // Favicon dinámico
+            if (config.favicon_url) {
+                const link = document.querySelector('link[rel="icon"]');
+                if (link) link.href = config.favicon_url;
+            }
+        })
+        .catch(() => { /* silenciar — logo/favicon quedan como default */ });
 }

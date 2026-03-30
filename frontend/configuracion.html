@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="es" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Configuración | POWER GYM</title>
+    <link rel="icon" type="image/png" href="https://cdn-icons-png.flaticon.com/512/3003/3003984.png">
+    <meta name="description" content="Configuración del sistema. Logos y favicon dinámicos.">
+
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Google Fonts: Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+    <!-- Shared Styles -->
+    <link rel="stylesheet" href="css/shared.css">
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'gym-yellow': '#FFD700',
+                        'gym-yellow-hover': '#E6C200',
+                        'gym-yellow-soft': '#FFF8DC',
+                        'gym-black': '#0D0D0D',
+                        'gym-dark': '#111111',
+                        'gym-surface': '#1A1A1A',
+                    },
+                    fontFamily: {
+                        'inter': ['Inter', 'system-ui', 'sans-serif'],
+                    },
+                }
+            }
+        }
+    </script>
+
+    <style>
+        .animate-fade-in-up { animation: fadeInUp 0.5s ease-out forwards; }
+
+        .btn-guardar {
+            background: linear-gradient(135deg, #FFD700 0%, #E6C200 100%);
+            color: #0D0D0D;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        .btn-guardar::before {
+            content: '';
+            position: absolute;
+            top: 0; left: -100%;
+            width: 100%; height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+            transition: left 0.5s ease;
+        }
+        .btn-guardar:hover::before { left: 100%; }
+        .btn-guardar:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(255, 215, 0, 0.4);
+        }
+        .btn-guardar:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none !important;
+            box-shadow: none !important;
+        }
+
+        .form-input-gym {
+            transition: all 0.3s ease;
+            border: 1.5px solid var(--border-input);
+            background: var(--bg-input);
+            color: var(--text-primary);
+        }
+        .form-input-gym:focus {
+            border-color: #FFD700;
+            box-shadow: 0 0 0 3px rgba(255, 215, 0, 0.15);
+            outline: none;
+        }
+
+        .preview-box {
+            width: 120px;
+            height: 120px;
+            border: 2px dashed var(--border-input);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            background: var(--bg-input);
+            transition: border-color 0.3s;
+        }
+        .preview-box img {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+        }
+        .preview-box.has-image {
+            border-color: #FFD700;
+        }
+
+        .config-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-card);
+            border-radius: 16px;
+            padding: 24px;
+            transition: all 0.3s ease;
+        }
+        .config-card:hover {
+            border-color: rgba(255, 215, 0, 0.3);
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ═══ MAIN CONTENT ═══ -->
+    <main class="main-content">
+
+        <!-- Hero -->
+        <div class="page-hero mb-3">
+            <h2><i class="bi bi-gear-fill"></i> Configuración del Sistema</h2>
+            <p>Administra los logos y favicon del sistema.</p>
+        </div>
+
+        <!-- Cards Container -->
+        <div class="space-y-6 animate-fade-in-up" id="configContainer">
+
+            <!-- Card: Logo Power Gym -->
+            <div class="config-card">
+                <div class="flex items-start gap-4 flex-wrap">
+                    <div class="flex-1 min-w-[250px]">
+                        <div class="flex items-center gap-3 mb-4">
+                            <div class="w-10 h-10 bg-yellow-500/10 rounded-xl flex items-center justify-center">
+                                <i class="bi bi-image text-yellow-400 text-lg"></i>
+                            </div>
+                            <div>
+                                <h3 class="font-bold text-sm" style="color: var(--text-primary);">Logo Power Gym</h3>
+                                <p class="text-xs" style="color: var(--text-secondary);">Se mostrará en el sidebar cuando la sede sea "GYM"</p>
+                            </div>
+                        </div>
+                        <label class="block text-xs font-semibold uppercase tracking-wider mb-1.5" style="color: var(--text-secondary);">URL de la imagen</label>
+                        <input type="url" id="logoGymUrl"
+                               class="form-input-gym w-full px-4 py-3 rounded-xl text-sm"
+                               placeholder="https://ejemplo.com/logo-gym.png"
+                               oninput="actualizarPreview('logoGymUrl', 'previewGym')">
+                    </div>
+                    <div class="flex flex-col items-center gap-2">
+                        <span class="text-xs font-semibold uppercase tracking-wider" style="color: var(--text-secondary);">Vista previa</span>
+                        <div class="preview-box" id="previewGym">
+                            <i class="bi bi-image text-2xl" style="color: var(--text-secondary); opacity: 0.4;"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Card: Logo Power Box -->
+            <div class="config-card">
+                <div class="flex items-start gap-4 flex-wrap">
+                    <div class="flex-1 min-w-[250px]">
+                        <div class="flex items-center gap-3 mb-4">
+                            <div class="w-10 h-10 bg-orange-500/10 rounded-xl flex items-center justify-center">
+                                <i class="bi bi-image text-orange-400 text-lg"></i>
+                            </div>
+                            <div>
+                                <h3 class="font-bold text-sm" style="color: var(--text-primary);">Logo Power Box</h3>
+                                <p class="text-xs" style="color: var(--text-secondary);">Se mostrará en el sidebar cuando la sede sea "BOX"</p>
+                            </div>
+                        </div>
+                        <label class="block text-xs font-semibold uppercase tracking-wider mb-1.5" style="color: var(--text-secondary);">URL de la imagen</label>
+                        <input type="url" id="logoBoxUrl"
+                               class="form-input-gym w-full px-4 py-3 rounded-xl text-sm"
+                               placeholder="https://ejemplo.com/logo-box.png"
+                               oninput="actualizarPreview('logoBoxUrl', 'previewBox')">
+                    </div>
+                    <div class="flex flex-col items-center gap-2">
+                        <span class="text-xs font-semibold uppercase tracking-wider" style="color: var(--text-secondary);">Vista previa</span>
+                        <div class="preview-box" id="previewBox">
+                            <i class="bi bi-image text-2xl" style="color: var(--text-secondary); opacity: 0.4;"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Card: Favicon -->
+            <div class="config-card">
+                <div class="flex items-start gap-4 flex-wrap">
+                    <div class="flex-1 min-w-[250px]">
+                        <div class="flex items-center gap-3 mb-4">
+                            <div class="w-10 h-10 bg-blue-500/10 rounded-xl flex items-center justify-center">
+                                <i class="bi bi-globe2 text-blue-400 text-lg"></i>
+                            </div>
+                            <div>
+                                <h3 class="font-bold text-sm" style="color: var(--text-primary);">Favicon</h3>
+                                <p class="text-xs" style="color: var(--text-secondary);">Icono que aparece en la pestaña del navegador</p>
+                            </div>
+                        </div>
+                        <label class="block text-xs font-semibold uppercase tracking-wider mb-1.5" style="color: var(--text-secondary);">URL del favicon</label>
+                        <input type="url" id="faviconUrl"
+                               class="form-input-gym w-full px-4 py-3 rounded-xl text-sm"
+                               placeholder="https://ejemplo.com/favicon.png"
+                               oninput="actualizarPreview('faviconUrl', 'previewFavicon')">
+                    </div>
+                    <div class="flex flex-col items-center gap-2">
+                        <span class="text-xs font-semibold uppercase tracking-wider" style="color: var(--text-secondary);">Vista previa</span>
+                        <div class="preview-box" id="previewFavicon" style="width: 64px; height: 64px;">
+                            <i class="bi bi-globe2 text-xl" style="color: var(--text-secondary); opacity: 0.4;"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Botón Guardar -->
+            <div class="flex justify-end">
+                <button id="btnGuardar" onclick="guardarConfiguracion()" class="btn-guardar inline-flex items-center gap-2 px-8 py-3.5 rounded-xl font-bold text-sm tracking-wide">
+                    <i class="bi bi-check-lg text-base"></i>
+                    Guardar Cambios
+                </button>
+            </div>
+
+        </div>
+    </main>
+
+    <!-- ═══ JAVASCRIPT ═══ -->
+    <script src="js/layout.js"></script>
+    <script src="js/api.js"></script>
+    <script>
+    initLayout('configuracion');
+    initSessionGuard({ requireAdmin: true });
+
+    window.onload = function() {
+        cargarConfiguracion();
+    };
+
+    async function cargarConfiguracion() {
+        try {
+            const resp = await fetch(`${API_BASE_URL}/api/v1/configuracion`);
+            if (!resp.ok) throw new Error(`Error ${resp.status}`);
+            const config = await resp.json();
+
+            document.getElementById('logoGymUrl').value = config.logo_gym_url || '';
+            document.getElementById('logoBoxUrl').value = config.logo_box_url || '';
+            document.getElementById('faviconUrl').value = config.favicon_url || '';
+
+            actualizarPreview('logoGymUrl', 'previewGym');
+            actualizarPreview('logoBoxUrl', 'previewBox');
+            actualizarPreview('faviconUrl', 'previewFavicon');
+        } catch (e) {
+            mostrarToast('Error al cargar configuración: ' + e.message, 'error');
+        }
+    }
+
+    function actualizarPreview(inputId, previewId) {
+        const url = document.getElementById(inputId).value.trim();
+        const box = document.getElementById(previewId);
+        if (url) {
+            box.innerHTML = `<img src="${escapeHtml(url)}" alt="Preview" onerror="this.parentElement.innerHTML='<i class=\\'bi bi-x-circle text-2xl text-red-400\\'></i>';">`;
+            box.classList.add('has-image');
+        } else {
+            const icon = previewId === 'previewFavicon' ? 'bi-globe2' : 'bi-image';
+            box.innerHTML = `<i class="bi ${icon} text-2xl" style="color: var(--text-secondary); opacity: 0.4;"></i>`;
+            box.classList.remove('has-image');
+        }
+    }
+
+    async function guardarConfiguracion() {
+        const btn = document.getElementById('btnGuardar');
+        btn.disabled = true;
+        btn.innerHTML = '<i class="bi bi-arrow-repeat animate-spin text-base"></i> Guardando…';
+
+        try {
+            const body = {
+                logo_gym_url: document.getElementById('logoGymUrl').value.trim(),
+                logo_box_url: document.getElementById('logoBoxUrl').value.trim(),
+                favicon_url:  document.getElementById('faviconUrl').value.trim(),
+            };
+
+            const resp = await fetch(`${API_BASE_URL}/api/v1/configuracion`, {
+                method: 'PUT',
+                headers: authHeaders({ 'Content-Type': 'application/json' }),
+                body: JSON.stringify(body),
+            });
+
+            if (!resp.ok) throw new Error(`Error ${resp.status}`);
+
+            mostrarToast('Configuración guardada correctamente', 'success');
+
+            // Actualizar logo del sidebar y favicon inmediatamente
+            aplicarConfiguracionVisual(body);
+        } catch (e) {
+            mostrarToast('Error al guardar: ' + e.message, 'error');
+        } finally {
+            btn.disabled = false;
+            btn.innerHTML = '<i class="bi bi-check-lg text-base"></i> Guardar Cambios';
+        }
+    }
+
+    function aplicarConfiguracionVisual(config) {
+        const sede = localStorage.getItem('sede_activa') || 'gym';
+        const logoUrl = sede === 'box' ? config.logo_box_url : config.logo_gym_url;
+        const sidebarLogo = document.getElementById('sidebar-logo');
+        if (sidebarLogo && logoUrl) sidebarLogo.src = logoUrl;
+
+        if (config.favicon_url) {
+            const link = document.querySelector('link[rel="icon"]');
+            if (link) link.href = config.favicon_url;
+        }
+    }
+    </script>
+</body>
+</html>

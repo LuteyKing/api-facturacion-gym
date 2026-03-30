@@ -43,6 +43,16 @@ class Cliente(Base):
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=False), nullable=False)
     sede: Mapped[str] = mapped_column(String(10), nullable=False, server_default="gym", index=True)
 
+
+# --- TABLA: CONFIGURACIÓN DINÁMICA ---
+class Configuracion(Base):
+    __tablename__ = "configuracion"
+    id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
+    logo_gym_url: Mapped[str] = mapped_column(String(500), nullable=False, server_default="")
+    logo_box_url: Mapped[str] = mapped_column(String(500), nullable=False, server_default="")
+    favicon_url: Mapped[str] = mapped_column(String(500), nullable=False, server_default="")
+
+
 # --- NUEVA TABLA: PRODUCTOS (SERVICIOS) ---
 class Producto(Base):
     __tablename__ = "productos"

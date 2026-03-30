@@ -444,6 +444,7 @@ body {
     padding: 1.5rem;
     flex: 1; min-height: calc(100vh - 52px);
     max-width: calc(100% - 240px);
+    overflow-x: hidden;
     transition: margin 0.3s;
 }
 
@@ -841,9 +842,13 @@ body {
 
 /* ═══ TABLE SCROLL CONTAINER ═══════════════════════════ */
 .table-scroll-container {
+    width: 100%;
     max-height: 450px;
     overflow-y: auto;
     overflow-x: auto;
+}
+.table-scroll-container table {
+    min-width: 800px;
 }
 .table-scroll-container thead th {
     position: sticky;

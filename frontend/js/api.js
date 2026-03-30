@@ -72,10 +72,12 @@ function initSessionGuard(opts = {}) {
             if (ddRole) ddRole.textContent = rol;
             if (ddAvatar) ddAvatar.textContent = inicial;
 
-            // Enlace "Usuarios" solo para admin
+            // Enlace "Usuarios" y "Configuración" solo para admin
             if (user.rol === 'admin') {
                 const nu = document.getElementById('navUsuarios');
                 if (nu) nu.style.display = 'flex';
+                const nc = document.getElementById('navConfiguracion');
+                if (nc) nc.style.display = 'flex';
                 if (typeof opts.onAdmin === 'function') opts.onAdmin(user);
             }
 

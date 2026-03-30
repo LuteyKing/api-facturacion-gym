@@ -638,7 +638,7 @@
         // Footer
         footer.style.display = 'flex';
         document.getElementById('footerInfo').textContent =
-            `Mostrando ${clientes.length} registro${clientes.length !== 1 ? 's' : ''}`;
+            `Mostrando ${clientes.length} cliente${clientes.length !== 1 ? 's' : ''} • Última actualización: ${new Date().toLocaleTimeString()}`;
         initLiveClock();
     }
 

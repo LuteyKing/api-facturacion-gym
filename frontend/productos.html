@@ -492,7 +492,7 @@
 
         const footer = document.getElementById('tableFooter');
         footer.style.display = 'flex';
-        document.getElementById('footerInfo').textContent = `Mostrando ${productos.length} registro${productos.length !== 1 ? 's' : ''}`;
+        document.getElementById('footerInfo').textContent = `Mostrando ${productos.length} producto${productos.length !== 1 ? 's' : ''} • Última actualización: ${new Date().toLocaleTimeString()}`;
         initLiveClock();
     }
 

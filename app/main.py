@@ -12,8 +12,8 @@ from sqlalchemy import text
 
 from .database import Base, SessionLocal, engine
 from .models import db_models  # noqa: F401  — registra los modelos en Base.metadata
-from .models.db_models import Usuario
-from .routers import auth, clientes, dashboard, facturas, facturar, productos, usuarios
+from .models.db_models import Usuario, Configuracion
+from .routers import auth, clientes, configuracion, dashboard, facturas, facturar, productos, usuarios
 from .routers.auth import hash_password
 
 logging.basicConfig(
@@ -79,6 +79,7 @@ app.include_router(clientes.router, prefix="/api/v1")
 app.include_router(productos.router, prefix="/api/v1")
 app.include_router(usuarios.router, prefix="/api/v1")
 app.include_router(dashboard.router, prefix="/api/v1")
+app.include_router(configuracion.router, prefix="/api/v1")
 
 # ── Seed: crear usuario admin por defecto al arrancar ────
 @app.on_event("startup")
@@ -99,6 +100,12 @@ def seed_admin():
             db.add(admin)
             db.commit()
             logging.getLogger(__name__).info("Usuario admin creado por defecto")
+
+        # Seed: fila de configuración por defecto
+        if not db.query(Configuracion).first():
+            db.add(Configuracion(logo_gym_url="", logo_box_url="", favicon_url=""))
+            db.commit()
+            logging.getLogger(__name__).info("Configuración por defecto creada")
     finally:
         db.close()
 

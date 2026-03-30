@@ -362,7 +362,7 @@
 
         cuerpo.innerHTML = html;
         footer.style.display = 'flex';
-        document.getElementById('footerInfo').textContent = `Mostrando ${usuarios.length} registro${usuarios.length !== 1 ? 's' : ''}`;
+        document.getElementById('footerInfo').textContent = `Mostrando ${usuarios.length} usuario${usuarios.length !== 1 ? 's' : ''} • Última actualización: ${new Date().toLocaleTimeString()}`;
         initLiveClock();
     }
 
