@@ -45,10 +45,26 @@ def _run_sede_migration():
         conn.commit()
         logger.info("Migración sede completada correctamente")
 
+def _run_configuracion_migration():
+    """Convierte columnas de configuracion de VARCHAR a TEXT para Base64."""
+    cols = ["logo_gym_url", "logo_box_url", "favicon_url"]
+    with engine.connect() as conn:
+        for col in cols:
+            conn.execute(text(
+                f"ALTER TABLE configuracion ALTER COLUMN {col} TYPE TEXT"
+            ))
+        conn.commit()
+        logger.info("Migración configuracion (TEXT) completada")
+
 try:
     _run_sede_migration()
 except Exception as e:
     logger.warning("Migración sede omitida (posiblemente ya aplicada): %s", e)
+
+try:
+    _run_configuracion_migration()
+except Exception as e:
+    logger.warning("Migración configuracion omitida: %s", e)
 
 app = FastAPI(
     title="Microservicio de Facturación Electrónica SRI — Ecuador",

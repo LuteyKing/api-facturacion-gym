@@ -139,17 +139,20 @@
                                 <p class="text-xs" style="color: var(--text-secondary);">Se mostrará en el sidebar cuando la sede sea "GYM"</p>
                             </div>
                         </div>
-                        <label class="block text-xs font-semibold uppercase tracking-wider mb-1.5" style="color: var(--text-secondary);">URL de la imagen</label>
-                        <input type="url" id="logoGymUrl"
-                               class="form-input-gym w-full px-4 py-3 rounded-xl text-sm"
-                               placeholder="https://ejemplo.com/logo-gym.png"
-                               oninput="actualizarPreview('logoGymUrl', 'previewGym')">
+                        <label class="block text-xs font-semibold uppercase tracking-wider mb-1.5" style="color: var(--text-secondary);">Seleccionar imagen</label>
+                        <input type="file" accept="image/*" id="fileLogoGym"
+                               class="form-input-gym w-full px-4 py-3 rounded-xl text-sm file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-yellow-500/20 file:text-yellow-400 hover:file:bg-yellow-500/30"
+                               onchange="convertirBase64('fileLogoGym', 'previewGym', 'b64LogoGym')">
+                        <input type="hidden" id="b64LogoGym">
                     </div>
                     <div class="flex flex-col items-center gap-2">
                         <span class="text-xs font-semibold uppercase tracking-wider" style="color: var(--text-secondary);">Vista previa</span>
                         <div class="preview-box" id="previewGym">
                             <i class="bi bi-image text-2xl" style="color: var(--text-secondary); opacity: 0.4;"></i>
                         </div>
+                        <button type="button" class="text-xs text-red-400 hover:text-red-300 transition-colors hidden" id="btnClearGym" onclick="limpiarImagen('previewGym', 'b64LogoGym', 'fileLogoGym', 'btnClearGym')">
+                            <i class="bi bi-trash3"></i> Quitar
+                        </button>
                     </div>
                 </div>
             </div>
@@ -167,17 +170,20 @@
                                 <p class="text-xs" style="color: var(--text-secondary);">Se mostrará en el sidebar cuando la sede sea "BOX"</p>
                             </div>
                         </div>
-                        <label class="block text-xs font-semibold uppercase tracking-wider mb-1.5" style="color: var(--text-secondary);">URL de la imagen</label>
-                        <input type="url" id="logoBoxUrl"
-                               class="form-input-gym w-full px-4 py-3 rounded-xl text-sm"
-                               placeholder="https://ejemplo.com/logo-box.png"
-                               oninput="actualizarPreview('logoBoxUrl', 'previewBox')">
+                        <label class="block text-xs font-semibold uppercase tracking-wider mb-1.5" style="color: var(--text-secondary);">Seleccionar imagen</label>
+                        <input type="file" accept="image/*" id="fileLogoBox"
+                               class="form-input-gym w-full px-4 py-3 rounded-xl text-sm file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-orange-500/20 file:text-orange-400 hover:file:bg-orange-500/30"
+                               onchange="convertirBase64('fileLogoBox', 'previewBox', 'b64LogoBox')">
+                        <input type="hidden" id="b64LogoBox">
                     </div>
                     <div class="flex flex-col items-center gap-2">
                         <span class="text-xs font-semibold uppercase tracking-wider" style="color: var(--text-secondary);">Vista previa</span>
                         <div class="preview-box" id="previewBox">
                             <i class="bi bi-image text-2xl" style="color: var(--text-secondary); opacity: 0.4;"></i>
                         </div>
+                        <button type="button" class="text-xs text-red-400 hover:text-red-300 transition-colors hidden" id="btnClearBox" onclick="limpiarImagen('previewBox', 'b64LogoBox', 'fileLogoBox', 'btnClearBox')">
+                            <i class="bi bi-trash3"></i> Quitar
+                        </button>
                     </div>
                 </div>
             </div>
@@ -195,17 +201,20 @@
                                 <p class="text-xs" style="color: var(--text-secondary);">Icono que aparece en la pestaña del navegador</p>
                             </div>
                         </div>
-                        <label class="block text-xs font-semibold uppercase tracking-wider mb-1.5" style="color: var(--text-secondary);">URL del favicon</label>
-                        <input type="url" id="faviconUrl"
-                               class="form-input-gym w-full px-4 py-3 rounded-xl text-sm"
-                               placeholder="https://ejemplo.com/favicon.png"
-                               oninput="actualizarPreview('faviconUrl', 'previewFavicon')">
+                        <label class="block text-xs font-semibold uppercase tracking-wider mb-1.5" style="color: var(--text-secondary);">Seleccionar imagen</label>
+                        <input type="file" accept="image/*" id="fileFavicon"
+                               class="form-input-gym w-full px-4 py-3 rounded-xl text-sm file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-blue-500/20 file:text-blue-400 hover:file:bg-blue-500/30"
+                               onchange="convertirBase64('fileFavicon', 'previewFavicon', 'b64Favicon')">
+                        <input type="hidden" id="b64Favicon">
                     </div>
                     <div class="flex flex-col items-center gap-2">
                         <span class="text-xs font-semibold uppercase tracking-wider" style="color: var(--text-secondary);">Vista previa</span>
                         <div class="preview-box" id="previewFavicon" style="width: 64px; height: 64px;">
                             <i class="bi bi-globe2 text-xl" style="color: var(--text-secondary); opacity: 0.4;"></i>
                         </div>
+                        <button type="button" class="text-xs text-red-400 hover:text-red-300 transition-colors hidden" id="btnClearFavicon" onclick="limpiarImagen('previewFavicon', 'b64Favicon', 'fileFavicon', 'btnClearFavicon')">
+                            <i class="bi bi-trash3"></i> Quitar
+                        </button>
                     </div>
                 </div>
             </div>
@@ -238,29 +247,64 @@
             if (!resp.ok) throw new Error(`Error ${resp.status}`);
             const config = await resp.json();
 
-            document.getElementById('logoGymUrl').value = config.logo_gym_url || '';
-            document.getElementById('logoBoxUrl').value = config.logo_box_url || '';
-            document.getElementById('faviconUrl').value = config.favicon_url || '';
-
-            actualizarPreview('logoGymUrl', 'previewGym');
-            actualizarPreview('logoBoxUrl', 'previewBox');
-            actualizarPreview('faviconUrl', 'previewFavicon');
+            // Cargar Base64 existentes en los hidden inputs y previews
+            if (config.logo_gym_url) {
+                document.getElementById('b64LogoGym').value = config.logo_gym_url;
+                mostrarPreview('previewGym', config.logo_gym_url, 'btnClearGym');
+            }
+            if (config.logo_box_url) {
+                document.getElementById('b64LogoBox').value = config.logo_box_url;
+                mostrarPreview('previewBox', config.logo_box_url, 'btnClearBox');
+            }
+            if (config.favicon_url) {
+                document.getElementById('b64Favicon').value = config.favicon_url;
+                mostrarPreview('previewFavicon', config.favicon_url, 'btnClearFavicon');
+            }
         } catch (e) {
             mostrarToast('Error al cargar configuración: ' + e.message, 'error');
         }
     }
 
-    function actualizarPreview(inputId, previewId) {
-        const url = document.getElementById(inputId).value.trim();
-        const box = document.getElementById(previewId);
-        if (url) {
-            box.innerHTML = `<img src="${escapeHtml(url)}" alt="Preview" onerror="this.parentElement.innerHTML='<i class=\\'bi bi-x-circle text-2xl text-red-400\\'></i>';">`;
-            box.classList.add('has-image');
-        } else {
-            const icon = previewId === 'previewFavicon' ? 'bi-globe2' : 'bi-image';
-            box.innerHTML = `<i class="bi ${icon} text-2xl" style="color: var(--text-secondary); opacity: 0.4;"></i>`;
-            box.classList.remove('has-image');
+    function convertirBase64(fileInputId, previewId, hiddenId) {
+        const file = document.getElementById(fileInputId).files[0];
+        if (!file) return;
+
+        // Limitar a 2 MB
+        if (file.size > 2 * 1024 * 1024) {
+            mostrarToast('La imagen no debe superar 2 MB', 'error');
+            document.getElementById(fileInputId).value = '';
+            return;
         }
+
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            const base64 = e.target.result; // data:image/...;base64,...
+            document.getElementById(hiddenId).value = base64;
+
+            const clearBtnId = 'btnClear' + previewId.replace('preview', '');
+            mostrarPreview(previewId, base64, clearBtnId);
+        };
+        reader.readAsDataURL(file);
+    }
+
+    function mostrarPreview(previewId, src, clearBtnId) {
+        const box = document.getElementById(previewId);
+        box.innerHTML = `<img src="${src}" alt="Preview">`;
+        box.classList.add('has-image');
+        if (clearBtnId) {
+            const btn = document.getElementById(clearBtnId);
+            if (btn) btn.classList.remove('hidden');
+        }
+    }
+
+    function limpiarImagen(previewId, hiddenId, fileInputId, clearBtnId) {
+        document.getElementById(hiddenId).value = '';
+        document.getElementById(fileInputId).value = '';
+        const box = document.getElementById(previewId);
+        const icon = previewId === 'previewFavicon' ? 'bi-globe2' : 'bi-image';
+        box.innerHTML = `<i class="bi ${icon} text-2xl" style="color: var(--text-secondary); opacity: 0.4;"></i>`;
+        box.classList.remove('has-image');
+        document.getElementById(clearBtnId).classList.add('hidden');
     }
 
     async function guardarConfiguracion() {
@@ -270,9 +314,9 @@
 
         try {
             const body = {
-                logo_gym_url: document.getElementById('logoGymUrl').value.trim(),
-                logo_box_url: document.getElementById('logoBoxUrl').value.trim(),
-                favicon_url:  document.getElementById('faviconUrl').value.trim(),
+                logo_gym_url: document.getElementById('b64LogoGym').value,
+                logo_box_url: document.getElementById('b64LogoBox').value,
+                favicon_url:  document.getElementById('b64Favicon').value,
             };
 
             const resp = await fetch(`${API_BASE_URL}/api/v1/configuracion`, {
@@ -297,9 +341,9 @@
 
     function aplicarConfiguracionVisual(config) {
         const sede = localStorage.getItem('sede_activa') || 'gym';
-        const logoUrl = sede === 'box' ? config.logo_box_url : config.logo_gym_url;
+        const logoData = sede === 'box' ? config.logo_box_url : config.logo_gym_url;
         const sidebarLogo = document.getElementById('sidebar-logo');
-        if (sidebarLogo && logoUrl) sidebarLogo.src = logoUrl;
+        if (sidebarLogo && logoData) sidebarLogo.src = logoData;
 
         if (config.favicon_url) {
             const link = document.querySelector('link[rel="icon"]');

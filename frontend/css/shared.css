@@ -216,9 +216,13 @@ body {
     border-bottom: 1px solid var(--border-subtle);
     flex-shrink: 0; gap: 4px;
 }
-.sidebar-brand {
+.sidebar-brand,
+.sidebar-brand:visited,
+.sidebar-brand:hover,
+.sidebar-brand:active {
     display: flex; align-items: center; justify-content: center;
-    text-decoration: none;
+    text-decoration: none !important;
+    color: #ffffff !important;
     flex-shrink: 0;
 }
 .sidebar-logo {

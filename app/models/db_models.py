@@ -48,9 +48,9 @@ class Cliente(Base):
 class Configuracion(Base):
     __tablename__ = "configuracion"
     id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
-    logo_gym_url: Mapped[str] = mapped_column(String(500), nullable=False, server_default="")
-    logo_box_url: Mapped[str] = mapped_column(String(500), nullable=False, server_default="")
-    favicon_url: Mapped[str] = mapped_column(String(500), nullable=False, server_default="")
+    logo_gym_url: Mapped[str] = mapped_column(Text, nullable=False, server_default="")
+    logo_box_url: Mapped[str] = mapped_column(Text, nullable=False, server_default="")
+    favicon_url: Mapped[str] = mapped_column(Text, nullable=False, server_default="")
 
 
 # --- NUEVA TABLA: PRODUCTOS (SERVICIOS) ---
