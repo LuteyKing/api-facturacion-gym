@@ -36,7 +36,7 @@
     </script>
 
     <style>
-        * { font-family: 'Inter', system-ui, sans-serif; }
+        * { font-family: 'Inter', system-ui, sans-serif; margin: 0; padding: 0; box-sizing: border-box; }
 
         /* ── Scrollbar personalizado ──────────────────── */
         ::-webkit-scrollbar { width: 6px; height: 6px; }
@@ -62,14 +62,9 @@
             to { opacity: 1; transform: translateY(0); }
         }
 
-        .animate-fade-in-up {
-            animation: fadeInUp 0.5s ease-out forwards;
-        }
-        .animate-slide-down {
-            animation: slideDown 0.3s ease-out forwards;
-        }
+        .animate-fade-in-up { animation: fadeInUp 0.5s ease-out forwards; }
+        .animate-slide-down { animation: slideDown 0.3s ease-out forwards; }
 
-        /* Skeleton loader */
         .skeleton {
             background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
             background-size: 200% 100%;
@@ -77,10 +72,7 @@
             border-radius: 6px;
         }
 
-        /* ── Tabla hover rows ────────────────────────── */
-        .table-row-hover {
-            transition: all 0.2s ease;
-        }
+        .table-row-hover { transition: all 0.2s ease; }
         .table-row-hover:hover {
             background-color: #F9FAFB !important;
             transform: scale(1.002);
@@ -90,208 +82,202 @@
         /* ── Badge estilos ───────────────────────────── */
         .badge-simulado {
             background: linear-gradient(135deg, #FFF3CD 0%, #FFE69C 100%);
-            color: #856404;
-            border: 1px solid #FFD700;
+            color: #856404; border: 1px solid #FFD700;
         }
         .badge-autorizado {
             background: linear-gradient(135deg, #D1FAE5 0%, #A7F3D0 100%);
-            color: #065F46;
-            border: 1px solid #34D399;
+            color: #065F46; border: 1px solid #34D399;
         }
         .badge-devuelta {
             background: linear-gradient(135deg, #FEE2E2 0%, #FECACA 100%);
-            color: #991B1B;
-            border: 1px solid #F87171;
+            color: #991B1B; border: 1px solid #F87171;
         }
         .badge-recibida {
             background: linear-gradient(135deg, #DBEAFE 0%, #BFDBFE 100%);
-            color: #1E40AF;
-            border: 1px solid #60A5FA;
+            color: #1E40AF; border: 1px solid #60A5FA;
         }
         .badge-default {
             background: linear-gradient(135deg, #F3F4F6 0%, #E5E7EB 100%);
-            color: #374151;
-            border: 1px solid #9CA3AF;
+            color: #374151; border: 1px solid #9CA3AF;
         }
 
         /* ── Botón Ver PDF ───────────────────────────── */
         .btn-ver-pdf {
             background: linear-gradient(135deg, #111111 0%, #1A1A1A 100%);
-            color: #FFD700;
-            border: 1.5px solid #FFD700;
-            transition: all 0.3s ease;
-            position: relative;
-            overflow: hidden;
+            color: #FFD700; border: 1.5px solid #FFD700;
+            transition: all 0.3s ease; position: relative; overflow: hidden;
         }
         .btn-ver-pdf::before {
-            content: '';
-            position: absolute;
-            top: 0; left: -100%;
+            content: ''; position: absolute; top: 0; left: -100%;
             width: 100%; height: 100%;
             background: linear-gradient(90deg, transparent, rgba(255,215,0,0.15), transparent);
             transition: left 0.5s ease;
         }
-        .btn-ver-pdf:hover::before {
-            left: 100%;
-        }
+        .btn-ver-pdf:hover::before { left: 100%; }
         .btn-ver-pdf:hover {
             background: linear-gradient(135deg, #FFD700 0%, #E6C200 100%);
-            color: #0D0D0D;
-            transform: translateY(-1px);
+            color: #0D0D0D; transform: translateY(-1px);
             box-shadow: 0 4px 15px rgba(255, 215, 0, 0.35);
         }
 
-        /* ── Navbar Premium ──────────────────────── */
-        .navbar-premium {
-            position: sticky; top: 0; z-index: 1050;
-            background: rgba(13,13,13,0.88);
+        /* ── Sidebar ─────────────────────────────── */
+        .sidebar {
+            position: fixed; top: 0; left: 0; bottom: 0;
+            width: 240px; z-index: 1100;
+            background: rgba(10,10,10,0.92);
+            backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px);
+            border-right: 1px solid rgba(255,215,0,0.10);
+            display: flex; flex-direction: column;
+            transition: transform 0.3s cubic-bezier(.4,0,.2,1);
+        }
+        .sidebar-brand {
+            display: flex; align-items: center; gap: 12px;
+            padding: 1.25rem 1.25rem 1rem; text-decoration: none;
+            border-bottom: 1px solid rgba(255,215,0,0.08);
+        }
+        .sidebar-brand img { width: 36px; height: 36px; }
+        .sidebar-brand span {
+            font-weight: 900; font-size: 1rem; color: #FFD700;
+            letter-spacing: -0.5px; line-height: 1.2;
+        }
+        .sidebar-nav { flex: 1; padding: 1rem 0.75rem; display: flex; flex-direction: column; gap: 4px; }
+        .sidebar-link {
+            display: flex; align-items: center; gap: 12px;
+            padding: 11px 16px; border-radius: 10px;
+            font-size: 0.85rem; font-weight: 600; color: #8892b0;
+            text-decoration: none; transition: all 0.2s; border: none; background: none;
+            position: relative;
+        }
+        .sidebar-link i { font-size: 1.15rem; width: 22px; text-align: center; }
+        .sidebar-link:hover { color: #FFD700; background: rgba(255,215,0,0.06); }
+        .sidebar-link.active {
+            color: #FFD700; background: rgba(255,215,0,0.10);
+            border-right: 3px solid #FFD700; border-radius: 10px 0 0 10px;
+        }
+        .sidebar-footer {
+            padding: 1rem 1.25rem;
+            border-top: 1px solid rgba(255,215,0,0.08);
+            font-size: 0.65rem; color: #555; text-align: center;
+        }
+
+        /* ── Top Bar ─────────────────────────────── */
+        .topbar {
+            position: fixed; top: 0; left: 240px; right: 0;
+            height: 56px; z-index: 1050;
+            background: rgba(255,255,255,0.85);
             backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
-            border-bottom: 1px solid rgba(255,215,0,0.15);
-        }
-        .navbar-premium .nav-inner {
-            max-width: 1320px; margin: 0 auto;
-            padding: 0 1.5rem;
+            border-bottom: 1px solid rgba(0,0,0,0.08);
             display: flex; align-items: center; justify-content: space-between;
-            height: 60px;
+            padding: 0 1.5rem;
         }
-        .navbar-premium .nav-brand {
-            display: flex; align-items: center; gap: 10px; text-decoration: none;
+        .topbar-sede {
+            display: flex; align-items: center; gap: 8px;
+            font-size: 0.82rem; font-weight: 700; color: #6366f1;
         }
-        .navbar-premium .nav-brand img { width: 32px; height: 32px; }
-        .navbar-premium .nav-brand span {
-            font-weight: 900; font-size: 1.1rem; color: #FFD700; letter-spacing: -0.5px;
-        }
-        .nav-links-premium { display: flex; align-items: center; gap: 4px; }
-        .nav-link-p {
-            display: inline-flex; align-items: center; gap: 5px;
-            padding: 7px 14px; border-radius: 8px;
-            font-size: 0.82rem; font-weight: 600; color: #8892b0;
-            text-decoration: none; transition: all 0.25s; border: none; background: none;
-        }
-        .nav-link-p:hover, .nav-link-p.active { color: #FFD700; background: rgba(255,215,0,0.08); }
-        .nav-right { display: flex; align-items: center; gap: 10px; }
-        .user-badge-glass {
+        .topbar-right { display: flex; align-items: center; gap: 10px; }
+        .topbar-user {
             display: inline-flex; align-items: center; gap: 8px;
-            background: rgba(255,215,0,0.08); border: 1px solid rgba(255,215,0,0.15);
+            background: rgba(255,215,0,0.08); border: 1px solid rgba(255,215,0,0.20);
             padding: 6px 14px; border-radius: 50px;
-            font-size: 0.78rem; font-weight: 600; color: #FFD700;
+            font-size: 0.78rem; font-weight: 600; color: #92780c;
         }
-        .btn-logout-nav {
+        .topbar-logout {
             display: inline-flex; align-items: center; gap: 6px;
-            background: rgba(239,68,68,0.1); border: 1px solid rgba(239,68,68,0.2);
-            color: #f87171; padding: 6px 14px; border-radius: 50px;
+            background: rgba(239,68,68,0.08); border: 1px solid rgba(239,68,68,0.18);
+            color: #dc2626; padding: 6px 14px; border-radius: 50px;
             font-size: 0.78rem; font-weight: 600; cursor: pointer; transition: all 0.2s;
         }
-        .btn-logout-nav:hover { background: rgba(239,68,68,0.2); }
-        .hamburger-btn {
+        .topbar-logout:hover { background: rgba(239,68,68,0.15); }
+        .topbar-hamburger {
             display: none; background: none; border: 1px solid rgba(255,215,0,0.2);
             color: #FFD700; padding: 6px 10px; border-radius: 8px; cursor: pointer; font-size: 1.2rem;
         }
-        .nav-mobile {
-            display: none; padding: 8px 0 16px;
-            border-top: 1px solid rgba(255,215,0,0.1);
+        .sidebar-overlay {
+            display: none; position: fixed; inset: 0; z-index: 1099;
+            background: rgba(0,0,0,0.5); backdrop-filter: blur(4px);
         }
-        .nav-mobile a {
-            display: block; padding: 10px 16px; color: #8892b0;
-            text-decoration: none; font-size: 0.88rem; font-weight: 600;
-            border-radius: 8px; transition: all 0.2s;
+        .sidebar-overlay.active { display: block; }
+        .main-content {
+            margin-left: 240px; margin-top: 56px;
+            padding: 1.5rem; flex: 1; min-height: calc(100vh - 56px);
         }
-        .nav-mobile a:hover { color: #FFD700; background: rgba(255,215,0,0.08); }
-        @media (max-width: 768px) {
-            .nav-links-premium { display: none !important; }
-            .hamburger-btn { display: inline-flex !important; }
-            .user-badge-glass { display: none !important; }
-        }
-        .page-hero {
-            padding: 0.5rem 0;
-        }
+        .page-hero { padding: 0.5rem 0 1rem; }
         .page-hero h2 { font-size: 1.5rem; font-weight: 800; color: #111; margin: 0; }
         .page-hero p { font-size: 0.85rem; color: #6B7280; margin: 0.25rem 0 0; }
         .footer-premium {
             text-align: center; padding: 2rem 1rem; margin-top: 2rem;
             border-top: 1px solid rgba(0,0,0,0.06);
         }
-        .footer-premium p {
-            font-size: 0.75rem; color: #9CA3AF; margin: 0;
+        .footer-premium p { font-size: 0.75rem; color: #9CA3AF; margin: 0; }
+        @media (max-width: 768px) {
+            .sidebar { transform: translateX(-100%); }
+            .sidebar.open { transform: translateX(0); }
+            .topbar { left: 0; }
+            .topbar-hamburger { display: inline-flex !important; }
+            .topbar-user { display: none !important; }
+            .main-content { margin-left: 0; padding: 1rem; }
         }
 
-        /* ── Navbar efecto ─────────────────────── */
-        .stat-card {
-            transition: all 0.3s ease;
-        }
-        .stat-card:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 10px 30px rgba(0,0,0,0.08);
-        }
+        .stat-card { transition: all 0.3s ease; }
+        .stat-card:hover { transform: translateY(-3px); box-shadow: 0 10px 30px rgba(0,0,0,0.08); }
 
-        /* ── Barra de búsqueda ───────────────────────── */
         .search-input:focus {
             border-color: #FFD700;
             box-shadow: 0 0 0 3px rgba(255, 215, 0, 0.15);
         }
 
-        /* ── Responsive table ────────────────────────── */
         @media (max-width: 768px) {
             .responsive-table thead { display: none; }
             .responsive-table tr {
-                display: block;
-                margin-bottom: 1rem;
-                border: 1px solid #E5E7EB;
-                border-radius: 12px;
-                padding: 1rem;
-                background: white;
+                display: block; margin-bottom: 1rem;
+                border: 1px solid #E5E7EB; border-radius: 12px;
+                padding: 1rem; background: white;
             }
             .responsive-table td {
-                display: flex;
-                justify-content: space-between;
-                align-items: center;
-                padding: 0.5rem 0;
-                border: none !important;
+                display: flex; justify-content: space-between; align-items: center;
+                padding: 0.5rem 0; border: none !important;
             }
             .responsive-table td::before {
                 content: attr(data-label);
-                font-weight: 600;
-                font-size: 0.75rem;
-                color: #6B7280;
-                text-transform: uppercase;
-                letter-spacing: 0.5px;
+                font-weight: 600; font-size: 0.75rem; color: #6B7280;
+                text-transform: uppercase; letter-spacing: 0.5px;
             }
         }
     </style>
 </head>
-<body class="bg-gray-100 min-h-screen">
+<body class="bg-gray-100 min-h-screen flex">
 
-    <!-- ═══ NAVBAR PREMIUM ═══ -->
-    <nav class="navbar-premium">
-        <div class="nav-inner">
-            <a href="index.html" class="nav-brand">
-                <img src="https://cdn-icons-png.flaticon.com/512/3003/3003984.png" alt="Logo">
-                <span>POWER GYM & POWER BOX</span>
-            </a>
-            <div class="nav-links-premium">
-                <a href="index.html" class="nav-link-p"><i class="bi bi-lightning-charge-fill"></i> Ventas</a>
-                <a href="clientes.html" class="nav-link-p"><i class="bi bi-people-fill"></i> Clientes</a>
-                <a href="productos.html" class="nav-link-p"><i class="bi bi-box-seam-fill"></i> Productos</a>
-                <a href="historial.html" class="nav-link-p active"><i class="bi bi-clock-history"></i> Historial</a>
-                <a id="navUsuarios" href="usuarios.html" class="nav-link-p" style="display:none;"><i class="bi bi-shield-lock-fill"></i> Usuarios</a>
-            </div>
-            <div class="nav-right">
-                <span id="sedeIndicator" class="user-badge-glass" style="background:rgba(99,102,241,0.10);border-color:rgba(99,102,241,0.25);color:#818cf8;font-size:0.72rem;">📍 Sede: —</span>
-                <span id="userIndicator" class="user-badge-glass">👤 Cargando...</span>
-                <button onclick="cerrarSesion()" class="btn-logout-nav"><i class="bi bi-box-arrow-right"></i> Salir</button>
-                <button class="hamburger-btn" onclick="toggleMobileMenu()"><i class="bi bi-list"></i></button>
-            </div>
-        </div>
-        <div id="mobileMenu" class="nav-mobile" style="max-width:1320px;margin:0 auto;padding-left:1.5rem;padding-right:1.5rem;">
-            <a href="index.html"><i class="bi bi-lightning-charge-fill me-2"></i>Ventas</a>
-            <a href="clientes.html"><i class="bi bi-people-fill me-2"></i>Clientes</a>
-            <a href="productos.html"><i class="bi bi-box-seam-fill me-2"></i>Productos</a>
-            <a href="historial.html"><i class="bi bi-clock-history me-2"></i>Historial</a>
-            <a id="navUsuariosMobile" href="usuarios.html" style="display:none;"><i class="bi bi-shield-lock-fill me-2"></i>Usuarios</a>
-        </div>
-    </nav>
+    <!-- ═══ SIDEBAR ═══ -->
+    <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
+    <aside class="sidebar" id="sidebar">
+        <a href="index.html" class="sidebar-brand">
+            <img src="https://cdn-icons-png.flaticon.com/512/3003/3003984.png" alt="Logo">
+            <span>POWER GYM</span>
+        </a>
+        <nav class="sidebar-nav">
+            <a href="index.html" class="sidebar-link"><i class="bi bi-lightning-charge-fill"></i> Ventas</a>
+            <a href="clientes.html" class="sidebar-link"><i class="bi bi-people-fill"></i> Clientes</a>
+            <a href="productos.html" class="sidebar-link"><i class="bi bi-box-seam-fill"></i> Productos</a>
+            <a href="historial.html" class="sidebar-link active"><i class="bi bi-clock-history"></i> Historial</a>
+            <a id="navUsuarios" href="usuarios.html" class="sidebar-link" style="display:none;"><i class="bi bi-shield-lock-fill"></i> Usuarios</a>
+        </nav>
+        <div class="sidebar-footer">&copy; 2026 POWER GYM &amp; POWER BOX</div>
+    </aside>
 
-    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <!-- ═══ TOP BAR ═══ -->
+    <header class="topbar">
+        <div class="topbar-sede">
+            <button class="topbar-hamburger" onclick="toggleSidebar()"><i class="bi bi-list"></i></button>
+            <span id="sedeIndicator">📍 Sede: —</span>
+        </div>
+        <div class="topbar-right">
+            <span id="userIndicator" class="topbar-user">👤 Cargando...</span>
+            <button onclick="cerrarSesion()" class="topbar-logout"><i class="bi bi-box-arrow-right"></i> Cerrar Sesión</button>
+        </div>
+    </header>
+
+    <!-- ═══ MAIN CONTENT ═══ -->
+    <main class="main-content">
 
         <!-- Hero -->
         <div class="page-hero mb-3">
@@ -483,7 +469,6 @@
         <footer class="footer-premium">
             <p>&copy; 2026 POWER GYM &amp; POWER BOX &nbsp;|&nbsp; El Triunfo, Ecuador &nbsp;|&nbsp; Gestión Profesional de Gimnasio</p>
         </footer>
-    </main>
 
     <!-- ═══════════════════════════════════════════════════ -->
     <!-- JAVASCRIPT -->
@@ -516,9 +501,7 @@
                 document.getElementById('userIndicator').textContent = `👤 ${user.nombre_completo} (${rol})`;
                 if (user.rol === 'admin') {
                     const nu = document.getElementById('navUsuarios');
-                    if (nu) nu.style.display = 'inline-flex';
-                    const nuM = document.getElementById('navUsuariosMobile');
-                    if (nuM) nuM.style.display = 'block';
+                    if (nu) nu.style.display = 'flex';
                 }
             }
         })
@@ -908,10 +891,10 @@
         cerrarModalWA();
     }
 
-    // ── Menú móvil ───────────────────────────────────────
-    function toggleMobileMenu() {
-        const m = document.getElementById('mobileMenu');
-        m.style.display = m.style.display === 'block' ? 'none' : 'block';
+    // ── Sidebar toggle (responsive) ─────────────────────
+    function toggleSidebar() {
+        document.getElementById('sidebar').classList.toggle('open');
+        document.getElementById('sidebarOverlay').classList.toggle('active');
     }
 
     // ── Cerrar sesión ───────────────────────────────────
@@ -973,6 +956,8 @@
         </div>
     </div>
 </div>
+
+</main><!-- /.main-content -->
 
 <style>
     .modal-panel.modal-open {

@@ -36,7 +36,7 @@
     </script>
 
     <style>
-        * { font-family: 'Inter', system-ui, sans-serif; }
+        * { font-family: 'Inter', system-ui, sans-serif; margin: 0; padding: 0; box-sizing: border-box; }
 
         /* ── Scrollbar ───────────────────────────────── */
         ::-webkit-scrollbar { width: 6px; height: 6px; }
@@ -83,78 +83,104 @@
             border-radius: 6px;
         }
 
-        /* ── Navbar Premium ──────────────────────── */
-        .navbar-premium {
-            position: sticky; top: 0; z-index: 1050;
-            background: rgba(13,13,13,0.88);
+        /* ── Sidebar ─────────────────────────────── */
+        .sidebar {
+            position: fixed; top: 0; left: 0; bottom: 0;
+            width: 240px; z-index: 1100;
+            background: rgba(10,10,10,0.92);
+            backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px);
+            border-right: 1px solid rgba(255,215,0,0.10);
+            display: flex; flex-direction: column;
+            transition: transform 0.3s cubic-bezier(.4,0,.2,1);
+        }
+        .sidebar-brand {
+            display: flex; align-items: center; gap: 12px;
+            padding: 1.25rem 1.25rem 1rem;
+            text-decoration: none;
+            border-bottom: 1px solid rgba(255,215,0,0.08);
+        }
+        .sidebar-brand img { width: 36px; height: 36px; }
+        .sidebar-brand span {
+            font-weight: 900; font-size: 1rem; color: #FFD700;
+            letter-spacing: -0.5px; line-height: 1.2;
+        }
+        .sidebar-nav { flex: 1; padding: 1rem 0.75rem; display: flex; flex-direction: column; gap: 4px; }
+        .sidebar-link {
+            display: flex; align-items: center; gap: 12px;
+            padding: 11px 16px; border-radius: 10px;
+            font-size: 0.85rem; font-weight: 600; color: #8892b0;
+            text-decoration: none; transition: all 0.2s; border: none; background: none;
+            position: relative;
+        }
+        .sidebar-link i { font-size: 1.15rem; width: 22px; text-align: center; }
+        .sidebar-link:hover { color: #FFD700; background: rgba(255,215,0,0.06); }
+        .sidebar-link.active {
+            color: #FFD700; background: rgba(255,215,0,0.10);
+            border-right: 3px solid #FFD700; border-radius: 10px 0 0 10px;
+        }
+        .sidebar-footer {
+            padding: 1rem 1.25rem;
+            border-top: 1px solid rgba(255,215,0,0.08);
+            font-size: 0.65rem; color: #555; text-align: center;
+        }
+
+        /* ── Top Bar ─────────────────────────────── */
+        .topbar {
+            position: fixed; top: 0; left: 240px; right: 0;
+            height: 56px; z-index: 1050;
+            background: rgba(255,255,255,0.85);
             backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
-            border-bottom: 1px solid rgba(255,215,0,0.15);
-        }
-        .navbar-premium .nav-inner {
-            max-width: 1320px; margin: 0 auto;
-            padding: 0 1.5rem;
+            border-bottom: 1px solid rgba(0,0,0,0.08);
             display: flex; align-items: center; justify-content: space-between;
-            height: 60px;
+            padding: 0 1.5rem;
         }
-        .navbar-premium .nav-brand {
-            display: flex; align-items: center; gap: 10px; text-decoration: none;
+        .topbar-sede {
+            display: flex; align-items: center; gap: 8px;
+            font-size: 0.82rem; font-weight: 700; color: #6366f1;
         }
-        .navbar-premium .nav-brand img { width: 32px; height: 32px; }
-        .navbar-premium .nav-brand span {
-            font-weight: 900; font-size: 1.1rem; color: #FFD700; letter-spacing: -0.5px;
-        }
-        .nav-links-premium { display: flex; align-items: center; gap: 4px; }
-        .nav-link-p {
-            display: inline-flex; align-items: center; gap: 5px;
-            padding: 7px 14px; border-radius: 8px;
-            font-size: 0.82rem; font-weight: 600; color: #8892b0;
-            text-decoration: none; transition: all 0.25s; border: none; background: none;
-        }
-        .nav-link-p:hover, .nav-link-p.active { color: #FFD700; background: rgba(255,215,0,0.08); }
-        .nav-right { display: flex; align-items: center; gap: 10px; }
-        .user-badge-glass {
+        .topbar-right { display: flex; align-items: center; gap: 10px; }
+        .topbar-user {
             display: inline-flex; align-items: center; gap: 8px;
-            background: rgba(255,215,0,0.08); border: 1px solid rgba(255,215,0,0.15);
+            background: rgba(255,215,0,0.08); border: 1px solid rgba(255,215,0,0.20);
             padding: 6px 14px; border-radius: 50px;
-            font-size: 0.78rem; font-weight: 600; color: #FFD700;
+            font-size: 0.78rem; font-weight: 600; color: #92780c;
         }
-        .btn-logout-nav {
+        .topbar-logout {
             display: inline-flex; align-items: center; gap: 6px;
-            background: rgba(239,68,68,0.1); border: 1px solid rgba(239,68,68,0.2);
-            color: #f87171; padding: 6px 14px; border-radius: 50px;
+            background: rgba(239,68,68,0.08); border: 1px solid rgba(239,68,68,0.18);
+            color: #dc2626; padding: 6px 14px; border-radius: 50px;
             font-size: 0.78rem; font-weight: 600; cursor: pointer; transition: all 0.2s;
         }
-        .btn-logout-nav:hover { background: rgba(239,68,68,0.2); }
-        .hamburger-btn {
+        .topbar-logout:hover { background: rgba(239,68,68,0.15); }
+        .topbar-hamburger {
             display: none; background: none; border: 1px solid rgba(255,215,0,0.2);
             color: #FFD700; padding: 6px 10px; border-radius: 8px; cursor: pointer; font-size: 1.2rem;
         }
-        .nav-mobile {
-            display: none; padding: 8px 0 16px;
-            border-top: 1px solid rgba(255,215,0,0.1);
+        .sidebar-overlay {
+            display: none; position: fixed; inset: 0; z-index: 1099;
+            background: rgba(0,0,0,0.5); backdrop-filter: blur(4px);
         }
-        .nav-mobile a {
-            display: block; padding: 10px 16px; color: #8892b0;
-            text-decoration: none; font-size: 0.88rem; font-weight: 600;
-            border-radius: 8px; transition: all 0.2s;
+        .sidebar-overlay.active { display: block; }
+        .main-content {
+            margin-left: 240px; margin-top: 56px;
+            padding: 1.5rem;
+            flex: 1; min-height: calc(100vh - 56px);
         }
-        .nav-mobile a:hover { color: #FFD700; background: rgba(255,215,0,0.08); }
-        @media (max-width: 768px) {
-            .nav-links-premium { display: none !important; }
-            .hamburger-btn { display: inline-flex !important; }
-            .user-badge-glass { display: none !important; }
-        }
-        .page-hero {
-            padding: 0.5rem 0;
-        }
+        .page-hero { padding: 0.5rem 0 1rem; }
         .page-hero h2 { font-size: 1.5rem; font-weight: 800; color: #111; margin: 0; }
         .page-hero p { font-size: 0.85rem; color: #6B7280; margin: 0.25rem 0 0; }
         .footer-premium {
             text-align: center; padding: 2rem 1rem; margin-top: 2rem;
             border-top: 1px solid rgba(0,0,0,0.06);
         }
-        .footer-premium p {
-            font-size: 0.75rem; color: #9CA3AF; margin: 0;
+        .footer-premium p { font-size: 0.75rem; color: #9CA3AF; margin: 0; }
+        @media (max-width: 768px) {
+            .sidebar { transform: translateX(-100%); }
+            .sidebar.open { transform: translateX(0); }
+            .topbar { left: 0; }
+            .topbar-hamburger { display: inline-flex !important; }
+            .topbar-user { display: none !important; }
+            .main-content { margin-left: 0; padding: 1rem; }
         }
 
         /* ── Form inputs ─────────────────────────────── */
@@ -291,41 +317,41 @@
         }
     </style>
 </head>
-<body class="bg-gray-100 min-h-screen">
+<body class="bg-gray-100 min-h-screen flex">
 
-    <!-- ═══ NAVBAR PREMIUM ═══ -->
-    <nav class="navbar-premium">
-        <div class="nav-inner">
-            <a href="index.html" class="nav-brand">
-                <img src="https://cdn-icons-png.flaticon.com/512/3003/3003984.png" alt="Logo">
-                <span>POWER GYM & POWER BOX</span>
-            </a>
-            <div class="nav-links-premium">
-                <a href="index.html" class="nav-link-p"><i class="bi bi-lightning-charge-fill"></i> Ventas</a>
-                <a href="clientes.html" class="nav-link-p"><i class="bi bi-people-fill"></i> Clientes</a>
-                <a href="productos.html" class="nav-link-p active"><i class="bi bi-box-seam-fill"></i> Productos</a>
-                <a href="historial.html" class="nav-link-p"><i class="bi bi-clock-history"></i> Historial</a>
-                <a id="navUsuarios" href="usuarios.html" class="nav-link-p" style="display:none;"><i class="bi bi-shield-lock-fill"></i> Usuarios</a>
-            </div>
-            <div class="nav-right">
-                <span id="sedeIndicator" class="user-badge-glass" style="background:rgba(99,102,241,0.10);border-color:rgba(99,102,241,0.25);color:#818cf8;font-size:0.72rem;">📍 Sede: —</span>
-                <span id="userIndicator" class="user-badge-glass">👤 Cargando...</span>
-                <button onclick="cerrarSesion()" class="btn-logout-nav"><i class="bi bi-box-arrow-right"></i> Salir</button>
-                <button class="hamburger-btn" onclick="toggleMobileMenu()"><i class="bi bi-list"></i></button>
-            </div>
+    <!-- ═══ SIDEBAR ═══ -->
+    <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
+    <aside class="sidebar" id="sidebar">
+        <a href="index.html" class="sidebar-brand">
+            <img src="https://cdn-icons-png.flaticon.com/512/3003/3003984.png" alt="Logo">
+            <span>POWER GYM</span>
+        </a>
+        <nav class="sidebar-nav">
+            <a href="index.html" class="sidebar-link"><i class="bi bi-lightning-charge-fill"></i> Ventas</a>
+            <a href="clientes.html" class="sidebar-link"><i class="bi bi-people-fill"></i> Clientes</a>
+            <a href="productos.html" class="sidebar-link active"><i class="bi bi-box-seam-fill"></i> Productos</a>
+            <a href="historial.html" class="sidebar-link"><i class="bi bi-clock-history"></i> Historial</a>
+            <a id="navUsuarios" href="usuarios.html" class="sidebar-link" style="display:none;"><i class="bi bi-shield-lock-fill"></i> Usuarios</a>
+        </nav>
+        <div class="sidebar-footer">&copy; 2026 POWER GYM &amp; POWER BOX</div>
+    </aside>
+
+    <!-- ═══ TOP BAR ═══ -->
+    <header class="topbar">
+        <div class="topbar-sede">
+            <button class="topbar-hamburger" onclick="toggleSidebar()"><i class="bi bi-list"></i></button>
+            <span id="sedeIndicator">📍 Sede: —</span>
         </div>
-        <div id="mobileMenu" class="nav-mobile" style="max-width:1320px;margin:0 auto;padding-left:1.5rem;padding-right:1.5rem;">
-            <a href="index.html"><i class="bi bi-lightning-charge-fill me-2"></i>Ventas</a>
-            <a href="clientes.html"><i class="bi bi-people-fill me-2"></i>Clientes</a>
-            <a href="productos.html"><i class="bi bi-box-seam-fill me-2"></i>Productos</a>
-            <a href="historial.html"><i class="bi bi-clock-history me-2"></i>Historial</a>
-            <a id="navUsuariosMobile" href="usuarios.html" style="display:none;"><i class="bi bi-shield-lock-fill me-2"></i>Usuarios</a>
+        <div class="topbar-right">
+            <span id="userIndicator" class="topbar-user">👤 Cargando...</span>
+            <button onclick="cerrarSesion()" class="topbar-logout"><i class="bi bi-box-arrow-right"></i> Cerrar Sesión</button>
         </div>
-    </nav>
+    </header>
 
     <div id="toastContainer"></div>
 
-    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <!-- ═══ MAIN CONTENT ═══ -->
+    <main class="main-content">
 
         <!-- Hero -->
         <div class="page-hero mb-3">
@@ -533,8 +559,6 @@
             </div>
         </div>
 
-    </main>
-
     <!-- ═══════════════════════════════════════════════════ -->
     <!-- JAVASCRIPT -->
     <!-- ═══════════════════════════════════════════════════ -->
@@ -563,9 +587,7 @@
                 document.getElementById('userIndicator').textContent = `👤 ${user.nombre_completo} (${rol})`;
                 if (user.rol === 'admin') {
                     const nu = document.getElementById('navUsuarios');
-                    if (nu) nu.style.display = 'inline-flex';
-                    const nuM = document.getElementById('navUsuariosMobile');
-                    if (nuM) nuM.style.display = 'block';
+                    if (nu) nu.style.display = 'flex';
                 }
             }
         })
@@ -856,9 +878,9 @@
         }
     }
 
-    function toggleMobileMenu() {
-        const m = document.getElementById('mobileMenu');
-        m.style.display = m.style.display === 'block' ? 'none' : 'block';
+    function toggleSidebar() {
+        document.getElementById('sidebar').classList.toggle('open');
+        document.getElementById('sidebarOverlay').classList.toggle('active');
     }
 
     function cerrarSesion() {
@@ -952,10 +974,11 @@
     </div>
 </div>
 
-<!-- ═══ FOOTER ═══ -->
 <footer class="footer-premium">
     <p>&copy; 2026 POWER GYM &amp; POWER BOX &nbsp;|&nbsp; El Triunfo, Ecuador &nbsp;|&nbsp; Gestión Profesional de Gimnasio</p>
 </footer>
+
+</main><!-- /.main-content -->
 
 </body>
 </html>
