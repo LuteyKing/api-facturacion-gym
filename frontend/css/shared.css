@@ -1075,3 +1075,43 @@ body {
 .table-pagination button:disabled {
     opacity: 0.4; cursor: not-allowed;
 }
+
+/* ═══════════════════════════════════════════════════════ */
+/* ═══ CORRECCIÓN ESTRUCTURAL DEFINITIVA DE SCROLLS ═══  */
+/* ═══════════════════════════════════════════════════════ */
+
+/* 1. Scroll Horizontal SOLO en Tablas ──────────────────── */
+.table-card {
+    overflow: visible !important;
+}
+.table-scroll-container {
+    width: 100% !important;
+    overflow-x: auto !important;
+    overflow-y: visible !important;
+    display: block !important;
+}
+.table-scroll-container table {
+    min-width: 1000px !important;
+}
+
+/* 2. Destruir Scrolls Verticales Internos ──────────────── */
+.layout-grid > * > *,
+.form-card-scroll,
+.form-card-scroll form,
+.card {
+    height: auto !important;
+    max-height: none !important;
+    min-height: min-content !important;
+    overflow-y: visible !important;
+    flex: none !important;
+}
+
+/* 3. Footer separado del contenido ─────────────────────── */
+footer,
+.footer-premium {
+    margin-top: 2.5rem !important;
+    padding-top: 1rem !important;
+    padding-bottom: 1.5rem !important;
+    position: relative !important;
+    clear: both !important;
+}
