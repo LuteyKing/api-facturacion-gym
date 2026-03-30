@@ -8,6 +8,7 @@ from zoneinfo import ZoneInfo
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from sqlalchemy import text
 
 from .database import Base, SessionLocal, engine
 from .models import db_models  # noqa: F401  — registra los modelos en Base.metadata
@@ -20,8 +21,34 @@ logging.basicConfig(
     format="%(asctime)s | %(levelname)-8s | %(name)s | %(message)s",
 )
 
+logger = logging.getLogger(__name__)
+
 # ── Crear tablas en la BD al iniciar ─────────────────────
 Base.metadata.create_all(bind=engine)
+
+# ── Migración: agregar columna "sede" si no existe ───────
+def _run_sede_migration():
+    """Agrega la columna sede a facturas, clientes y productos si no existe."""
+    tables = ["facturas", "clientes", "productos"]
+    with engine.connect() as conn:
+        for table in tables:
+            conn.execute(text(
+                f"ALTER TABLE {table} "
+                f"ADD COLUMN IF NOT EXISTS sede VARCHAR(10) DEFAULT 'gym'"
+            ))
+            conn.execute(text(
+                f"CREATE INDEX IF NOT EXISTS ix_{table}_sede ON {table} (sede)"
+            ))
+            conn.execute(text(
+                f"UPDATE {table} SET sede = 'gym' WHERE sede IS NULL"
+            ))
+        conn.commit()
+        logger.info("Migración sede completada correctamente")
+
+try:
+    _run_sede_migration()
+except Exception as e:
+    logger.warning("Migración sede omitida (posiblemente ya aplicada): %s", e)
 
 app = FastAPI(
     title="Microservicio de Facturación Electrónica SRI — Ecuador",

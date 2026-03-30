@@ -13,6 +13,21 @@ function authHeaders(extra = {}) {
 }
 
 /**
+ * Verifica la respuesta de fetch y lanza error descriptivo si falla.
+ * Usar: fetch(url).then(handleResponse).then(data => ...).catch(...)
+ */
+function handleResponse(response) {
+    if (response.ok) return response.json();
+    if (response.status === 500) {
+        throw new Error('Error de servidor: Columna faltante o error de base de datos');
+    }
+    if (response.status === 401 || response.status === 403) {
+        throw new Error('Sesión expirada o acceso denegado');
+    }
+    throw new Error(`Error ${response.status}: ${response.statusText}`);
+}
+
+/**
  * Verifica token + sede activa. Redirige a login si faltan.
  * Carga perfil del usuario en el dropdown del header.
  * @param {Object} opts
@@ -72,8 +87,8 @@ function initSessionGuard(opts = {}) {
         })
         .catch(err => {
             if (err.message !== 'Token inválido') {
-                console.warn('Error de conexión al verificar sesión:', err.message);
-                mostrarToast('⚠️ No se pudo conectar con el servidor. Verifica tu conexión.', 'error');
+                console.warn('Error al verificar sesión:', err.message);
+                mostrarToast(`⚠️ ${err.message}`, 'error');
             }
         });
 }
