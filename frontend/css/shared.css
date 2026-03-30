@@ -1080,18 +1080,24 @@ body {
 /* ═══ CORRECCIÓN ESTRUCTURAL DEFINITIVA DE SCROLLS ═══  */
 /* ═══════════════════════════════════════════════════════ */
 
-/* 1. Scroll Horizontal SOLO en Tablas ──────────────────── */
-.table-card {
+/* 0. Liberar html, body y main-content ─────────────────── */
+html {
+    height: auto !important;
     overflow: visible !important;
 }
-.table-scroll-container {
-    width: 100% !important;
-    overflow-x: auto !important;
-    overflow-y: visible !important;
-    display: block !important;
+body {
+    height: auto !important;
+    overflow-x: hidden !important;
+    overflow-y: auto !important;
 }
-.table-scroll-container table {
-    min-width: 1000px !important;
+.main-content {
+    height: auto !important;
+    overflow: visible !important;
+}
+
+/* 1. Romper bloqueo de Flexbox/Grid en layout ──────────── */
+.layout-grid > * {
+    min-width: 0 !important;
 }
 
 /* 2. Destruir Scrolls Verticales Internos ──────────────── */
@@ -1102,11 +1108,25 @@ body {
     height: auto !important;
     max-height: none !important;
     min-height: min-content !important;
-    overflow-y: visible !important;
+    overflow: visible !important;
     flex: none !important;
 }
 
-/* 3. Footer separado del contenido ─────────────────────── */
+/* 3. Scroll Horizontal SOLO en Tablas ──────────────────── */
+.table-card {
+    overflow: visible !important;
+}
+.table-scroll-container {
+    width: 100% !important;
+    overflow-x: auto !important;
+    overflow-y: visible !important;
+    display: block !important;
+}
+.table-scroll-container table {
+    min-width: 1100px !important;
+}
+
+/* 4. Footer separado del contenido ─────────────────────── */
 footer,
 .footer-premium {
     margin-top: 2.5rem !important;
