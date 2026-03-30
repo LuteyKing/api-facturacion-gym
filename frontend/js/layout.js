@@ -42,7 +42,7 @@ function initLayout(activePage) {
     <aside class="sidebar" id="sidebar">
         <div class="sidebar-brand-block">
             <a href="index.html" class="sidebar-brand">
-                <img src="https://via.placeholder.com/150x50?text=LOGO+AQUI" alt="Logo" class="sidebar-logo">
+                <img src="./img/logo-powergym.png" alt="Logo POWER GYM" class="h-10 mb-2">
             </a>
             <span class="sidebar-sede-label ${sedeClass}">${sedeName}</span>
         </div>
