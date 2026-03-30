@@ -192,20 +192,16 @@
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
             <!-- POWER GYM -->
             <button onclick="elegirSede('gym')" class="group bg-gym-dark border-2 border-gray-700 hover:border-gym-yellow rounded-2xl p-6 text-center transition-all duration-300 hover:scale-105 hover:shadow-lg hover:shadow-gym-yellow/10 cursor-pointer">
-                <div class="w-20 h-20 mx-auto mb-4 bg-gym-yellow/10 rounded-full flex items-center justify-center group-hover:bg-gym-yellow/20 transition-colors">
-                    <svg class="w-10 h-10 text-gym-yellow" fill="currentColor" viewBox="0 0 24 24">
-                        <path d="M20.57 14.86L22 13.43 20.57 12 17 15.57 8.43 7 12 3.43 10.57 2 9.14 3.43 7.71 2 5.57 4.14 4.14 2.71 2.71 4.14l1.43 1.43L2 7.71l1.43 1.43L2 10.57 3.43 12 7 8.43 15.57 17 12 20.57 13.43 22l1.43-1.43L16.29 22l2.14-2.14 1.43 1.43 1.43-1.43-1.43-1.43L22 16.29z"/>
-                    </svg>
+                <div class="w-20 h-20 mx-auto mb-4 bg-gym-yellow/10 rounded-full flex items-center justify-center group-hover:bg-gym-yellow/20 transition-colors" id="sedeGymIcon">
+                    <i class="bi bi-lightning-charge-fill text-gym-yellow text-3xl"></i>
                 </div>
                 <h3 class="text-lg font-extrabold text-gym-yellow mb-1">POWER GYM</h3>
                 <p class="text-gray-500 text-xs">Gimnasio & Fitness</p>
             </button>
             <!-- POWER BOX -->
             <button onclick="elegirSede('box')" class="group bg-gym-dark border-2 border-gray-700 hover:border-red-500 rounded-2xl p-6 text-center transition-all duration-300 hover:scale-105 hover:shadow-lg hover:shadow-red-500/10 cursor-pointer">
-                <div class="w-20 h-20 mx-auto mb-4 bg-red-500/10 rounded-full flex items-center justify-center group-hover:bg-red-500/20 transition-colors">
-                    <svg class="w-10 h-10 text-red-500" fill="currentColor" viewBox="0 0 24 24">
-                        <path d="M7 5h10v2H7zm0 4h10v2H7zm0 4h10v2H7zm-2 6h14a2 2 0 002-2V7a2 2 0 00-2-2h-1V3H6v2H5a2 2 0 00-2 2v10a2 2 0 002 2zm0-12h14v10H5z"/>
-                    </svg>
+                <div class="w-20 h-20 mx-auto mb-4 bg-red-500/10 rounded-full flex items-center justify-center group-hover:bg-red-500/20 transition-colors" id="sedeBoxIcon">
+                    <i class="bi bi-lightning-charge-fill text-red-500 text-3xl"></i>
                 </div>
                 <h3 class="text-lg font-extrabold text-red-500 mb-1">POWER BOX</h3>
                 <p class="text-gray-500 text-xs">CrossFit & Funcional</p>
@@ -324,6 +320,36 @@ function elegirSede(sede) {
     localStorage.setItem('sede_activa', sede);
     window.location.href = 'index.html';
 }
+
+// ══════════════════════════════════════════════════════════
+// CARGAR CONFIG (favicon + logos de sede)
+// ══════════════════════════════════════════════════════════
+(function cargarConfigLogin() {
+    fetch(`${API_BASE_URL}/api/v1/configuracion`)
+        .then(r => r.ok ? r.json() : null)
+        .then(config => {
+            if (!config) return;
+
+            // Favicon dinámico
+            if (config.favicon_url) {
+                const link = document.querySelector('link[rel="icon"]');
+                if (link) link.href = config.favicon_url;
+            }
+
+            // Logo GYM en tarjeta de sede
+            if (config.logo_gym_url) {
+                const gymIcon = document.getElementById('sedeGymIcon');
+                if (gymIcon) gymIcon.innerHTML = `<img src="${config.logo_gym_url}" alt="Power Gym" class="max-h-14 object-contain">`;
+            }
+
+            // Logo BOX en tarjeta de sede
+            if (config.logo_box_url) {
+                const boxIcon = document.getElementById('sedeBoxIcon');
+                if (boxIcon) boxIcon.innerHTML = `<img src="${config.logo_box_url}" alt="Power Box" class="max-h-14 object-contain">`;
+            }
+        })
+        .catch(() => {});
+})();
 </script>
 </body>
 </html>

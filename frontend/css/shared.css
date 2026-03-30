@@ -225,8 +225,11 @@ body {
     color: #ffffff !important;
     flex-shrink: 0;
 }
-.sidebar-logo {
-    max-height: 40px; width: auto; object-fit: contain;
+#sidebar-logo {
+    max-height: 60px !important;
+    width: auto !important;
+    object-fit: contain;
+    margin: 0 auto;
 }
 .sidebar-sede-label {
     font-weight: 900; font-size: 0.78rem;

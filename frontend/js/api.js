@@ -129,13 +129,24 @@ function mostrarToast(mensaje, tipo = 'success') {
     }, 5000);
 }
 
-// ── Live Clock (para barra de estado de tablas) ─────────────
-let _liveClockInterval = null;
-function initLiveClock() {
-    const el = document.getElementById('liveClock');
-    if (!el) return;
-    const tick = () => { el.textContent = new Date().toLocaleTimeString('es-EC'); };
-    tick();
-    if (_liveClockInterval) clearInterval(_liveClockInterval);
-    _liveClockInterval = setInterval(tick, 1000);
+// ── Dynamic Config (logo + favicon) — Global ───────────────
+function loadDynamicConfig() {
+    fetch(`${API_BASE_URL}/api/v1/configuracion`)
+        .then(r => r.ok ? r.json() : null)
+        .then(config => {
+            if (!config) return;
+
+            // Logo del sidebar según sede activa
+            const sede = localStorage.getItem('sede_activa') || 'gym';
+            const logoUrl = sede === 'box' ? config.logo_box_url : config.logo_gym_url;
+            const sidebarLogo = document.getElementById('sidebar-logo');
+            if (sidebarLogo && logoUrl) sidebarLogo.src = logoUrl;
+
+            // Favicon dinámico
+            if (config.favicon_url) {
+                const link = document.querySelector('link[rel="icon"]');
+                if (link) link.href = config.favicon_url;
+            }
+        })
+        .catch(() => { /* silenciar — logo/favicon quedan como default */ });
 }

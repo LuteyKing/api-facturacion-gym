@@ -327,8 +327,7 @@
                     <!-- Status Bar -->
                     <div class="table-status-bar" id="tableFooter" style="display: none;">
                         <div class="table-status-left">
-                            <span id="footerInfo">Mostrando 0 registros</span> &bull;
-                            <span class="live-clock" id="liveClock">--:--:--</span>
+                            <span id="footerInfo">Mostrando 0 registros</span>
                         </div>
                         <div class="table-pagination">
                             <button disabled><i class="bi bi-chevron-left"></i> Anterior</button>
@@ -493,7 +492,6 @@
         const footer = document.getElementById('tableFooter');
         footer.style.display = 'flex';
         document.getElementById('footerInfo').textContent = `Mostrando ${productos.length} producto${productos.length !== 1 ? 's' : ''} • Última actualización: ${new Date().toLocaleTimeString()}`;
-        initLiveClock();
     }
 
     function escapeHtml(text) {

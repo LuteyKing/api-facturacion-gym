@@ -156,28 +156,3 @@ function toggleSidebar() {
     document.getElementById('sidebar').classList.toggle('open');
     document.getElementById('sidebarOverlay').classList.toggle('active');
 }
-
-// ── Dynamic Config (logo + favicon) ────────────────────────
-function loadDynamicConfig() {
-    const apiBase = typeof API_BASE_URL !== 'undefined' ? API_BASE_URL : '';
-    if (!apiBase) return;
-
-    fetch(`${apiBase}/api/v1/configuracion`)
-        .then(r => r.ok ? r.json() : null)
-        .then(config => {
-            if (!config) return;
-
-            // Logo del sidebar según sede activa
-            const sede = localStorage.getItem('sede_activa') || 'gym';
-            const logoUrl = sede === 'box' ? config.logo_box_url : config.logo_gym_url;
-            const sidebarLogo = document.getElementById('sidebar-logo');
-            if (sidebarLogo && logoUrl) sidebarLogo.src = logoUrl;
-
-            // Favicon dinámico
-            if (config.favicon_url) {
-                const link = document.querySelector('link[rel="icon"]');
-                if (link) link.href = config.favicon_url;
-            }
-        })
-        .catch(() => { /* silenciar — logo/favicon quedan como default */ });
-}
