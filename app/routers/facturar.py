@@ -47,14 +47,14 @@ from ..models.schemas import (
     TotalImpuesto,
 )
 from ..database import get_db
-from ..models.db_models import Factura, Usuario
+from ..models.db_models import Cliente, Factura, Usuario
 from .auth import get_current_user
 from ..services.clave_acceso import generar_clave_acceso
 from ..services.sri_client import consultar_autorizacion, enviar_comprobante
 from ..services.xml_generator import generar_xml_factura
 from ..services.xml_signer import firmar_xml
 
-from datetime import datetime
+from datetime import datetime, timedelta, date
 from zoneinfo import ZoneInfo
 from sqlalchemy import func
 
@@ -341,6 +341,27 @@ def facturar(
         factura_db.id,
         clave_acceso,
     )
+
+    # ── Paso 4.6: Renovar membresía del cliente ──────────
+    try:
+        db_cliente = db.query(Cliente).filter(
+            Cliente.cedula_ruc == factura.info_factura.identificacion_comprador
+        ).first()
+        if db_cliente:
+            hoy = date.today()
+            if db_cliente.fecha_vencimiento and db_cliente.fecha_vencimiento >= hoy:
+                db_cliente.fecha_vencimiento = db_cliente.fecha_vencimiento + timedelta(days=30)
+            else:
+                db_cliente.fecha_vencimiento = hoy + timedelta(days=30)
+            db.commit()
+            db.refresh(db_cliente)
+            logger.info(
+                "Membresía renovada para %s — nuevo vencimiento: %s",
+                db_cliente.cedula_ruc,
+                db_cliente.fecha_vencimiento.isoformat(),
+            )
+    except Exception as e:
+        logger.warning("No se pudo renovar membresía: %s", e)
 
     # ── Paso 5: Enviar a RecepcionComprobantesOffline ─────
     try:
