@@ -1123,10 +1123,25 @@ body {
     display: block !important;
 }
 .table-scroll-container table {
-    min-width: 1100px !important;
+    min-width: 100% !important;
+    width: max-content !important;
+    white-space: nowrap !important;
+}
+.table-scroll-container th,
+.table-scroll-container td {
+    padding-left: 1rem !important;
+    padding-right: 1rem !important;
 }
 
-/* 4. Footer separado del contenido ─────────────────────── */
+/* 4. Destruir wrapper de Configuración y módulos rebeldes */
+.main-content > div,
+.main-content > section {
+    height: auto !important;
+    max-height: none !important;
+    overflow: visible !important;
+}
+
+/* 5. Footer separado del contenido ─────────────────────── */
 footer,
 .footer-premium {
     margin-top: 2.5rem !important;
