@@ -1162,11 +1162,14 @@ div[id^="modal"] {
     overflow-y: auto !important;
     align-items: flex-start !important;
     padding: 2.5rem 1rem !important;
+    z-index: 9000 !important;
 }
 div[id^="modal"] > div[class*="absolute"] {
     position: fixed !important;
+    z-index: 9000 !important;
 }
 div[id^="modal"] > div.relative {
     margin: auto !important;
     flex-shrink: 0 !important;
+    z-index: 9001 !important;
 }
