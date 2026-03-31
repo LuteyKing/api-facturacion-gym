@@ -603,11 +603,38 @@ let clienteAutocompleteIndex = -1; // Índice activo del dropdown de clientes
         if (resp.ok) {
             const data = await resp.json();
             secuencialActual = parseInt(data.secuencial, 10);
+        } else {
+            throw new Error(`HTTP ${resp.status}`);
         }
     } catch (e) {
-        console.warn('No se pudo obtener secuencial de la API, usando fallback local');
-        const savedSeq = localStorage.getItem('gympos_secuencial');
-        if (savedSeq) secuencialActual = parseInt(savedSeq, 10);
+        console.warn('No se pudo obtener secuencial de la API:', e.message);
+        secuencialActual = null;
+        const badge = document.getElementById('secuencialBadge');
+        if (badge) badge.textContent = '---';
+        const btnFacturar = document.getElementById('btnFacturar');
+        if (btnFacturar) {
+            btnFacturar.disabled = true;
+            btnFacturar.title = 'Sin conexión al servidor — no se puede facturar';
+        }
+        mostrarToast('⚠️ Sin conexión al servidor. El botón de facturar se ha deshabilitado.', 'error');
+        // Reintentar cada 15 segundos
+        const reconexion = setInterval(async () => {
+            try {
+                const r = await fetch(`${API_BASE_URL}/api/v1/facturar/secuencial`, { headers: authHeaders() });
+                if (r.ok) {
+                    const d = await r.json();
+                    secuencialActual = parseInt(d.secuencial, 10);
+                    actualizarSecuencialUI();
+                    if (btnFacturar) {
+                        btnFacturar.disabled = false;
+                        btnFacturar.title = '';
+                    }
+                    mostrarToast('✅ Conexión restaurada. Ya puedes facturar.', 'success');
+                    clearInterval(reconexion);
+                }
+            } catch (_) { /* sigue reintentando */ }
+        }, 15000);
+        return;
     }
     actualizarSecuencialUI();
 })();
@@ -1174,7 +1201,6 @@ async function emitirFactura() {
             // Actualizar secuencial desde la respuesta del servidor
             const seqUsado = parseInt(data.secuencial, 10);
             secuencialActual = seqUsado + 1;
-            localStorage.setItem('gympos_secuencial', secuencialActual);
             actualizarSecuencialUI();
 
             // Resultado exitoso

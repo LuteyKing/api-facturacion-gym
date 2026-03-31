@@ -224,7 +224,7 @@
                                 <th class="px-3 py-2 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Nombre</th>
                                 <th class="px-3 py-2 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Correo</th>
                                 <th class="px-3 py-2 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Teléfono</th>
-                                <th class="px-3 py-2 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Registro</th>
+                                <th class="px-3 py-2 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Membresía</th>
                                 <th class="px-3 py-2 text-center text-xs font-bold text-gray-500 uppercase tracking-wider">Acciones</th>
                             </tr>
                         </thead>
@@ -257,6 +257,31 @@
     initSessionGuard();
 
     let todosLosClientes = [];
+
+    // ─────────────────────────────────────────────────────
+    // FUNCIÓN: Renderizar badge de membresía
+    // ─────────────────────────────────────────────────────
+    function renderMembershipBadge(fechaVencimiento) {
+        if (!fechaVencimiento) {
+            return '<div class="badge-membership badge-none"><i class="bi bi-dash-circle"></i> Sin plan</div>';
+        }
+
+        const hoy = new Date();
+        hoy.setHours(0, 0, 0, 0);
+        const venc = new Date(fechaVencimiento + 'T00:00:00');
+        const diffMs = venc.getTime() - hoy.getTime();
+        const diffDias = Math.ceil(diffMs / (1000 * 60 * 60 * 24));
+
+        if (diffDias > 3) {
+            return '<div class="badge-membership badge-active"><i class="bi bi-check-circle-fill"></i> Activo</div>';
+        } else if (diffDias >= 0) {
+            const texto = diffDias === 0 ? 'Vence hoy' : `Vence en ${diffDias} día${diffDias !== 1 ? 's' : ''}`;
+            return `<div class="badge-membership badge-warning"><i class="bi bi-exclamation-triangle-fill"></i> ${texto}</div>`;
+        } else {
+            const diasVencido = Math.abs(diffDias);
+            return `<div class="badge-membership badge-danger"><i class="bi bi-x-circle-fill"></i> Vencido hace ${diasVencido} día${diasVencido !== 1 ? 's' : ''}</div>`;
+        }
+    }
 
     // ─────────────────────────────────────────────────────
     // CARGA INICIAL
@@ -375,6 +400,7 @@
             telefono: telefono || null,
             direccion: direccion || null,
             sede: localStorage.getItem('sede_activa') || 'gym',
+            fecha_vencimiento: document.getElementById('fecha_vencimiento').value || null,
         };
 
         // UI: Loading
@@ -489,7 +515,7 @@
                         }
                     </td>
                     <td class="px-5 py-4">
-                        <span class="text-xs text-gray-400">${cliente.created_at ? cliente.created_at : '—'}</span>
+                        ${renderMembershipBadge(cliente.fecha_vencimiento)}
                     </td>
                     <td class="px-5 py-4 text-center">
                         <div class="inline-flex items-center gap-1.5">
@@ -539,6 +565,7 @@
         document.getElementById('correo').value = '';
         document.getElementById('telefono').value = '';
         document.getElementById('direccion').value = '';
+        document.getElementById('fecha_vencimiento').value = '';
         document.getElementById('cedula_ruc').focus();
     }
 
@@ -745,6 +772,7 @@
         document.getElementById('editClienteCorreo').value = cliente.correo || '';
         document.getElementById('editClienteTelefono').value = cliente.telefono || '';
         document.getElementById('editClienteDireccion').value = cliente.direccion || '';
+        document.getElementById('editClienteFechaVencimiento').value = cliente.fecha_vencimiento || '';
         document.getElementById('modalEditarCliente').classList.remove('hidden');
     }
 
@@ -771,6 +799,7 @@
                     correo: document.getElementById('editClienteCorreo').value.trim() || null,
                     telefono: document.getElementById('editClienteTelefono').value.trim() || null,
                     direccion: document.getElementById('editClienteDireccion').value.trim() || null,
+                    fecha_vencimiento: document.getElementById('editClienteFechaVencimiento').value || null,
                 }),
             });
             const data = await resp.json();
@@ -875,6 +904,10 @@
                 <label class="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-1.5">Dirección</label>
                 <input type="text" id="direccion" class="w-full px-4 py-3 rounded-xl text-sm bg-gray-800/50 border border-gray-700 text-gray-200 focus:border-yellow-500 focus:outline-none transition-colors" placeholder="Av. Principal y Calle Secundaria, Ciudad">
             </div>
+            <div>
+                <label class="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-1.5">Fecha de Vencimiento</label>
+                <input type="date" id="fecha_vencimiento" class="w-full px-4 py-3 rounded-xl text-sm bg-gray-800/50 border border-gray-700 text-gray-200 focus:border-yellow-500 focus:outline-none transition-colors">
+            </div>
         </form>
         <div class="flex gap-3 px-6 py-5 border-t border-gray-700/50">
             <button onclick="cerrarModalNuevoCliente()" class="flex-1 py-3 rounded-xl font-bold text-sm text-gray-300 bg-gray-700/50 hover:bg-gray-700 border border-gray-600/50 transition-all duration-300">
@@ -927,6 +960,10 @@
             <div>
                 <label class="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-1.5">Dirección</label>
                 <input type="text" id="editClienteDireccion" class="w-full px-4 py-3 rounded-xl text-sm bg-gray-800/50 border border-gray-700 text-gray-200 focus:border-yellow-500 focus:outline-none transition-colors">
+            </div>
+            <div>
+                <label class="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-1.5">Fecha de Vencimiento</label>
+                <input type="date" id="editClienteFechaVencimiento" class="w-full px-4 py-3 rounded-xl text-sm bg-gray-800/50 border border-gray-700 text-gray-200 focus:border-yellow-500 focus:outline-none transition-colors">
             </div>
         </div>
         <div class="flex gap-3 px-6 py-5 border-t border-gray-700/50">

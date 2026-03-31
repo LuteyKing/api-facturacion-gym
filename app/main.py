@@ -66,6 +66,22 @@ try:
 except Exception as e:
     logger.warning("Migración configuracion omitida: %s", e)
 
+# ── Migración: agregar columna "fecha_vencimiento" si no existe ──
+def _run_fecha_vencimiento_migration():
+    """Agrega la columna fecha_vencimiento a clientes si no existe."""
+    with engine.connect() as conn:
+        conn.execute(text(
+            "ALTER TABLE clientes "
+            "ADD COLUMN IF NOT EXISTS fecha_vencimiento DATE NULL"
+        ))
+        conn.commit()
+        logger.info("Migración fecha_vencimiento completada correctamente")
+
+try:
+    _run_fecha_vencimiento_migration()
+except Exception as e:
+    logger.warning("Migración fecha_vencimiento omitida: %s", e)
+
 app = FastAPI(
     title="Microservicio de Facturación Electrónica SRI — Ecuador",
     description=(

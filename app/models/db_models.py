@@ -1,7 +1,7 @@
-from datetime import datetime
+from datetime import date, datetime
 from typing import Optional
 
-from sqlalchemy import DateTime, ForeignKey, Integer, Numeric, String, Text, Boolean
+from sqlalchemy import Date, DateTime, ForeignKey, Integer, Numeric, String, Text, Boolean
 from sqlalchemy.orm import Mapped, mapped_column
 from ..database import Base
 
@@ -42,6 +42,7 @@ class Cliente(Base):
     direccion: Mapped[str] = mapped_column(Text, nullable=True)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=False), nullable=False)
     sede: Mapped[str] = mapped_column(String(10), nullable=False, server_default="gym", index=True)
+    fecha_vencimiento: Mapped[Optional[date]] = mapped_column(Date, nullable=True)
 
 
 # --- TABLA: CONFIGURACIÓN DINÁMICA ---

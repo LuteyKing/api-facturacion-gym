@@ -8,7 +8,7 @@ Incluye:
 """
 
 import logging
-from datetime import datetime
+from datetime import datetime, date
 from zoneinfo import ZoneInfo
 
 from fastapi import APIRouter, Depends, HTTPException, Query
@@ -33,6 +33,7 @@ class ClienteCreate(BaseModel):
     telefono: str | None = None
     direccion: str | None = None
     sede: str = "gym"
+    fecha_vencimiento: str | None = None
 
 
 class ClienteResponse(BaseModel):
@@ -44,6 +45,7 @@ class ClienteResponse(BaseModel):
     direccion: str | None = None
     sede: str | None = None
     created_at: str | None = None
+    fecha_vencimiento: str | None = None
 
     class Config:
         from_attributes = True
@@ -68,6 +70,7 @@ def crear_cliente(cliente: ClienteCreate, db: Session = Depends(get_db), current
         telefono=cliente.telefono,
         direccion=cliente.direccion,
         sede=cliente.sede,
+        fecha_vencimiento=date.fromisoformat(cliente.fecha_vencimiento) if cliente.fecha_vencimiento else None,
         created_at=datetime.now(ZoneInfo("America/Guayaquil")).replace(tzinfo=None),
     )
     db.add(db_cliente)
@@ -85,6 +88,7 @@ def crear_cliente(cliente: ClienteCreate, db: Session = Depends(get_db), current
         direccion=db_cliente.direccion,
         sede=db_cliente.sede,
         created_at=db_cliente.created_at.strftime("%d/%m/%Y %H:%M:%S") if db_cliente.created_at else None,
+        fecha_vencimiento=db_cliente.fecha_vencimiento.isoformat() if db_cliente.fecha_vencimiento else None,
     )
 
 
@@ -112,6 +116,7 @@ def listar_clientes(
             direccion=c.direccion,
             sede=c.sede,
             created_at=c.created_at.strftime("%d/%m/%Y %H:%M:%S") if c.created_at else None,
+            fecha_vencimiento=c.fecha_vencimiento.isoformat() if c.fecha_vencimiento else None,
         ))
 
     logger.info("Clientes consultados: %d registros", len(resultado))
@@ -135,6 +140,7 @@ def obtener_cliente(cedula: str, db: Session = Depends(get_db), current_user: Us
         direccion=cliente.direccion,
         sede=cliente.sede,
         created_at=cliente.created_at.strftime("%d/%m/%Y %H:%M:%S") if cliente.created_at else None,
+        fecha_vencimiento=cliente.fecha_vencimiento.isoformat() if cliente.fecha_vencimiento else None,
     )
 
 
@@ -144,6 +150,7 @@ class ClienteUpdate(BaseModel):
     correo: str | None = None
     telefono: str | None = None
     direccion: str | None = None
+    fecha_vencimiento: str | None = None
 
 
 @router.put("/{cliente_id}", response_model=ClienteResponse, summary="Actualizar datos de un cliente")
@@ -162,6 +169,7 @@ def actualizar_cliente(
     cliente.correo = datos.correo
     cliente.telefono = datos.telefono
     cliente.direccion = datos.direccion
+    cliente.fecha_vencimiento = date.fromisoformat(datos.fecha_vencimiento) if datos.fecha_vencimiento else None
     db.commit()
     db.refresh(cliente)
 
@@ -175,6 +183,7 @@ def actualizar_cliente(
         direccion=cliente.direccion,
         sede=cliente.sede,
         created_at=cliente.created_at.strftime("%d/%m/%Y %H:%M:%S") if cliente.created_at else None,
+        fecha_vencimiento=cliente.fecha_vencimiento.isoformat() if cliente.fecha_vencimiento else None,
     )
 
 
