@@ -1102,19 +1102,25 @@ body {
 
 /* 2. Destruir Scrolls Verticales Internos ──────────────── */
 .layout-grid > * > *,
-.form-card-scroll,
-.form-card-scroll form,
-.card {
+.form-card-scroll form {
     height: auto !important;
     max-height: none !important;
     min-height: min-content !important;
     overflow: visible !important;
     flex: none !important;
 }
+.form-card-scroll,
+.card {
+    height: auto !important;
+    max-height: none !important;
+    min-height: min-content !important;
+    overflow: hidden !important;
+    flex: none !important;
+}
 
 /* 3. Scroll Horizontal SOLO en Tablas ──────────────────── */
 .table-card {
-    overflow: visible !important;
+    overflow: hidden !important;
 }
 .table-scroll-container {
     width: 100% !important;
@@ -1149,4 +1155,15 @@ footer,
     padding-bottom: 1.5rem !important;
     position: relative !important;
     clear: both !important;
+}
+
+/* 6. Modales: scrollable si el contenido excede viewport ── */
+div[id^="modal"] {
+    overflow-y: auto !important;
+    align-items: flex-start !important;
+}
+div[id^="modal"] > .relative {
+    margin-top: auto;
+    margin-bottom: auto;
+    flex-shrink: 0;
 }
