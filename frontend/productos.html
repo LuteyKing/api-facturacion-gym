@@ -123,9 +123,6 @@
         input:focus + .slider { box-shadow: 0 0 1px #FFD700; }
         input:checked + .slider:before { transform: translateX(20px); }
 
-        @media (max-width: 1024px) {
-            .layout-grid { grid-template-columns: 1fr !important; }
-        }
     </style>
 </head>
 <body>
@@ -135,8 +132,15 @@
 
         <!-- Hero -->
         <div class="page-hero mb-3">
-            <h2><i class="bi bi-box-seam-fill"></i> Catálogo de Productos y Servicios</h2>
-            <p>Registra los servicios y membresías de tu gimnasio.</p>
+            <div class="flex items-center justify-between flex-wrap gap-2">
+                <div>
+                    <h2><i class="bi bi-box-seam-fill"></i> Catálogo de Productos y Servicios</h2>
+                    <p>Registra los servicios y membresías de tu gimnasio.</p>
+                </div>
+                <button onclick="abrirModalNuevoProducto()" class="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl font-bold text-sm bg-gym-yellow hover:bg-gym-yellow-hover text-gym-black border border-yellow-500/50 transition-all duration-300 hover:shadow-lg hover:shadow-yellow-600/30 hover:-translate-y-0.5">
+                    <i class="bi bi-plus-lg"></i> Nuevo Producto
+                </button>
+            </div>
         </div>
 
         <!-- ── Stats rápidas ─────────────────────────── -->
@@ -182,101 +186,9 @@
             </div>
         </div>
 
-        <!-- ═══ LAYOUT: Formulario + Tabla ═══ -->
-        <div class="layout-grid grid gap-4" style="grid-template-columns: 380px 1fr;">
-
-            <!-- ── COLUMNA IZQUIERDA: Formulario ─────── -->
-            <div class="animate-fade-in-left" style="animation-delay: 0.15s;">
-                <div class="bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden form-card-scroll">
-
-                    <!-- Header del formulario -->
-                    <div class="bg-gym-black px-4 py-2.5 border-b-4 border-gym-yellow" style="flex-shrink:0;">
-                        <div class="flex items-center gap-3">
-                            <div class="w-8 h-8 bg-gym-yellow rounded-lg flex items-center justify-center">
-                                <svg class="w-4 h-4 text-gym-black" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/>
-                                </svg>
-                            </div>
-                            <div>
-                                <h3 class="text-white font-bold text-sm tracking-tight">Nuevo Producto / Servicio</h3>
-                                <p class="text-gray-400 text-xs mt-0.5">Define servicios o membresías</p>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Cuerpo del formulario -->
-                    <form id="formProducto" class="p-4 space-y-3" onsubmit="return false;">
-
-                        <!-- Código -->
-                        <div>
-                            <label for="codigo" class="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1.5">
-                                Código <span class="text-red-400">*</span>
-                            </label>
-                            <input type="text" id="codigo"
-                                   class="form-input-gym w-full px-4 py-3 rounded-xl text-sm"
-                                   placeholder="MEM-001" required>
-                        </div>
-
-                        <!-- Nombre del Producto/Servicio -->
-                        <div>
-                            <label for="nombre" class="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1.5">
-                                Nombre del Producto/Servicio <span class="text-red-400">*</span>
-                            </label>
-                            <input type="text" id="nombre"
-                                   class="form-input-gym w-full px-4 py-3 rounded-xl text-sm"
-                                   placeholder="Membresía Mensual" required>
-                        </div>
-
-                        <!-- Precio Unitario -->
-                        <div>
-                            <label for="precio_unitario" class="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1.5">
-                                Precio Unitario <span class="text-red-400">*</span>
-                            </label>
-                            <div class="relative">
-                                <span class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 font-bold">$</span>
-                                <input type="number" id="precio_unitario" step="0.01" min="0"
-                                       class="form-input-gym w-full pl-8 pr-4 py-3 rounded-xl text-sm"
-                                       placeholder="35.00" required>
-                            </div>
-                        </div>
-
-                        <!-- Aplica IVA -->
-                        <div class="flex items-center justify-between p-3 bg-gray-50 rounded-xl border border-gray-100">
-                            <div>
-                                <p class="text-sm font-bold text-gray-700">Aplica IVA (15%)</p>
-                                <p class="text-xs text-gray-400">Si este servicio grava impuestos</p>
-                            </div>
-                            <label class="switch">
-                                <input type="checkbox" id="iva_aplica" checked>
-                                <span class="slider"></span>
-                            </label>
-                        </div>
-
-                        <!-- Botones -->
-                        <div class="pt-2 space-y-3">
-                            <button type="button" id="btnGuardar" onclick="guardarProducto()"
-                                    class="btn-guardar w-full py-3.5 rounded-xl font-bold text-sm tracking-wide flex items-center justify-center gap-2">
-                                <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/>
-                                </svg>
-                                Guardar Producto
-                            </button>
-                            <button type="button" onclick="limpiarFormulario()"
-                                    class="btn-limpiar w-full py-3 rounded-xl font-semibold text-sm text-gray-500 border border-gray-200 flex items-center justify-center gap-2">
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
-                                </svg>
-                                Limpiar Formulario
-                            </button>
-                        </div>
-
-                    </form>
-                </div>
-            </div>
-
-            <!-- ── COLUMNA DERECHA: Tabla de Productos ──── -->
-            <div class="animate-fade-in-right table-card" style="animation-delay: 0.2s;">
-                <div class="bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden table-card">
+        <!-- ═══ Tabla de Productos ═══ -->
+        <div class="animate-fade-in-right table-card" style="animation-delay: 0.2s;">
+            <div class="bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden table-card">
 
                     <!-- Header de la tabla -->
                     <div class="bg-gym-black px-4 py-2.5 border-b-4 border-gym-yellow" style="flex-shrink:0;">
@@ -337,7 +249,6 @@
                     </div>
                 </div>
             </div>
-        </div>
 
     <!-- ═══════════════════════════════════════════════════ -->
     <!-- JAVASCRIPT -->
@@ -349,6 +260,17 @@
     initSessionGuard();
 
     let todosLosProductos = [];
+
+    function abrirModalNuevoProducto() {
+        limpiarFormulario();
+        document.getElementById('modalNuevoProducto').classList.remove('hidden');
+        setTimeout(() => document.getElementById('codigo').focus(), 200);
+    }
+
+    function cerrarModalNuevoProducto() {
+        document.getElementById('modalNuevoProducto').classList.add('hidden');
+        limpiarFormulario();
+    }
 
     window.onload = function() {
         cargarProductos();
@@ -437,7 +359,7 @@
 
             if (response.ok) {
                 mostrarToast('Producto guardado exitosamente');
-                limpiarFormulario();
+                cerrarModalNuevoProducto();
                 cargarProductos();
             } else {
                 const data = await response.json();
@@ -626,6 +548,64 @@
     }
 
     </script>
+
+<!-- ═══ MODAL: Nuevo Producto ═══ -->
+<div id="modalNuevoProducto" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4">
+    <div class="absolute inset-0 bg-black/70 backdrop-blur-sm" onclick="cerrarModalNuevoProducto()"></div>
+    <div class="relative w-full max-w-md bg-[#1A1A1A] border border-yellow-500/20 rounded-2xl shadow-2xl overflow-hidden" style="animation: fadeInUp 0.3s ease-out;">
+        <div class="flex items-center justify-between px-6 py-4 border-b border-gray-700/50">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 bg-yellow-500/10 rounded-xl flex items-center justify-center border border-yellow-500/20">
+                    <i class="bi bi-box-seam-fill text-yellow-400 text-lg"></i>
+                </div>
+                <div>
+                    <h3 class="text-white font-bold text-sm">Nuevo Producto / Servicio</h3>
+                    <p class="text-gray-400 text-xs mt-0.5">Define servicios o membresías</p>
+                </div>
+            </div>
+            <button onclick="cerrarModalNuevoProducto()" class="text-gray-500 hover:text-white transition-colors p-1">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
+                </svg>
+            </button>
+        </div>
+        <form id="formProducto" class="px-6 py-5 space-y-4" onsubmit="return false;">
+            <div>
+                <label class="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-1.5">Código <span class="text-red-400">*</span></label>
+                <input type="text" id="codigo" class="w-full px-4 py-3 rounded-xl text-sm bg-gray-800/50 border border-gray-700 text-gray-200 focus:border-yellow-500 focus:outline-none transition-colors" placeholder="MEM-001" autocomplete="off" required>
+            </div>
+            <div>
+                <label class="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-1.5">Nombre del Producto/Servicio <span class="text-red-400">*</span></label>
+                <input type="text" id="nombre" class="w-full px-4 py-3 rounded-xl text-sm bg-gray-800/50 border border-gray-700 text-gray-200 focus:border-yellow-500 focus:outline-none transition-colors" placeholder="Membresía Mensual" required>
+            </div>
+            <div>
+                <label class="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-1.5">Precio Unitario <span class="text-red-400">*</span></label>
+                <div class="relative">
+                    <span class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 font-bold">$</span>
+                    <input type="number" id="precio_unitario" step="0.01" min="0" class="w-full pl-8 pr-4 py-3 rounded-xl text-sm bg-gray-800/50 border border-gray-700 text-gray-200 focus:border-yellow-500 focus:outline-none transition-colors" placeholder="35.00" required>
+                </div>
+            </div>
+            <div class="flex items-center justify-between p-3 bg-gray-800/30 rounded-xl border border-gray-700/50">
+                <div>
+                    <p class="text-sm font-bold text-gray-300">Aplica IVA (15%)</p>
+                    <p class="text-xs text-gray-500">Si este servicio grava impuestos</p>
+                </div>
+                <label class="switch">
+                    <input type="checkbox" id="iva_aplica" checked>
+                    <span class="slider"></span>
+                </label>
+            </div>
+        </form>
+        <div class="flex gap-3 px-6 py-5 border-t border-gray-700/50">
+            <button onclick="cerrarModalNuevoProducto()" class="flex-1 py-3 rounded-xl font-bold text-sm text-gray-300 bg-gray-700/50 hover:bg-gray-700 border border-gray-600/50 transition-all duration-300">
+                Cancelar
+            </button>
+            <button id="btnGuardar" onclick="guardarProducto()" class="flex-1 py-3 rounded-xl font-bold text-sm text-gym-black bg-gym-yellow hover:bg-gym-yellow-hover border border-yellow-500/50 transition-all duration-300 hover:shadow-lg hover:shadow-yellow-600/30 flex items-center justify-center gap-2">
+                <i class="bi bi-check-lg"></i> Guardar Producto
+            </button>
+        </div>
+    </div>
+</div>
 
 <!-- ═══ MODAL: Editar Producto ═══ -->
 <div id="modalEditarProducto" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4">
