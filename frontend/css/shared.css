@@ -1140,7 +1140,7 @@ body {
 }
 
 /* 4. Destruir wrapper de Configuración y módulos rebeldes */
-.main-content > div,
+.main-content > div:not(.table-card):not([id^="modal"]):not(.form-card-scroll),
 .main-content > section {
     height: auto !important;
     max-height: none !important;
@@ -1161,9 +1161,12 @@ footer,
 div[id^="modal"] {
     overflow-y: auto !important;
     align-items: flex-start !important;
+    padding: 2.5rem 1rem !important;
 }
-div[id^="modal"] > .relative {
-    margin-top: auto;
-    margin-bottom: auto;
-    flex-shrink: 0;
+div[id^="modal"] > div[class*="absolute"] {
+    position: fixed !important;
+}
+div[id^="modal"] > div.relative {
+    margin: auto !important;
+    flex-shrink: 0 !important;
 }
