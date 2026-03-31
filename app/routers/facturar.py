@@ -56,12 +56,40 @@ from ..services.xml_signer import firmar_xml
 
 from datetime import datetime
 from zoneinfo import ZoneInfo
+from sqlalchemy import func
 
 logger = logging.getLogger(__name__)
 router = APIRouter(tags=["Facturación"])
 
 # Precisión para cálculos monetarios (2 decimales, redondeo bancario)
 DOS_DEC = Decimal("0.01")
+
+
+def _siguiente_secuencial(db: Session) -> str:
+    """Calcula el siguiente secuencial consultando la BD.
+
+    Obtiene el máximo secuencial existente y le suma 1.
+    Retorna string de 9 dígitos con zero-padding.
+    """
+    ultimo = db.query(func.max(Factura.secuencial)).scalar()
+    if ultimo:
+        siguiente = int(ultimo) + 1
+    else:
+        siguiente = 1
+    return str(siguiente).zfill(9)
+
+
+@router.get(
+    "/facturar/secuencial",
+    summary="Obtener el siguiente número secuencial",
+    description="Consulta la base de datos y retorna el próximo secuencial disponible.",
+)
+def obtener_siguiente_secuencial(
+    db: Session = Depends(get_db),
+    current_user: Usuario = Depends(get_current_user),
+):
+    """Retorna el siguiente secuencial basado en el máximo de la BD."""
+    return {"secuencial": _siguiente_secuencial(db)}
 
 
 # ── Cálculos automáticos de impuestos ────────────────────
@@ -227,6 +255,10 @@ def facturar(
       6. Consultar AutorizacionComprobantesOffline.
       7. Actualizar estado SRI en la BD.
     """
+    # ── Paso 0: Calcular secuencial real desde la BD ───────
+    secuencial_real = _siguiente_secuencial(db)
+    datos = datos.model_copy(update={"secuencial": secuencial_real})
+
     # ── Paso 1: Transformar JSON simplificado → FacturaRequest SRI ──
     try:
         factura = _construir_factura_request(datos)

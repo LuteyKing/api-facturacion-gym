@@ -341,14 +341,13 @@ class FacturarRequest(BaseModel):
     """
     JSON simplificado para el endpoint POST /api/v1/facturar.
 
-    El frontend envía solo los datos del cliente, el secuencial,
-    la forma de pago y la lista de productos. La API se encarga
-    de calcular impuestos, totales y armar el XML del SRI.
+    El frontend envía los datos del cliente, la forma de pago y la
+    lista de productos. El secuencial es opcional — el backend lo
+    calcula automáticamente desde la base de datos.
 
     Ejemplo mínimo:
     ```json
     {
-      "secuencial": "000000001",
       "fecha_emision": "26/03/2026",
       "cliente": {
         "tipo_identificacion": "05",
@@ -368,12 +367,12 @@ class FacturarRequest(BaseModel):
     ```
     """
 
-    secuencial: str = Field(
-        ...,
+    secuencial: Optional[str] = Field(
+        default=None,
         min_length=9,
         max_length=9,
         pattern=r"^\d{9}$",
-        description="Número secuencial de 9 dígitos",
+        description="Número secuencial de 9 dígitos (opcional, el backend lo calcula automáticamente)",
     )
     fecha_emision: str = Field(
         ...,

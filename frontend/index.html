@@ -596,10 +596,21 @@ let autocompleteIndex = -1; // Índice activo del dropdown
 let catalogoClientes = []; // Clientes cargados de la API
 let clienteAutocompleteIndex = -1; // Índice activo del dropdown de clientes
 
-// Intentar cargar el último secuencial del localStorage
-const savedSeq = localStorage.getItem('gympos_secuencial');
-if (savedSeq) secuencialActual = parseInt(savedSeq, 10);
-actualizarSecuencialUI();
+// Cargar secuencial desde la API (fuente de verdad: base de datos)
+(async function cargarSecuencial() {
+    try {
+        const resp = await fetch(`${API_BASE_URL}/api/v1/facturar/secuencial`, { headers: authHeaders() });
+        if (resp.ok) {
+            const data = await resp.json();
+            secuencialActual = parseInt(data.secuencial, 10);
+        }
+    } catch (e) {
+        console.warn('No se pudo obtener secuencial de la API, usando fallback local');
+        const savedSeq = localStorage.getItem('gympos_secuencial');
+        if (savedSeq) secuencialActual = parseInt(savedSeq, 10);
+    }
+    actualizarSecuencialUI();
+})();
 
 // ── Cargar catálogo de productos al inicio ──────────────
 (function() {
@@ -1126,7 +1137,6 @@ async function emitirFactura() {
 
     // Armar payload
     const payload = {
-        secuencial: String(secuencialActual).padStart(9, '0'),
         fecha_emision: fechaEmision,
         cliente: {
             tipo_identificacion: tipoId,
@@ -1161,8 +1171,9 @@ async function emitirFactura() {
             const estado = data.recepcion?.estado || 'PROCESADA';
             const facturaId = data.id;
 
-            // Incrementar secuencial
-            secuencialActual++;
+            // Actualizar secuencial desde la respuesta del servidor
+            const seqUsado = parseInt(data.secuencial, 10);
+            secuencialActual = seqUsado + 1;
             localStorage.setItem('gympos_secuencial', secuencialActual);
             actualizarSecuencialUI();
 
