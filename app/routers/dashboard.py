@@ -15,7 +15,7 @@ from sqlalchemy.orm import Session
 
 from ..database import get_db
 from ..models.db_models import Cliente, Factura, Producto, Usuario
-from .auth import require_admin
+from .auth import require_admin, get_current_user
 
 logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/dashboard", tags=["Dashboard"])
@@ -38,6 +38,22 @@ class ProductoStock(BaseModel):
 class CategoriaVenta(BaseModel):
     nombre: str
     total: float
+
+
+class VentaDetalleCierre(BaseModel):
+    secuencial: str
+    cliente_nombre: str
+    cliente_cedula: str
+    total: float
+    hora: str
+    vendedor: str
+
+
+class CierreCajaResponse(BaseModel):
+    fecha: str
+    total_recaudado: float
+    cantidad_facturas: int
+    detalle_ventas: list[VentaDetalleCierre]
 
 
 class DashboardStats(BaseModel):
@@ -137,4 +153,54 @@ def obtener_stats(
             CategoriaVenta(nombre=nombre, total=total)
             for nombre, total in top_productos
         ],
+    )
+
+
+# ── GET /dashboard/cierre-caja ───────────────────────────
+@router.get("/cierre-caja", response_model=CierreCajaResponse, summary="Cierre de Caja Diario")
+def cierre_caja(
+    db: Session = Depends(get_db),
+    current_user: Usuario = Depends(get_current_user),
+    sede: str | None = Query(None, description="Filtrar por sede: gym o box"),
+):
+    """Retorna el resumen de ventas del día actual para cuadre de caja."""
+    ahora = datetime.now(EC_TZ).replace(tzinfo=None)
+    hoy_inicio = ahora.replace(hour=0, minute=0, second=0, microsecond=0)
+
+    # Query base: facturas de hoy con JOIN a clientes y usuarios
+    query = (
+        db.query(Factura, Cliente.nombre_completo, Usuario.nombre_completo)
+        .outerjoin(Cliente, Factura.identificacion_cliente == Cliente.cedula_ruc)
+        .outerjoin(Usuario, Factura.usuario_id == Usuario.id)
+        .filter(Factura.created_at >= hoy_inicio)
+    )
+
+    if sede:
+        query = query.filter(Factura.sede == sede)
+
+    # Vendedores solo ven sus propias ventas
+    if current_user.rol != "admin":
+        query = query.filter(Factura.usuario_id == current_user.id)
+
+    filas = query.order_by(Factura.created_at.asc()).all()
+
+    detalle = []
+    total_recaudado = 0.0
+    for factura, nombre_cliente, nombre_vendedor in filas:
+        monto = float(factura.total)
+        total_recaudado += monto
+        detalle.append(VentaDetalleCierre(
+            secuencial=factura.secuencial,
+            cliente_nombre=nombre_cliente or "Consumidor Final",
+            cliente_cedula=factura.identificacion_cliente,
+            total=monto,
+            hora=factura.created_at.strftime("%H:%M") if factura.created_at else "—",
+            vendedor=nombre_vendedor or "—",
+        ))
+
+    return CierreCajaResponse(
+        fecha=ahora.strftime("%d/%m/%Y"),
+        total_recaudado=round(total_recaudado, 2),
+        cantidad_facturas=len(detalle),
+        detalle_ventas=detalle,
     )

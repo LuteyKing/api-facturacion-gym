@@ -568,6 +568,27 @@
                 Emitir Factura Electrónica
             </button>
 
+            <!-- Botón Cierre de Caja -->
+            <button class="btn w-100 mb-3" id="btnCierreCaja" onclick="abrirCierreCaja()" style="
+                background: linear-gradient(135deg, #0D0D0D 0%, #1A1A1A 100%);
+                border: 1.5px solid rgba(255,215,0,0.25);
+                color: #FFD700;
+                font-weight: 700;
+                font-size: 0.88rem;
+                padding: 0.7rem 1.5rem;
+                border-radius: 12px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                gap: 8px;
+                cursor: pointer;
+                transition: all 0.3s;
+                font-family: inherit;
+            ">
+                <i class="bi bi-cash-coin" style="font-size: 1.1rem;"></i>
+                Cierre de Caja
+            </button>
+
             <!-- Resultado -->
             <div id="resultArea"></div>
         </div>
@@ -1464,9 +1485,121 @@ function renderizarDonut(categorias) {
     chartDonut.render();
 }
 
+// ═══════════════════════════════════════════════════════════
+// CIERRE DE CAJA
+// ═══════════════════════════════════════════════════════════
+async function abrirCierreCaja() {
+    const modal = document.getElementById('modalCierreCaja');
+    const body = document.getElementById('cierreCajaBody');
+    modal.style.display = 'flex';
+    body.innerHTML = '<div style="display:flex;justify-content:center;padding:3rem 0;"><div style="width:2rem;height:2rem;border:3px solid #FFD700;border-top-color:transparent;border-radius:50%;animation:spin 0.7s linear infinite;"></div></div>';
+
+    try {
+        const sede = localStorage.getItem('sede_activa') || 'gym';
+        const resp = await fetch(`${API_BASE_URL}/api/v1/dashboard/cierre-caja?sede=${sede}`, { headers: authHeaders() });
+        if (!resp.ok) throw new Error(`Error ${resp.status}`);
+        const data = await resp.json();
+
+        document.getElementById('cierreFecha').textContent = data.fecha;
+
+        let detalleHTML = '';
+        if (data.detalle_ventas.length > 0) {
+            detalleHTML = `
+            <div style="overflow-x:auto; border-radius:12px; border:1px solid var(--card-border); margin-top:1.25rem;">
+                <table style="width:100%; border-collapse:collapse; font-size:0.82rem;">
+                    <thead>
+                        <tr style="background:rgba(255,215,0,0.06);">
+                            <th style="padding:0.6rem 0.85rem; text-align:left; font-size:0.68rem; font-weight:700; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.5px; border-bottom:1px solid var(--card-border);">Hora</th>
+                            <th style="padding:0.6rem 0.85rem; text-align:left; font-size:0.68rem; font-weight:700; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.5px; border-bottom:1px solid var(--card-border);">N°</th>
+                            <th style="padding:0.6rem 0.85rem; text-align:left; font-size:0.68rem; font-weight:700; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.5px; border-bottom:1px solid var(--card-border);">Cliente</th>
+                            <th style="padding:0.6rem 0.85rem; text-align:left; font-size:0.68rem; font-weight:700; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.5px; border-bottom:1px solid var(--card-border);">Vendedor</th>
+                            <th style="padding:0.6rem 0.85rem; text-align:right; font-size:0.68rem; font-weight:700; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.5px; border-bottom:1px solid var(--card-border);">Monto</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${data.detalle_ventas.map(v => `
+                        <tr style="border-bottom:1px solid var(--card-border); transition:background 0.15s;">
+                            <td style="padding:0.55rem 0.85rem; color:var(--text-muted); font-variant-numeric:tabular-nums;">${v.hora}</td>
+                            <td style="padding:0.55rem 0.85rem;"><span style="font-family:monospace; color:var(--accent); font-weight:600; font-size:0.78rem;">${v.secuencial}</span></td>
+                            <td style="padding:0.55rem 0.85rem; color:var(--text-secondary);">${v.cliente_nombre}</td>
+                            <td style="padding:0.55rem 0.85rem; color:var(--text-muted); font-size:0.78rem;">${v.vendedor}</td>
+                            <td style="padding:0.55rem 0.85rem; text-align:right; font-weight:700; color:#4ade80;">$${v.total.toFixed(2)}</td>
+                        </tr>`).join('')}
+                    </tbody>
+                </table>
+            </div>`;
+        } else {
+            detalleHTML = `
+            <div style="text-align:center; padding:2rem 0; color:var(--text-muted);">
+                <i class="bi bi-inbox" style="font-size:2.5rem; display:block; margin-bottom:0.75rem; opacity:0.4;"></i>
+                <p style="font-size:0.88rem; font-weight:500;">No hay ventas registradas hoy</p>
+            </div>`;
+        }
+
+        body.innerHTML = `
+            <!-- Tarjetas resumen -->
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:0.75rem; margin-bottom:0.25rem;">
+                <div style="background:rgba(0,200,83,0.08); border:1px solid rgba(0,200,83,0.2); border-radius:14px; padding:1.25rem; text-align:center;">
+                    <div style="font-size:0.68rem; font-weight:700; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.5px; margin-bottom:0.35rem;">Total Recaudado</div>
+                    <div style="font-size:2rem; font-weight:900; color:#00c853; line-height:1;">
+                        <span style="font-size:1.1rem; opacity:0.7;">$</span>${data.total_recaudado.toFixed(2)}
+                    </div>
+                </div>
+                <div style="background:rgba(255,215,0,0.08); border:1px solid rgba(255,215,0,0.2); border-radius:14px; padding:1.25rem; text-align:center;">
+                    <div style="font-size:0.68rem; font-weight:700; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.5px; margin-bottom:0.35rem;">Facturas Emitidas</div>
+                    <div style="font-size:2rem; font-weight:900; color:#FFD700; line-height:1;">
+                        ${data.cantidad_facturas}
+                    </div>
+                </div>
+            </div>
+            ${detalleHTML}
+        `;
+
+    } catch (e) {
+        body.innerHTML = `
+            <div style="text-align:center; padding:2rem 0;">
+                <i class="bi bi-exclamation-triangle" style="font-size:2.5rem; color:#f87171; display:block; margin-bottom:0.75rem;"></i>
+                <p style="color:#f87171; font-weight:600; font-size:0.88rem;">${e.message}</p>
+            </div>`;
+    }
+}
+
+function cerrarCierreCaja() {
+    document.getElementById('modalCierreCaja').style.display = 'none';
+}
+
 </script>
 
 </div><!-- /.container -->
+
+<!-- ═══ MODAL: Cierre de Caja ═══ -->
+<div id="modalCierreCaja" style="display:none; position:fixed; inset:0; z-index:9500; align-items:center; justify-content:center; padding:1.5rem;">
+    <div style="position:fixed; inset:0; background:rgba(0,0,0,0.75); backdrop-filter:blur(6px);" onclick="cerrarCierreCaja()"></div>
+    <div style="position:relative; width:100%; max-width:620px; max-height:85vh; background:var(--modal-bg); border:1px solid rgba(255,215,0,0.25); border-radius:18px; box-shadow:0 20px 60px rgba(0,0,0,0.6); overflow:hidden; display:flex; flex-direction:column; animation:fadeInUp 0.3s ease-out; z-index:9501;">
+        <!-- Header -->
+        <div style="background:linear-gradient(135deg,#0D0D0D,#1A1A1A); border-bottom:3px solid #FFD700; padding:1.1rem 1.5rem; display:flex; align-items:center; justify-content:space-between; flex-shrink:0;">
+            <div style="display:flex; align-items:center; gap:12px;">
+                <div style="width:42px; height:42px; background:rgba(255,215,0,0.12); border-radius:12px; display:flex; align-items:center; justify-content:center; border:1px solid rgba(255,215,0,0.2);">
+                    <i class="bi bi-cash-coin" style="color:#FFD700; font-size:1.3rem;"></i>
+                </div>
+                <div>
+                    <h3 style="margin:0; color:#fff; font-size:1rem; font-weight:800;">Cierre de Caja</h3>
+                    <p id="cierreFecha" style="margin:0; color:#8892b0; font-size:0.72rem;"></p>
+                </div>
+            </div>
+            <button onclick="cerrarCierreCaja()" style="background:none; border:none; color:#8892b0; font-size:1.3rem; cursor:pointer; padding:4px 8px; border-radius:8px; transition:all 0.2s;">
+                <i class="bi bi-x-lg"></i>
+            </button>
+        </div>
+        <!-- Body -->
+        <div id="cierreCajaBody" style="padding:1.5rem; overflow-y:auto; flex:1;">
+            <div style="display:flex; justify-content:center; padding:3rem 0;">
+                <div style="width:2rem; height:2rem; border:3px solid #FFD700; border-top-color:transparent; border-radius:50%; animation:spin 0.7s linear infinite;"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
 </main><!-- /.main-content -->
 
 </body>
