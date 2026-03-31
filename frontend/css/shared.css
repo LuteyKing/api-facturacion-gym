@@ -1150,3 +1150,151 @@ footer,
     position: relative !important;
     clear: both !important;
 }
+
+/* ═══════════════════════════════════════════════════════════════
+   ═══ REBRANDING — ALTO RENDIMIENTO DIGITAL — POWER GYM ═══
+   ═══════════════════════════════════════════════════════════════ */
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap');
+
+:root {
+    --power-yellow: #FFCC00;
+    --power-black: #18181B;
+    --power-red: #EF4444;
+    --bg-soft: #F4F6F8;
+}
+
+/* ── 1. Tipografía global: Outfit ──────────────────────── */
+body,
+html,
+input,
+button,
+textarea,
+select,
+table,
+.main-content,
+.sidebar,
+.topbar {
+    font-family: 'Outfit', sans-serif !important;
+}
+
+body {
+    background-color: var(--bg-soft) !important;
+}
+
+/* ── 2. Cards Premium — Soft UI ────────────────────────── */
+.card,
+.card-unified,
+.metric-card,
+.form-card-scroll,
+.table-card,
+.main-content > [class*="grid"]:not(.layout-grid) > *,
+.main-content .bg-white,
+[class*="rounded-2xl"][class*="shadow"] {
+    border: none !important;
+    border-radius: 16px !important;
+    background: #ffffff !important;
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.04) !important;
+}
+
+/* ── 3. Stat Cards — Micro-interacción hover ───────────── */
+.metric-card,
+.main-content > [class*="grid"]:not(.layout-grid) > * {
+    transition: all 0.3s ease !important;
+}
+.metric-card:hover,
+.main-content > [class*="grid"]:not(.layout-grid) > *:hover {
+    transform: translateY(-3px) !important;
+    box-shadow: 0 12px 35px rgba(0, 0, 0, 0.08) !important;
+}
+
+/* ── 4. Botones de acción principal — Estética Power ───── */
+.btn-primary-unified,
+.btn-guardar,
+button[class*="bg-gym-yellow"],
+.page-hero button[class*="bg-gym-yellow"],
+[class*="bg-gym-yellow"][onclick] {
+    background-color: var(--power-yellow) !important;
+    background-image: none !important;
+    color: var(--power-black) !important;
+    font-weight: 700 !important;
+    border: none !important;
+    border-radius: 8px !important;
+    box-shadow: 0 4px 15px rgba(255, 204, 0, 0.3) !important;
+    transition: all 0.2s ease !important;
+}
+.btn-primary-unified:hover:not(:disabled),
+.btn-guardar:hover:not(:disabled),
+button[class*="bg-gym-yellow"]:hover:not(:disabled),
+.page-hero button[class*="bg-gym-yellow"]:hover:not(:disabled),
+[class*="bg-gym-yellow"][onclick]:hover:not(:disabled) {
+    transform: translateY(-2px) !important;
+    box-shadow: 0 6px 20px rgba(255, 204, 0, 0.4) !important;
+}
+
+/* ── 5. Sidebar — Fondo Power Black, activos amarillos ── */
+.sidebar {
+    background-color: var(--power-black) !important;
+    background-image: none !important;
+    backdrop-filter: none !important;
+    color: #ffffff !important;
+}
+.sidebar-link {
+    color: rgba(255, 255, 255, 0.55) !important;
+}
+.sidebar-link:hover {
+    color: var(--power-yellow) !important;
+    background: rgba(255, 204, 0, 0.08) !important;
+}
+.sidebar-link.active {
+    color: var(--power-yellow) !important;
+    background: rgba(255, 204, 0, 0.12) !important;
+    border-right-color: var(--power-yellow) !important;
+}
+.sidebar-link.active i {
+    color: var(--power-yellow) !important;
+}
+
+/* ── 6. Topbar coherente ───────────────────────────────── */
+.topbar {
+    background-color: #ffffff !important;
+    backdrop-filter: none !important;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.06) !important;
+    box-shadow: 0 1px 8px rgba(0, 0, 0, 0.03) !important;
+}
+
+/* ── 7. Table card headers — Power Black ───────────────── */
+.table-card .bg-gym-black,
+.card .bg-gym-black,
+[class*="bg-gym-black"][class*="border-b"] {
+    background-color: var(--power-black) !important;
+    border-bottom-color: var(--power-yellow) !important;
+}
+
+/* ── 8. Modals — Cohesión visual ───────────────────────── */
+.fixed.inset-0 .bg-\[\\#1A1A1A\],
+[class*="bg-[#1A1A1A]"] {
+    background-color: var(--power-black) !important;
+}
+.fixed.inset-0 [class*="border-yellow"] {
+    border-color: rgba(255, 204, 0, 0.2) !important;
+}
+
+/* ── 9. Page hero polish ───────────────────────────────── */
+.page-hero h2 i {
+    color: var(--power-yellow) !important;
+}
+
+/* ── 10. Form inputs dentro de modales — coherentes ───── */
+.fixed.inset-0 input:focus,
+.fixed.inset-0 select:focus {
+    border-color: var(--power-yellow) !important;
+    box-shadow: 0 0 0 3px rgba(255, 204, 0, 0.15) !important;
+}
+
+/* ── 11. Scrollbar Power ───────────────────────────────── */
+::-webkit-scrollbar-thumb {
+    background: var(--power-yellow) !important;
+}
+::-webkit-scrollbar-thumb:hover {
+    background: #e6b800 !important;
+}
