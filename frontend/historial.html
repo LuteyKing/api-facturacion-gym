@@ -467,7 +467,7 @@
                                 </svg>
                                 PDF
                             </a>
-                            <button onclick="enviarWhatsAppHistorial(${factura.id}, '${factura.telefono_cliente || ''}', '${factura.identificacion_cliente || ''}')"
+                            <button onclick="enviarWhatsAppHistorial('${factura.codigo_acceso || ''}', '${factura.telefono_cliente || ''}')"
                                     class="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-bold tracking-wide transition-all duration-300 hover:scale-105"
                                     style="background: linear-gradient(135deg, #25d366, #128c7e); color: #fff; border: none;"
                                     title="Enviar por WhatsApp">
@@ -646,8 +646,8 @@
     // ─────────────────────────────────────────────────────
     // FUNCIÓN: Abrir WhatsApp con link del PDF
     // ─────────────────────────────────────────────────────
-    function abrirWhatsApp(facturaId, numeroNormalizado, cedula) {
-        const urlPdf = `${API_BASE_URL}/api/v1/facturas/${facturaId}/compartir?cedula=${encodeURIComponent(cedula)}`;
+    function abrirWhatsApp(codigoAcceso, numeroNormalizado) {
+        const urlPdf = `${API_BASE_URL}/api/v1/facturas/compartir/${codigoAcceso}`;
         const mensaje = encodeURIComponent(`¡Hola! 💪 Aquí tienes tu comprobante electrónico: ${urlPdf}`);
         window.open(`https://api.whatsapp.com/send?phone=${numeroNormalizado}&text=${mensaje}`, '_blank');
     }
@@ -655,21 +655,19 @@
     // ─────────────────────────────────────────────────────
     // FUNCIÓN: Enviar link del PDF por WhatsApp
     // ─────────────────────────────────────────────────────
-    let _waModalFacturaId = null;
-    let _waModalCedula = '';
+    let _waModalCodigoAcceso = null;
 
-    function enviarWhatsAppHistorial(facturaId, tel, cedula) {
-        _waModalCedula = cedula || '';
+    function enviarWhatsAppHistorial(codigoAcceso, tel) {
         const telefonoLimpio = (tel || '').replace(/[\s\-\(\)\+]/g, '');
 
         // Si ya tiene un número válido (al menos 9 dígitos), enviar directo
         if (/^\d{9,13}$/.test(telefonoLimpio)) {
-            abrirWhatsApp(facturaId, normalizarTelefonoEC(telefonoLimpio), _waModalCedula);
+            abrirWhatsApp(codigoAcceso, normalizarTelefonoEC(telefonoLimpio));
             return;
         }
 
         // Sin teléfono válido → mostrar modal premium
-        _waModalFacturaId = facturaId;
+        _waModalCodigoAcceso = codigoAcceso;
         const modal = document.getElementById('modalWhatsApp');
         const input = document.getElementById('waPhoneInput');
         input.value = '';
@@ -685,7 +683,7 @@
         const modal = document.getElementById('modalWhatsApp');
         modal.querySelector('.modal-panel').classList.remove('modal-open');
         setTimeout(() => modal.classList.add('hidden'), 200);
-        _waModalFacturaId = null;
+        _waModalCodigoAcceso = null;
     }
 
     function confirmarEnvioModalWA() {
@@ -702,7 +700,7 @@
 
         errorDiv.classList.add('hidden');
         const num = normalizarTelefonoEC(raw);
-        abrirWhatsApp(_waModalFacturaId, num, _waModalCedula);
+        abrirWhatsApp(_waModalCodigoAcceso, num);
         cerrarModalWA();
     }
 

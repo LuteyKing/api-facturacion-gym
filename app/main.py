@@ -3,6 +3,7 @@ API REST — Microservicio de Facturación Electrónica SRI Ecuador (offline)
 """
 
 import logging
+import uuid
 from datetime import datetime
 from zoneinfo import ZoneInfo
 
@@ -81,6 +82,38 @@ try:
     _run_fecha_vencimiento_migration()
 except Exception as e:
     logger.warning("Migración fecha_vencimiento omitida: %s", e)
+
+# ── Migración: agregar columna "codigo_acceso" (UUID) a facturas ──
+def _run_codigo_acceso_migration():
+    """Agrega la columna codigo_acceso a facturas y genera UUIDs para registros existentes."""
+    with engine.connect() as conn:
+        conn.execute(text(
+            "ALTER TABLE facturas "
+            "ADD COLUMN IF NOT EXISTS codigo_acceso VARCHAR(36)"
+        ))
+        conn.execute(text(
+            "CREATE UNIQUE INDEX IF NOT EXISTS ix_facturas_codigo_acceso "
+            "ON facturas (codigo_acceso)"
+        ))
+        # Backfill: generar UUID para facturas antiguas que tengan NULL
+        filas = conn.execute(text(
+            "SELECT id FROM facturas WHERE codigo_acceso IS NULL"
+        )).fetchall()
+        for fila in filas:
+            conn.execute(
+                text("UPDATE facturas SET codigo_acceso = :uuid WHERE id = :id"),
+                {"uuid": str(uuid.uuid4()), "id": fila[0]},
+            )
+        conn.commit()
+        logger.info(
+            "Migración codigo_acceso completada — %d facturas actualizadas",
+            len(filas),
+        )
+
+try:
+    _run_codigo_acceso_migration()
+except Exception as e:
+    logger.warning("Migración codigo_acceso omitida: %s", e)
 
 app = FastAPI(
     title="Microservicio de Facturación Electrónica SRI — Ecuador",

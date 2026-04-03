@@ -1,3 +1,4 @@
+import uuid
 from datetime import date, datetime
 from typing import Optional
 
@@ -27,6 +28,9 @@ class Factura(Base):
     clave_acceso: Mapped[str] = mapped_column(String(49), nullable=False, unique=True, index=True)
     estado_sri: Mapped[str] = mapped_column(String(30), nullable=False, default="SIMULADO")
     xml_generado: Mapped[str] = mapped_column(Text, nullable=False)
+    codigo_acceso: Mapped[str] = mapped_column(
+        String(36), default=lambda: str(uuid.uuid4()), unique=True, index=True
+    )
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=False), nullable=False)
     usuario_id: Mapped[Optional[int]] = mapped_column(Integer, ForeignKey("usuarios.id"), nullable=True)
     sede: Mapped[str] = mapped_column(String(10), nullable=False, server_default="gym", index=True)

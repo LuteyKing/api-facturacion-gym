@@ -1218,6 +1218,7 @@ async function emitirFactura() {
         if (resp.ok) {
             const estado = data.recepcion?.estado || 'PROCESADA';
             const facturaId = data.id;
+            const codigoAcceso = data.codigo_acceso;
 
             // Actualizar secuencial desde la respuesta del servidor
             const seqUsado = parseInt(data.secuencial, 10);
@@ -1243,7 +1244,7 @@ async function emitirFactura() {
                         <i class="bi bi-printer-fill me-2"></i>
                         Ver / Descargar PDF
                     </button>
-                    <button class="btn btn-whatsapp" onclick="enviarWhatsApp(${facturaId})">
+                    <button class="btn btn-whatsapp" onclick="enviarWhatsApp('${codigoAcceso}')">
                         📲 Enviar por WhatsApp
                     </button>
                 </div>` : ''}
@@ -1278,7 +1279,7 @@ function mostrarError(mensaje) {
 }
 
 // ── Enviar recibo por WhatsApp ──────────────────────────
-function enviarWhatsApp(facturaId) {
+function enviarWhatsApp(codigoAcceso) {
     let telefono = document.getElementById('telefono').value.trim();
 
     if (!telefono) {
@@ -1299,9 +1300,8 @@ function enviarWhatsApp(facturaId) {
         numeroLimpio = '593' + numeroLimpio;
     }
 
-    // 3. Armar URL pública del PDF (sin auth, con verificación por cédula)
-    const cedula = document.getElementById('identificacion').value.trim();
-    const urlPdf = `${API_BASE_URL}/api/v1/facturas/${facturaId}/compartir?cedula=${encodeURIComponent(cedula)}`;
+    // 3. Armar URL pública del PDF (UUID, sin auth)
+    const urlPdf = `${API_BASE_URL}/api/v1/facturas/compartir/${codigoAcceso}`;
 
     // 4. Armar mensaje con emojis y tildes
     const mensaje = `¡Hola! 💪 Gracias por tu pago. Aquí tienes el link para descargar tu recibo electrónico: ${urlPdf}`;

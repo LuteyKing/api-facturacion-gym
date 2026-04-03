@@ -415,6 +415,7 @@ def facturar(
 
     return FacturaResponse(
         id=factura_db.id,
+        codigo_acceso=factura_db.codigo_acceso,
         clave_acceso=clave_acceso,
         secuencial=factura.secuencial,
         fecha_emision=factura.info_factura.fecha_emision,

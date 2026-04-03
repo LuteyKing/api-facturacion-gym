@@ -208,6 +208,7 @@ def listar_facturas(
     for f, tel_cliente, vendedor_nombre in filas:
         item = FacturaHistorialItem(
             id=f.id,
+            codigo_acceso=f.codigo_acceso,
             secuencial=f.secuencial,
             fecha_emision=f.fecha_emision,
             identificacion_cliente=f.identificacion_cliente,
@@ -252,6 +253,7 @@ def historial_cliente(
     return [
         FacturaHistorialItem(
             id=f.id,
+            codigo_acceso=f.codigo_acceso,
             secuencial=f.secuencial,
             fecha_emision=f.fecha_emision,
             identificacion_cliente=f.identificacion_cliente,
@@ -336,44 +338,35 @@ def descargar_ride_pdf(
     )
 
 
-# ── GET /facturas/{id}/compartir — PDF público (sin auth) ─
+# ── GET /facturas/compartir/{codigo_acceso} — PDF público (sin auth) ─
 
 
 @router.get(
-    "/{id_factura}/compartir",
+    "/compartir/{codigo_acceso}",
     summary="Descargar RIDE público (sin autenticación)",
     description=(
         "Genera y descarga el RIDE en PDF sin requerir JWT. "
-        "Requiere la cédula/RUC del cliente como verificación."
+        "Usa un UUID v4 único como token de acceso para evitar IDOR."
     ),
     responses={
         200: {
             "content": {"application/pdf": {}},
             "description": "Archivo PDF del RIDE",
         },
-        403: {"description": "Cédula no coincide con la factura"},
         404: {"description": "Factura no encontrada"},
     },
 )
 def compartir_ride_pdf(
-    id_factura: int,
-    cedula: str = Query(..., description="Cédula/RUC del cliente para verificación"),
+    codigo_acceso: str,
     db: Session = Depends(get_db),
 ):
     """Ruta pública para compartir el RIDE por WhatsApp sin necesidad de token."""
-    factura = db.query(Factura).filter(Factura.id == id_factura).first()
+    factura = db.query(Factura).filter(Factura.codigo_acceso == codigo_acceso).first()
 
     if not factura:
         raise HTTPException(
             status_code=404,
-            detail=f"No se encontró una factura con ID {id_factura}.",
-        )
-
-    # Verificar que la cédula coincida con el cliente de la factura
-    if factura.identificacion_cliente != cedula:
-        raise HTTPException(
-            status_code=403,
-            detail="La cédula proporcionada no corresponde a esta factura.",
+            detail="Factura no encontrada.",
         )
 
     cliente = db.query(Cliente).filter(Cliente.cedula_ruc == factura.identificacion_cliente).first()
@@ -382,7 +375,7 @@ def compartir_ride_pdf(
     try:
         pdf_bytes = generar_ride_pdf(factura, nombre_cliente=nombre_cliente)
     except Exception as e:
-        logger.exception("Error al generar RIDE PDF para factura id=%d", id_factura)
+        logger.exception("Error al generar RIDE PDF para factura id=%d", factura.id)
         raise HTTPException(
             status_code=500,
             detail=f"Error al generar el PDF del RIDE: {e}",
@@ -396,7 +389,7 @@ def compartir_ride_pdf(
 
     logger.info(
         "RIDE compartido (público) — factura id=%d, archivo=%s",
-        id_factura,
+        factura.id,
         nombre_archivo,
     )
 

@@ -226,6 +226,9 @@ class FacturaResponse(BaseModel):
     id: Optional[int] = Field(
         None, description="ID interno de la factura en la base de datos"
     )
+    codigo_acceso: Optional[str] = Field(
+        None, description="UUID público para compartir el PDF sin autenticación"
+    )
     clave_acceso: str
     secuencial: str
     fecha_emision: str
@@ -248,6 +251,9 @@ class FacturaHistorialItem(BaseModel):
     """Registro de factura almacenado en la base de datos local."""
 
     id: int
+    codigo_acceso: Optional[str] = Field(
+        None, description="UUID público para compartir el PDF sin autenticación"
+    )
     secuencial: str
     fecha_emision: str
     identificacion_cliente: str
