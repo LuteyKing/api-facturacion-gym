@@ -3,7 +3,7 @@ from zoneinfo import ZoneInfo
 
 from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.orm import Session
-from typing import List, Optional
+from typing import Optional
 from ..database import get_db
 from ..models.db_models import Producto, Usuario
 from .auth import get_current_user

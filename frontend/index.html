@@ -973,7 +973,7 @@ function seleccionarClienteCatalogo(index) {
     // Feedback visual
     const statusIcon = document.getElementById('cedulaStatus');
     const msgDiv     = document.getElementById('clienteMsg');
-    input.style.borderColor = 'var(--success-glow)';
+    input.style.borderColor = 'var(--success)';
     statusIcon.innerHTML = '<i class="bi bi-check-circle-fill" style="color: #00c853; font-size: 1rem;"></i>';
     statusIcon.style.display = 'block';
     msgDiv.textContent = `✅ Cliente seleccionado: ${cliente.nombre_completo}`;
@@ -1020,7 +1020,7 @@ async function buscarClientePorCedula(cedula) {
             document.getElementById('telefono').value    = cliente.telefono || '';
             document.getElementById('direccion').value   = cliente.direccion || '';
 
-            inputCedula.style.borderColor = 'var(--success-glow)';
+            inputCedula.style.borderColor = 'var(--success)';
             statusIcon.innerHTML = '<i class="bi bi-check-circle-fill" style="color: #00c853; font-size: 1rem;"></i>';
             statusIcon.style.display = 'block';
 
@@ -1118,7 +1118,7 @@ function renderCarrito() {
             subtotalSinIva += itemTotal;
         }
         subtotal += itemTotal;
-        const ivaTag = aplicaIva ? '<span style="color: var(--success-glow); font-size:0.65rem; margin-left:4px;">IVA</span>' : '<span style="color: var(--text-muted); font-size:0.65rem; margin-left:4px;">0%</span>';
+        const ivaTag = aplicaIva ? '<span style="color: var(--success); font-size:0.65rem; margin-left:4px;">IVA</span>' : '<span style="color: var(--text-muted); font-size:0.65rem; margin-left:4px;">0%</span>';
         html += `
             <div class="producto-item">
                 <div>

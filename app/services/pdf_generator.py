@@ -9,7 +9,6 @@ Dependencias: reportlab, qrcode, pillow.
 
 import io
 import logging
-from pathlib import Path
 from xml.etree import ElementTree as ET
 
 import qrcode

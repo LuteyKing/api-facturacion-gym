@@ -695,9 +695,6 @@
 
             facturas.forEach((f, idx) => {
                 const tieneDetalles = f.detalles && f.detalles.length > 0;
-                const resumenProductos = tieneDetalles
-                    ? f.detalles.map(d => `${d.cantidad % 1 === 0 ? Math.round(d.cantidad) : d.cantidad}x ${d.descripcion}`).join(', ')
-                    : '';
                 html += `
                         <tr class="hover:bg-gray-800/40 transition-colors ${tieneDetalles ? 'cursor-pointer' : ''}" ${tieneDetalles ? `onclick="toggleDetalle(${idx})"` : ''}>
                             <td class="pl-4 pr-1 py-3 text-center">

@@ -7,7 +7,7 @@ Endpoints REST para configuración dinámica (logos, favicon).
 
 import logging
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends
 from pydantic import BaseModel
 from sqlalchemy.orm import Session
 
