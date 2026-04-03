@@ -1299,8 +1299,9 @@ function enviarWhatsApp(facturaId) {
         numeroLimpio = '593' + numeroLimpio;
     }
 
-    // 3. Armar URL del PDF
-    const urlPdf = `${API_BASE_URL}/api/v1/facturas/${facturaId}/pdf`;
+    // 3. Armar URL pública del PDF (sin auth, con verificación por cédula)
+    const cedula = document.getElementById('identificacion').value.trim();
+    const urlPdf = `${API_BASE_URL}/api/v1/facturas/${facturaId}/compartir?cedula=${encodeURIComponent(cedula)}`;
 
     // 4. Armar mensaje con emojis y tildes
     const mensaje = `¡Hola! 💪 Gracias por tu pago. Aquí tienes el link para descargar tu recibo electrónico: ${urlPdf}`;

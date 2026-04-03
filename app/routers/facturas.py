@@ -336,6 +336,79 @@ def descargar_ride_pdf(
     )
 
 
+# ── GET /facturas/{id}/compartir — PDF público (sin auth) ─
+
+
+@router.get(
+    "/{id_factura}/compartir",
+    summary="Descargar RIDE público (sin autenticación)",
+    description=(
+        "Genera y descarga el RIDE en PDF sin requerir JWT. "
+        "Requiere la cédula/RUC del cliente como verificación."
+    ),
+    responses={
+        200: {
+            "content": {"application/pdf": {}},
+            "description": "Archivo PDF del RIDE",
+        },
+        403: {"description": "Cédula no coincide con la factura"},
+        404: {"description": "Factura no encontrada"},
+    },
+)
+def compartir_ride_pdf(
+    id_factura: int,
+    cedula: str = Query(..., description="Cédula/RUC del cliente para verificación"),
+    db: Session = Depends(get_db),
+):
+    """Ruta pública para compartir el RIDE por WhatsApp sin necesidad de token."""
+    factura = db.query(Factura).filter(Factura.id == id_factura).first()
+
+    if not factura:
+        raise HTTPException(
+            status_code=404,
+            detail=f"No se encontró una factura con ID {id_factura}.",
+        )
+
+    # Verificar que la cédula coincida con el cliente de la factura
+    if factura.identificacion_cliente != cedula:
+        raise HTTPException(
+            status_code=403,
+            detail="La cédula proporcionada no corresponde a esta factura.",
+        )
+
+    cliente = db.query(Cliente).filter(Cliente.cedula_ruc == factura.identificacion_cliente).first()
+    nombre_cliente = cliente.nombre_completo if cliente else None
+
+    try:
+        pdf_bytes = generar_ride_pdf(factura, nombre_cliente=nombre_cliente)
+    except Exception as e:
+        logger.exception("Error al generar RIDE PDF para factura id=%d", id_factura)
+        raise HTTPException(
+            status_code=500,
+            detail=f"Error al generar el PDF del RIDE: {e}",
+        )
+
+    nombre_archivo = (
+        f"RIDE_{settings.EMISOR_ESTABLECIMIENTO}-"
+        f"{settings.EMISOR_PUNTO_EMISION}-"
+        f"{factura.secuencial}.pdf"
+    )
+
+    logger.info(
+        "RIDE compartido (público) — factura id=%d, archivo=%s",
+        id_factura,
+        nombre_archivo,
+    )
+
+    return Response(
+        content=pdf_bytes,
+        media_type="application/pdf",
+        headers={
+            "Content-Disposition": f'inline; filename="{nombre_archivo}"',
+        },
+    )
+
+
 # ── GET /facturas/autorizacion/{clave} — Consulta SRI ────
 
 
