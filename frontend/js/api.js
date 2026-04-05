@@ -3,7 +3,7 @@
 // Centraliza la URL base, autenticación y guard de sesión.
 // ═══════════════════════════════════════════════════════════════
 
-const API_BASE_URL = 'https://api-facturacion-gym.onrender.com';
+const API_BASE_URL = '';
 
 // ── Session Guard ───────────────────────────────────────────
 const GYM_TOKEN = localStorage.getItem('gym_token');
